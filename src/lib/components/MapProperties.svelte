@@ -1,23 +1,29 @@
 <script lang="ts">
-	import { appState } from '$lib/state.svelte.js';
+	import { appState } from '$lib/state.svelte.js'
 
-	let map = $derived(appState.selectedMap);
+	let map = $derived(appState.selectedMap)
 
-	let fileInput: HTMLInputElement | undefined = $state();
+	let fileInput: HTMLInputElement | undefined = $state()
 
 	function handleImageChange(files: FileList | null) {
-		if (!files || !files[0] || !map) return;
-		const file = files[0];
-		if (!file.type.startsWith('image/')) return;
-		if (map.imageUrl) URL.revokeObjectURL(map.imageUrl);
-		map.imageFile = file;
-		map.imageUrl = URL.createObjectURL(file);
+		if (!files || !files[0] || !map) {
+			return
+		}
+		const file = files[0]
+		if (!file.type.startsWith('image/')) {
+			return
+		}
+		if (map.imageUrl) {
+			URL.revokeObjectURL(map.imageUrl)
+		}
+		map.imageFile = file
+		map.imageUrl = URL.createObjectURL(file)
 	}
 </script>
 
 {#if map}
 	<div class="flex flex-col gap-4">
-		<h2 class="text-base-content/70 text-xs font-semibold uppercase tracking-wider">
+		<h2 class="text-xs font-semibold tracking-wider text-base-content/70 uppercase">
 			Map Properties
 		</h2>
 
@@ -28,7 +34,7 @@
 			</div>
 			<input
 				type="text"
-				class="input input-bordered input-sm w-full"
+				class="input-bordered input input-sm w-full"
 				bind:value={map.name}
 				placeholder="e.g. Overworld"
 			/>
@@ -44,20 +50,17 @@
 					<img
 						src={map.imageUrl}
 						alt={map.name}
-						class="border-base-300 max-h-32 w-full rounded-lg border object-contain"
+						class="max-h-32 w-full rounded-lg border border-base-300 object-contain"
 					/>
 					<button
-						class="btn btn-xs btn-ghost absolute right-1 top-1 opacity-0 transition-opacity group-hover:opacity-100"
+						class="btn absolute top-1 right-1 opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
 						onclick={() => fileInput?.click()}
 					>
 						Change
 					</button>
 				</div>
 			{:else}
-				<button
-					class="btn btn-outline btn-sm w-full"
-					onclick={() => fileInput?.click()}
-				>
+				<button class="btn w-full btn-outline btn-sm" onclick={() => fileInput?.click()}>
 					Choose Image
 				</button>
 			{/if}
@@ -103,7 +106,7 @@
 		</label>
 
 		<!-- Box count -->
-		<div class="text-base-content/50 text-xs">
+		<div class="text-xs text-base-content/50">
 			{map.locationBoxes.length} location {map.locationBoxes.length === 1 ? 'box' : 'boxes'} placed
 		</div>
 	</div>

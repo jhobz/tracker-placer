@@ -1,31 +1,31 @@
 <script lang="ts">
-	import { appState } from '$lib/state.svelte.js';
-	import MapList from '$lib/components/MapList.svelte';
-	import MapUpload from '$lib/components/MapUpload.svelte';
-	import MapCanvas from '$lib/components/MapCanvas.svelte';
-	import MapProperties from '$lib/components/MapProperties.svelte';
-	import LocationBoxEditor from '$lib/components/LocationBoxEditor.svelte';
-	import ExportModal from '$lib/components/ExportModal.svelte';
+	import { appState } from '$lib/state.svelte.js'
+	import MapList from '$lib/components/MapList.svelte'
+	import MapUpload from '$lib/components/MapUpload.svelte'
+	import MapCanvas from '$lib/components/MapCanvas.svelte'
+	import MapProperties from '$lib/components/MapProperties.svelte'
+	import LocationBoxEditor from '$lib/components/LocationBoxEditor.svelte'
+	import ExportModal from '$lib/components/ExportModal.svelte'
 
-	let showUploadModal = $state(false);
-	let showExportModal = $state(false);
+	let showUploadModal = $state(false)
+	let showExportModal = $state(false)
 
 	// Right sidebar tab
-	let rightTab = $state<'map' | 'box'>('map');
+	let rightTab = $state<'map' | 'box'>('map')
 
 	// Auto-switch to box tab when a box is selected
 	$effect(() => {
 		if (appState.selectedBoxId) {
-			rightTab = 'box';
+			rightTab = 'box'
 		}
-	});
+	})
 </script>
 
-<div data-theme={appState.theme} class="bg-base-100 text-base-content flex h-screen flex-col">
+<div data-theme={appState.theme} class="flex h-screen flex-col bg-base-100 text-base-content">
 	<!-- Top bar -->
-	<header class="bg-base-200 border-base-300 flex items-center justify-between border-b px-4 py-2">
+	<header class="flex items-center justify-between border-b border-base-300 bg-base-200 px-4 py-2">
 		<div class="flex items-center gap-3">
-			<svg class="text-primary h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path
 					stroke-linecap="round"
 					stroke-linejoin="round"
@@ -34,9 +34,7 @@
 				/>
 			</svg>
 			<h1 class="text-base font-bold">Tracker Placer</h1>
-			<span class="text-base-content/40 hidden text-xs sm:block"
-				>Poptracker Pack Map Builder</span
-			>
+			<span class="hidden text-xs text-base-content/40 sm:block">Poptracker Pack Map Builder</span>
 		</div>
 
 		<div class="flex items-center gap-2">
@@ -86,7 +84,7 @@
 
 			<!-- Theme toggle -->
 			<button
-				class="btn btn-ghost btn-sm btn-circle"
+				class="btn btn-circle btn-ghost btn-sm"
 				onclick={() => appState.toggleTheme()}
 				title="Toggle theme"
 			>
@@ -116,7 +114,7 @@
 	<!-- Main layout -->
 	<div class="flex min-h-0 flex-1">
 		<!-- Left sidebar: map list -->
-		<aside class="bg-base-200 border-base-300 flex w-52 shrink-0 flex-col gap-4 border-r p-3">
+		<aside class="flex w-52 shrink-0 flex-col gap-4 border-r border-base-300 bg-base-200 p-3">
 			<MapList onUploadNew={() => (showUploadModal = true)} />
 		</aside>
 
@@ -124,7 +122,7 @@
 		<main class="relative flex flex-1 flex-col overflow-hidden p-4">
 			{#if appState.placingMode}
 				<div
-					class="bg-warning/10 border-warning/50 text-warning-content mb-2 flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm"
+					class="mb-2 flex items-center gap-2 rounded-lg border border-warning/50 bg-warning/10 px-3 py-1.5 text-sm text-warning-content"
 				>
 					<svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
@@ -148,17 +146,17 @@
 		</main>
 
 		<!-- Right sidebar: properties -->
-		<aside class="bg-base-200 border-base-300 flex w-64 shrink-0 flex-col border-l">
+		<aside class="flex w-64 shrink-0 flex-col border-l border-base-300 bg-base-200">
 			<!-- Tab switcher -->
-			<div class="tabs tabs-bordered px-3 pt-2">
+			<div class="tabs-bordered tabs px-3 pt-2">
 				<button
-					class="tab tab-sm {rightTab === 'map' ? 'tab-active' : ''}"
+					class="tab-sm tab {rightTab === 'map' ? 'tab-active' : ''}"
 					onclick={() => (rightTab = 'map')}
 				>
 					Map
 				</button>
 				<button
-					class="tab tab-sm {rightTab === 'box' ? 'tab-active' : ''}"
+					class="tab-sm tab {rightTab === 'box' ? 'tab-active' : ''}"
 					onclick={() => (rightTab = 'box')}
 				>
 					Location
@@ -172,7 +170,7 @@
 					{:else}
 						<div class="flex flex-col items-center justify-center gap-3 py-8">
 							<svg
-								class="text-base-content/20 h-12 w-12"
+								class="h-12 w-12 text-base-content/20"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -184,13 +182,10 @@
 									d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-3V7m6 16l4.553-2.276A1 1 0 0021 19.382V8.618a1 1 0 00-.553-.894L15 5m0 15V5m0 0L9 7"
 								/>
 							</svg>
-							<p class="text-base-content/40 text-center text-sm">
+							<p class="text-center text-sm text-base-content/40">
 								No map selected.<br />Add a map to get started.
 							</p>
-							<button
-								class="btn btn-primary btn-sm"
-								onclick={() => (showUploadModal = true)}
-							>
+							<button class="btn btn-sm btn-primary" onclick={() => (showUploadModal = true)}>
 								Add Map
 							</button>
 						</div>
@@ -204,11 +199,11 @@
 
 	<!-- Upload modal -->
 	{#if showUploadModal}
-		<div class="modal modal-open" role="dialog" aria-modal="true">
+		<div class="modal-open modal" role="dialog" aria-modal="true">
 			<div class="modal-box">
 				<div class="mb-4 flex items-center justify-between">
 					<h3 class="text-lg font-bold">Add Map Images</h3>
-					<button class="btn btn-ghost btn-sm btn-circle" onclick={() => (showUploadModal = false)}
+					<button class="btn btn-circle btn-ghost btn-sm" onclick={() => (showUploadModal = false)}
 						>✕</button
 					>
 				</div>
@@ -217,22 +212,24 @@
 					<button class="btn" onclick={() => (showUploadModal = false)}>Done</button>
 				</div>
 			</div>
-			<div class="modal-backdrop" role="button" tabindex="0" onclick={() => (showUploadModal = false)} onkeydown={(e) => e.key === 'Escape' && (showUploadModal = false)}></div>
+			<div
+				class="modal-backdrop"
+				role="button"
+				tabindex="0"
+				onclick={() => (showUploadModal = false)}
+				onkeydown={(e) => e.key === 'Escape' && (showUploadModal = false)}
+			></div>
 		</div>
 	{/if}
 
 	<!-- Export modal -->
-	<ExportModal
-		open={showExportModal}
-		onclose={() => (showExportModal = false)}
-	/>
+	<ExportModal open={showExportModal} onclose={() => (showExportModal = false)} />
 </div>
 
 <svelte:window
 	onkeydown={(e) => {
 		if (e.key === 'Escape' && appState.placingMode) {
-			appState.placingMode = false;
+			appState.placingMode = false
 		}
 	}}
 />
-

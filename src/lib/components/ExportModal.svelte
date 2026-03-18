@@ -1,47 +1,43 @@
 <script lang="ts">
-	import { appState } from '$lib/state.svelte.js';
-	import { exportMapsJson, exportLocationsJson, downloadJson } from '$lib/utils/export.js';
+	import { appState } from '$lib/state.svelte.js'
+	import { exportMapsJson, exportLocationsJson, downloadJson } from '$lib/utils/export.js'
 
-	type Props = { open: boolean; onclose: () => void };
-	let { open, onclose }: Props = $props();
+	type Props = { open: boolean; onclose: () => void }
+	let { open, onclose }: Props = $props()
 
-	let mapsJson = $derived(JSON.stringify(exportMapsJson(appState.maps), null, 2));
-	let locationsJson = $derived(JSON.stringify(exportLocationsJson(appState.maps), null, 2));
+	let mapsJson = $derived(JSON.stringify(exportMapsJson(appState.maps), null, 2))
+	let locationsJson = $derived(JSON.stringify(exportLocationsJson(appState.maps), null, 2))
 
-	let activeTab = $state<'maps' | 'locations'>('maps');
+	let activeTab = $state<'maps' | 'locations'>('maps')
 
 	function downloadMaps() {
-		downloadJson('maps.json', exportMapsJson(appState.maps));
+		downloadJson('maps.json', exportMapsJson(appState.maps))
 	}
 
 	function downloadLocations() {
-		downloadJson('locations.json', exportLocationsJson(appState.maps));
+		downloadJson('locations.json', exportLocationsJson(appState.maps))
 	}
 
 	function downloadAll() {
-		downloadMaps();
-		downloadLocations();
+		downloadMaps()
+		downloadLocations()
 	}
 </script>
 
 {#if open}
 	<!-- Modal backdrop -->
-	<div
-		class="modal modal-open"
-		role="dialog"
-		aria-modal="true"
-	>
+	<div class="modal-open modal" role="dialog" aria-modal="true">
 		<div class="modal-box max-w-3xl">
 			<div class="mb-4 flex items-center justify-between">
 				<h3 class="text-lg font-bold">Export JSON Files</h3>
-				<button class="btn btn-ghost btn-sm btn-circle" onclick={onclose}>✕</button>
+				<button class="btn btn-circle btn-ghost btn-sm" onclick={onclose}>✕</button>
 			</div>
 
-			<p class="text-base-content/60 mb-4 text-sm">
+			<p class="mb-4 text-sm text-base-content/60">
 				Download the generated JSON files and place them in your Poptracker pack directory.
 			</p>
 
-			<div class="tabs tabs-bordered mb-4">
+			<div class="tabs-bordered mb-4 tabs">
 				<button
 					class="tab {activeTab === 'maps' ? 'tab-active' : ''}"
 					onclick={() => (activeTab = 'maps')}
@@ -56,8 +52,8 @@
 				</button>
 			</div>
 
-			<div class="bg-base-200 relative overflow-auto rounded-lg">
-				<pre class="p-4 text-xs font-mono max-h-96 overflow-auto">{activeTab === 'maps'
+			<div class="relative overflow-auto rounded-lg bg-base-200">
+				<pre class="max-h-96 overflow-auto p-4 font-mono text-xs">{activeTab === 'maps'
 						? mapsJson
 						: locationsJson}</pre>
 			</div>
@@ -91,6 +87,12 @@
 				</button>
 			</div>
 		</div>
-		<div class="modal-backdrop" role="button" tabindex="0" onclick={onclose} onkeydown={(e) => e.key === 'Escape' && onclose()}></div>
+		<div
+			class="modal-backdrop"
+			role="button"
+			tabindex="0"
+			onclick={onclose}
+			onkeydown={(e) => e.key === 'Escape' && onclose()}
+		></div>
 	</div>
 {/if}

@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { appState } from '$lib/state.svelte.js';
+	import { appState } from '$lib/state.svelte.js'
 
-	type Props = { onUploadNew: () => void };
-	let { onUploadNew }: Props = $props();
+	type Props = { onUploadNew: () => void }
+	let { onUploadNew }: Props = $props()
 </script>
 
 <div class="flex h-full flex-col gap-2">
 	<div class="flex items-center justify-between px-1">
-		<h2 class="text-base-content/70 text-xs font-semibold uppercase tracking-wider">Maps</h2>
+		<h2 class="text-xs font-semibold tracking-wider text-base-content/70 uppercase">Maps</h2>
 		<button class="btn btn-ghost btn-xs" onclick={onUploadNew} title="Add map">
 			<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -16,7 +16,7 @@
 	</div>
 
 	{#if appState.maps.length === 0}
-		<p class="text-base-content/40 p-2 text-center text-xs">No maps yet</p>
+		<p class="p-2 text-center text-xs text-base-content/40">No maps yet</p>
 	{:else}
 		<ul class="flex flex-col gap-1">
 			{#each appState.maps as map (map.id)}
@@ -32,14 +32,15 @@
 							onclick={() => appState.selectMap(map.id)}
 						>
 							{#if map.imageUrl}
-								<img
-									src={map.imageUrl}
-									alt={map.name}
-									class="h-8 w-8 rounded object-cover"
-								/>
+								<img src={map.imageUrl} alt={map.name} class="h-8 w-8 rounded object-cover" />
 							{:else}
-								<div class="bg-base-300 flex h-8 w-8 items-center justify-center rounded">
-									<svg class="h-4 w-4 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<div class="flex h-8 w-8 items-center justify-center rounded bg-base-300">
+									<svg
+										class="h-4 w-4 opacity-40"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
 										<path
 											stroke-linecap="round"
 											stroke-linejoin="round"
@@ -52,7 +53,10 @@
 							<span class="flex-1 truncate font-medium">{map.name}</span>
 						</button>
 						<button
-							class="btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 {appState.selectedMapId === map.id ? 'text-primary-content/70 hover:text-primary-content' : ''}"
+							class="btn opacity-0 btn-ghost btn-xs group-hover:opacity-100 {appState.selectedMapId ===
+							map.id
+								? 'text-primary-content/70 hover:text-primary-content'
+								: ''}"
 							onclick={() => appState.removeMap(map.id)}
 							title="Remove map"
 						>

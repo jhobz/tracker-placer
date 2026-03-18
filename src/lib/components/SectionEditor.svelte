@@ -1,18 +1,18 @@
 <script lang="ts">
-	import type { PoptrackerSection } from '$lib/types.js';
-	import { createSection } from '$lib/state.svelte.js';
+	import type { PoptrackerSection } from '$lib/types.js'
+	import { createSection } from '$lib/state.svelte.js'
 
 	type Props = {
-		sections: PoptrackerSection[];
-	};
-	let { sections }: Props = $props();
+		sections: PoptrackerSection[]
+	}
+	let { sections }: Props = $props()
 
 	function addSection() {
-		sections.push(createSection());
+		sections.push(createSection())
 	}
 
 	function removeSection(idx: number) {
-		sections.splice(idx, 1);
+		sections.splice(idx, 1)
 	}
 </script>
 
@@ -28,11 +28,11 @@
 	</div>
 
 	{#each sections as section, idx (section.id)}
-		<div class="bg-base-200 rounded-lg p-3">
+		<div class="rounded-lg bg-base-200 p-3">
 			<div class="mb-2 flex items-center justify-between">
 				<span class="text-xs font-semibold opacity-60">Section {idx + 1}</span>
 				<button
-					class="btn btn-ghost btn-xs text-error"
+					class="btn text-error btn-ghost btn-xs"
 					onclick={() => removeSection(idx)}
 					title="Remove section"
 				>
@@ -54,7 +54,7 @@
 					</div>
 					<input
 						type="text"
-						class="input input-bordered input-xs w-full"
+						class="input-bordered input input-xs w-full"
 						bind:value={section.name}
 						placeholder="Section name"
 					/>
@@ -67,7 +67,7 @@
 						</div>
 						<input
 							type="number"
-							class="input input-bordered input-xs w-full"
+							class="input-bordered input input-xs w-full"
 							bind:value={section.item_count}
 							min="1"
 						/>
@@ -78,7 +78,7 @@
 						</div>
 						<input
 							type="text"
-							class="input input-bordered input-xs w-full"
+							class="input-bordered input input-xs w-full"
 							bind:value={section.hosted_item}
 							placeholder="item_name"
 						/>
@@ -91,7 +91,7 @@
 						<span class="label-text-alt text-xs opacity-50">one per line</span>
 					</div>
 					<textarea
-						class="textarea textarea-bordered textarea-xs w-full font-mono"
+						class="textarea-bordered textarea w-full font-mono textarea-xs"
 						rows="2"
 						placeholder="{'{item1}'} and {'{item2}'}"
 						value={section.access_rules.join('\n')}
@@ -99,7 +99,7 @@
 							section.access_rules = (e.target as HTMLTextAreaElement).value
 								.split('\n')
 								.map((r) => r.trim())
-								.filter((r) => r.length > 0);
+								.filter((r) => r.length > 0)
 						}}
 					></textarea>
 				</label>
@@ -110,15 +110,15 @@
 						<span class="label-text-alt text-xs opacity-50">one per line</span>
 					</div>
 					<textarea
-						class="textarea textarea-bordered textarea-xs w-full font-mono"
+						class="textarea-bordered textarea w-full font-mono textarea-xs"
 						rows="2"
-						placeholder="{'{setting}'}"
+						placeholder={'{setting}'}
 						value={section.visibility_rules.join('\n')}
 						onchange={(e) => {
 							section.visibility_rules = (e.target as HTMLTextAreaElement).value
 								.split('\n')
 								.map((r) => r.trim())
-								.filter((r) => r.length > 0);
+								.filter((r) => r.length > 0)
 						}}
 					></textarea>
 				</label>
@@ -130,7 +130,7 @@
 						</div>
 						<input
 							type="text"
-							class="input input-bordered input-xs w-full font-mono"
+							class="input-bordered input input-xs w-full font-mono"
 							bind:value={section.chest_unopened_img}
 							placeholder="images/items/chest.png"
 						/>
@@ -141,7 +141,7 @@
 						</div>
 						<input
 							type="text"
-							class="input input-bordered input-xs w-full font-mono"
+							class="input-bordered input input-xs w-full font-mono"
 							bind:value={section.chest_opened_img}
 							placeholder="images/items/chest_open.png"
 						/>
@@ -152,6 +152,6 @@
 	{/each}
 
 	{#if sections.length === 0}
-		<p class="text-base-content/40 text-center text-xs">No sections. Add one above.</p>
+		<p class="text-center text-xs text-base-content/40">No sections. Add one above.</p>
 	{/if}
 </div>

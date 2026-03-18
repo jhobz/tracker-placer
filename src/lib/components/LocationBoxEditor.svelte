@@ -1,19 +1,19 @@
 <script lang="ts">
-	import { appState } from '$lib/state.svelte.js';
-	import LocationEditor from './LocationEditor.svelte';
+	import { appState } from '$lib/state.svelte.js'
+	import LocationEditor from './LocationEditor.svelte'
 
-	let map = $derived(appState.selectedMap);
-	let box = $derived(appState.selectedBox);
+	let map = $derived(appState.selectedMap)
+	let box = $derived(appState.selectedBox)
 </script>
 
 {#if box && map}
 	<div class="flex flex-col gap-4">
 		<div class="flex items-center justify-between">
-			<h2 class="text-base-content/70 text-xs font-semibold uppercase tracking-wider">
+			<h2 class="text-xs font-semibold tracking-wider text-base-content/70 uppercase">
 				Location Box
 			</h2>
 			<button
-				class="btn btn-ghost btn-xs text-error"
+				class="btn text-error btn-ghost btn-xs"
 				onclick={() => appState.removeLocationBox(map!.id, box!.id)}
 				title="Delete this location box"
 			>
@@ -29,7 +29,7 @@
 		</div>
 
 		<!-- Position display -->
-		<div class="bg-base-200 flex gap-4 rounded-lg p-3">
+		<div class="flex gap-4 rounded-lg bg-base-200 p-3">
 			<div class="flex flex-col">
 				<span class="text-xs opacity-50">X</span>
 				<span class="font-mono text-sm font-bold">{Math.round(box.x)}</span>
@@ -51,7 +51,7 @@
 					</div>
 					<input
 						type="number"
-						class="input input-bordered input-xs w-full"
+						class="input-bordered input input-xs w-full"
 						bind:value={box.size}
 						min="0"
 						max="256"
@@ -66,7 +66,7 @@
 					</div>
 					<input
 						type="number"
-						class="input input-bordered input-xs w-full"
+						class="input-bordered input input-xs w-full"
 						bind:value={box.rectWidth}
 						min="0"
 					/>
@@ -78,7 +78,7 @@
 					</div>
 					<input
 						type="number"
-						class="input input-bordered input-xs w-full"
+						class="input-bordered input input-xs w-full"
 						bind:value={box.rectHeight}
 						min="0"
 					/>
@@ -93,7 +93,12 @@
 	</div>
 {:else}
 	<div class="flex flex-col items-center justify-center gap-3 py-8">
-		<svg class="text-base-content/20 h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<svg
+			class="h-12 w-12 text-base-content/20"
+			fill="none"
+			stroke="currentColor"
+			viewBox="0 0 24 24"
+		>
 			<path
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -107,7 +112,7 @@
 				d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
 			/>
 		</svg>
-		<p class="text-base-content/40 text-center text-sm">
+		<p class="text-center text-sm text-base-content/40">
 			Click a location box on the map<br />to edit its properties
 		</p>
 	</div>
