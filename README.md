@@ -15,8 +15,8 @@ A web-based map builder for [Poptracker](https://github.com/black-sliver/PopTrac
 ## Getting Started
 
 ```sh
-npm install
-npm run dev
+bun install
+bun dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
@@ -24,8 +24,8 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 ## Building
 
 ```sh
-npm run build
-npm run preview
+bun build
+bun preview
 ```
 
 ## Tech Stack
