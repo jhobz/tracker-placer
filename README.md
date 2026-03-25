@@ -1,42 +1,37 @@
-# sv
+# Tracker Placer
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A web-based map builder for [Poptracker](https://github.com/black-sliver/PopTracker) pack development.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- 🗺️ **Upload map images** — drag & drop or click to upload one or multiple PNG/JPG/GIF/WebP images
+- 📍 **Place location boxes** — click anywhere on a map image to drop a location box at that spot
+- ✏️ **Edit location properties** — name, icons (`chest_unopened_img`, `chest_opened_img`), `inherit_icon_from`, access rules, visibility rules, and sections
+- 📦 **Multiple locations per box** — each location box can hold one or more Poptracker locations
+- 📋 **Section editor** — configure section name, item count, hosted item, access/visibility rules, and chest images
+- 🎨 **Light & dark theme** — toggle via the sun/moon icon in the top-right corner
+- 💾 **Export JSON** — generates `maps.json` and `locations.json` in Poptracker-compatible format
 
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-bun x sv@0.13.0 create --template minimal --types ts --add prettier eslint tailwindcss="plugins:none" sveltekit-adapter="adapter:auto" devtools-json mcp="ide:vscode+setup:remote" --install bun ./
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Getting Started
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+bun install
+bun dev
 ```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## Building
 
-To create a production version of your app:
-
 ```sh
-npm run build
+bun build
+bun preview
 ```
 
-You can preview the production build with `npm run preview`.
+## Tech Stack
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- [Svelte 5](https://svelte.dev/) (runes-based reactivity)
+- TypeScript
+- [Vite](https://vitejs.dev/) via SvelteKit
+- [Tailwind CSS 4](https://tailwindcss.com/)
+- [DaisyUI 5](https://daisyui.com/)
