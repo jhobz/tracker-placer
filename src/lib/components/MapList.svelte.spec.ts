@@ -7,9 +7,11 @@ import { appState, createMap } from '$lib/state.svelte'
 describe('MapList', () => {
 	beforeEach(() => {
 		cleanup()
-		appState.maps.length = 0
+		appState.packs.length = 0
+		appState.selectedPackId = null
 		appState.selectedMapId = null
 		appState.selectedBoxId = null
+		appState.addPack()
 	})
 
 	it('shows empty state when no maps exist', async () => {

@@ -64,8 +64,9 @@ function makeMap(overrides: Partial<MapConfig> = {}): MapConfig {
 describe('ExportModal', () => {
 	beforeEach(() => {
 		cleanup()
-		// Reset appState maps
-		appState.maps.length = 0
+		appState.packs.length = 0
+		appState.selectedPackId = null
+		appState.addPack()
 	})
 
 	it('does not render content when open is false', async () => {

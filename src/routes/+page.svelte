@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
-	import MapList from '$lib/components/MapList.svelte'
+	import PackList from '$lib/components/PackList.svelte'
+	import MapTabs from '$lib/components/MapTabs.svelte'
 	import MapUpload from '$lib/components/MapUpload.svelte'
 	import MapCanvas from '$lib/components/MapCanvas.svelte'
 	import MapProperties from '$lib/components/MapProperties.svelte'
@@ -113,16 +114,21 @@
 
 	<!-- Main layout -->
 	<div class="flex min-h-0 flex-1">
-		<!-- Left sidebar: map list -->
+		<!-- Left sidebar: pack list -->
 		<aside class="flex w-52 shrink-0 flex-col gap-4 border-r border-base-300 bg-base-200 p-3">
-			<MapList onUploadNew={() => (showUploadModal = true)} />
+			<PackList />
 		</aside>
 
-		<!-- Center: map canvas -->
-		<main class="relative flex flex-1 flex-col overflow-hidden p-4">
+		<!-- Center: map tabs + canvas -->
+		<main class="relative flex flex-1 flex-col overflow-hidden">
+			<!-- Map tabs -->
+			<div class="border-b border-base-300 bg-base-200 px-4 pt-2">
+				<MapTabs onUploadNew={() => (showUploadModal = true)} />
+			</div>
+
 			{#if appState.placingMode}
 				<div
-					class="mb-2 flex items-center gap-2 rounded-lg border border-warning/50 bg-warning/10 px-3 py-1.5 text-sm text-warning-content"
+					class="mx-4 mt-4 mb-2 flex items-center gap-2 rounded-lg border border-warning/50 bg-warning/10 px-3 py-1.5 text-sm text-warning-content"
 				>
 					<svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
@@ -140,7 +146,7 @@
 				</div>
 			{/if}
 
-			<div class="min-h-0 flex-1">
+			<div class="min-h-0 flex-1 p-4">
 				<MapCanvas />
 			</div>
 		</main>

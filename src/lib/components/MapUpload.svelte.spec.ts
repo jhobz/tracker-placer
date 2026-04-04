@@ -7,9 +7,11 @@ import { appState } from '$lib/state.svelte'
 describe('MapUpload', () => {
 	beforeEach(() => {
 		cleanup()
-		appState.maps.length = 0
+		appState.packs.length = 0
+		appState.selectedPackId = null
 		appState.selectedMapId = null
 		appState.selectedBoxId = null
+		appState.addPack()
 	})
 
 	it('renders the drop zone text', async () => {

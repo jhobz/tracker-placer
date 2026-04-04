@@ -2,6 +2,7 @@ import { describe, expect, it, beforeEach } from 'vitest'
 import {
 	appState,
 	createMap,
+	createPack,
 	createLocationBox,
 	createLocation,
 	createSection
@@ -80,10 +81,13 @@ describe('createMap', () => {
 
 describe('appState', () => {
 	beforeEach(() => {
-		appState.maps.length = 0
+		appState.packs.length = 0
+		appState.selectedPackId = null
 		appState.selectedMapId = null
 		appState.selectedBoxId = null
 		appState.placingMode = false
+		// Most tests need a pack context for map operations
+		appState.addPack()
 	})
 
 	describe('addMap', () => {
@@ -99,6 +103,17 @@ describe('appState', () => {
 			appState.addMap()
 
 			expect(appState.selectedBoxId).toBeNull()
+		})
+
+		it('creates a pack if none exist', () => {
+			appState.packs.length = 0
+			appState.selectedPackId = null
+
+			appState.addMap()
+
+			expect(appState.packs).toHaveLength(1)
+			expect(appState.selectedPackId).toBe(appState.packs[0].id)
+			expect(appState.maps).toHaveLength(1)
 		})
 	})
 
@@ -304,5 +319,167 @@ describe('appState', () => {
 
 			expect(appState.theme).toBe('dark')
 		})
+	})
+
+	describe('addPack', () => {
+		beforeEach(() => {
+			appState.packs.length = 0
+			appState.selectedPackId = null
+		})
+
+		it('adds a pack and selects it', () => {
+			appState.addPack()
+
+			expect(appState.packs).toHaveLength(1)
+			expect(appState.selectedPackId).toBe(appState.packs[0].id)
+		})
+
+		it('clears map and box selection', () => {
+			appState.addPack()
+			appState.addMap()
+			appState.selectedBoxId = 'some-box'
+
+			appState.addPack()
+
+			expect(appState.selectedMapId).toBeNull()
+			expect(appState.selectedBoxId).toBeNull()
+		})
+	})
+
+	describe('removePack', () => {
+		beforeEach(() => {
+			appState.packs.length = 0
+			appState.selectedPackId = null
+		})
+
+		it('removes a pack by id', () => {
+			appState.addPack()
+			const id = appState.packs[0].id
+			appState.removePack(id)
+
+			expect(appState.packs).toHaveLength(0)
+		})
+
+		it('selects the first remaining pack if the selected one is removed', () => {
+			appState.addPack()
+			appState.addPack()
+			const firstId = appState.packs[0].id
+			const secondId = appState.packs[1].id
+
+			appState.selectedPackId = secondId
+			appState.removePack(secondId)
+
+			expect(appState.selectedPackId).toBe(firstId)
+		})
+
+		it('sets selectedPackId to null when last pack is removed', () => {
+			appState.addPack()
+			const id = appState.packs[0].id
+			appState.removePack(id)
+
+			expect(appState.selectedPackId).toBeNull()
+		})
+
+		it('does nothing for non-existent id', () => {
+			appState.addPack()
+			appState.removePack('nonexistent')
+
+			expect(appState.packs).toHaveLength(1)
+		})
+	})
+
+	describe('selectPack', () => {
+		beforeEach(() => {
+			appState.packs.length = 0
+			appState.selectedPackId = null
+		})
+
+		it('sets selectedPackId, selects the first map (if one exists), and clears box selection', () => {
+			appState.addPack()
+			appState.addMap()
+			appState.selectedBoxId = 'some-box'
+			appState.addPack()
+
+			appState.selectPack(appState.packs[0].id)
+
+			expect(appState.selectedPackId).toBe(appState.packs[0].id)
+			expect(appState.selectedMapId).toBe(appState.packs[0].maps[0].id)
+			expect(appState.selectedBoxId).toBeNull()
+		})
+
+		it('does nothing when selecting the already-selected pack', () => {
+			appState.addPack()
+			appState.addMap()
+			const mapId = appState.selectedMapId
+
+			appState.selectPack(appState.packs[0].id)
+
+			expect(appState.selectedMapId).toBe(mapId)
+		})
+	})
+
+	describe('selectedPack', () => {
+		beforeEach(() => {
+			appState.packs.length = 0
+			appState.selectedPackId = null
+		})
+
+		it('returns null when no pack is selected', () => {
+			expect(appState.selectedPack).toBeNull()
+		})
+
+		it('returns the selected pack', () => {
+			appState.addPack()
+
+			expect(appState.selectedPack).toBe(appState.packs[0])
+		})
+	})
+
+	describe('maps with packs', () => {
+		beforeEach(() => {
+			appState.packs.length = 0
+			appState.selectedPackId = null
+		})
+
+		it('returns empty array when no pack is selected', () => {
+			expect(appState.maps).toEqual([])
+		})
+
+		it('returns selected pack maps', () => {
+			appState.addPack()
+			appState.addMap()
+
+			expect(appState.maps).toHaveLength(1)
+			expect(appState.selectedPack!.maps).toHaveLength(1)
+		})
+
+		it('maps are scoped to each pack', () => {
+			appState.addPack()
+			appState.addMap()
+			const firstPackId = appState.packs[0].id
+
+			appState.addPack()
+			expect(appState.maps).toHaveLength(0)
+
+			appState.selectPack(firstPackId)
+			expect(appState.maps).toHaveLength(1)
+		})
+	})
+})
+
+describe('createPack', () => {
+	it('returns a pack with default values and no maps', () => {
+		const pack = createPack()
+
+		expect(pack.id).toBeTruthy()
+		expect(pack.name).toBe('New Pack')
+		expect(pack.maps).toEqual([])
+	})
+
+	it('generates unique ids', () => {
+		const a = createPack()
+		const b = createPack()
+
+		expect(a.id).not.toBe(b.id)
 	})
 })

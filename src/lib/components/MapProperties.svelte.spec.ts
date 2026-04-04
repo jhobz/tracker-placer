@@ -7,9 +7,11 @@ import { appState, createMap, createLocationBox } from '$lib/state.svelte'
 describe('MapProperties', () => {
 	beforeEach(() => {
 		cleanup()
-		appState.maps.length = 0
+		appState.packs.length = 0
+		appState.selectedPackId = null
 		appState.selectedMapId = null
 		appState.selectedBoxId = null
+		appState.addPack()
 	})
 
 	it('renders nothing when no map is selected', async () => {

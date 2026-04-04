@@ -7,10 +7,12 @@ import { appState, createMap, createLocationBox } from '$lib/state.svelte'
 describe('MapCanvas', () => {
 	beforeEach(() => {
 		cleanup()
-		appState.maps.length = 0
+		appState.packs.length = 0
+		appState.selectedPackId = null
 		appState.selectedMapId = null
 		appState.selectedBoxId = null
 		appState.placingMode = false
+		appState.addPack()
 	})
 
 	it('shows prompt to select a map when none is selected', async () => {

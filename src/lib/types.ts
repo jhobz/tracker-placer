@@ -1,5 +1,11 @@
 // Poptracker Pack Data Types
 
+export interface PackConfig {
+	id: string
+	name: string
+	maps: MapConfig[]
+}
+
 export interface MapConfig {
 	id: string
 	name: string

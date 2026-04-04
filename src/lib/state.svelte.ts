@@ -1,5 +1,19 @@
 import { nanoid } from 'nanoid'
-import type { MapConfig, LocationBox, PoptrackerLocation, PoptrackerSection } from './types'
+import type {
+	PackConfig,
+	MapConfig,
+	LocationBox,
+	PoptrackerLocation,
+	PoptrackerSection
+} from './types'
+
+export function createPack(): PackConfig {
+	return {
+		id: nanoid(),
+		name: 'New Pack',
+		maps: []
+	}
+}
 
 export function createMap(): MapConfig {
 	return {
@@ -55,11 +69,20 @@ export function createSection(): PoptrackerSection {
 
 // Global application state using Svelte 5 runes
 class AppState {
-	maps = $state<MapConfig[]>([])
+	packs = $state<PackConfig[]>([])
+	selectedPackId = $state<string | null>(null)
 	selectedMapId = $state<string | null>(null)
 	selectedBoxId = $state<string | null>(null)
 	theme = $state<'light' | 'dark'>('dark')
 	placingMode = $state(false) // whether we're in "place location box" mode
+
+	get selectedPack() {
+		return this.packs.find((p) => p.id === this.selectedPackId) ?? null
+	}
+
+	get maps() {
+		return this.selectedPack?.maps ?? []
+	}
 
 	get selectedMap() {
 		return this.maps.find((m) => m.id === this.selectedMapId) ?? null
@@ -70,6 +93,9 @@ class AppState {
 	}
 
 	addMap() {
+		if (this.packs.length === 0) {
+			this.addPack()
+		}
 		const map = createMap()
 		this.maps.push(map)
 		this.selectedMapId = map.id
@@ -106,20 +132,57 @@ class AppState {
 
 	removeLocationBox(mapId: string, boxId: string) {
 		const map = this.maps.find((m) => m.id === mapId)
+
 		if (!map) {
 			return
 		}
+
 		const idx = map.locationBoxes.findIndex((b) => b.id === boxId)
-		if (idx >= 0) {
-			map.locationBoxes.splice(idx, 1)
-			if (this.selectedBoxId === boxId) {
-				this.selectedBoxId = null
-			}
+
+		if (idx < 0) {
+			return
+		}
+
+		map.locationBoxes.splice(idx, 1)
+		if (this.selectedBoxId === boxId) {
+			this.selectedBoxId = null
 		}
 	}
 
 	selectBox(id: string) {
 		this.selectedBoxId = id
+	}
+
+	addPack() {
+		const pack = createPack()
+		this.packs.push(pack)
+		this.selectedPackId = pack.id
+		this.selectedMapId = pack.maps[0]?.id ?? null
+		this.selectedBoxId = null
+	}
+
+	removePack(id: string) {
+		const idx = this.packs.findIndex((p) => p.id === id)
+
+		if (idx < 0) {
+			return
+		}
+
+		this.packs.splice(idx, 1)
+		if (this.selectedPackId === id) {
+			this.selectedPackId = this.packs.length > 0 ? this.packs[0].id : null
+			this.selectedMapId = this.packs.length > 0 ? (this.packs[0].maps[0]?.id ?? null) : null
+			this.selectedBoxId = null
+		}
+	}
+
+	selectPack(id: string) {
+		if (this.selectedPackId === id) {
+			return
+		}
+		this.selectedPackId = id
+		this.selectedMapId = this.packs.find((p) => p.id === id)?.maps[0]?.id ?? null
+		this.selectedBoxId = null
 	}
 
 	toggleTheme() {
