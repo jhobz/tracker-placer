@@ -16,9 +16,17 @@
 			}
 			appState.addMap()
 			const map = appState.selectedMap!
+			const mapId = map.id
 			map.name = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ')
 			map.imageFile = file
-			map.imageUrl = URL.createObjectURL(file)
+			const reader = new FileReader()
+			reader.onload = (e) => {
+				const target = appState.maps.find((m) => m.id === mapId)
+				if (target) {
+					target.imageUrl = (e.target?.result as string) ?? ''
+				}
+			}
+			reader.readAsDataURL(file)
 		}
 		onupload?.()
 	}

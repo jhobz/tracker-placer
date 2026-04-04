@@ -1,3 +1,4 @@
+import { PersistedState } from 'runed'
 import { nanoid } from 'nanoid'
 import type {
 	PackConfig,
@@ -6,6 +7,19 @@ import type {
 	PoptrackerLocation,
 	PoptrackerSection
 } from './types'
+
+const packsSerializer = {
+	serialize: (value: PackConfig[]) =>
+		JSON.stringify(value, (key, val) => (key === 'imageFile' ? null : val)),
+	deserialize: (value: string): PackConfig[] | undefined => {
+		try {
+			return JSON.parse(value) as PackConfig[]
+		} catch (error) {
+			console.error('Failed to deserialize packs from storage:', error)
+			return undefined
+		}
+	}
+}
 
 export function createPack(): PackConfig {
 	return {
@@ -67,14 +81,56 @@ export function createSection(): PoptrackerSection {
 	}
 }
 
-// Global application state using Svelte 5 runes
+// Global application state persisted to localStorage and synced across tabs
 class AppState {
-	packs = $state<PackConfig[]>([])
-	selectedPackId = $state<string | null>(null)
-	selectedMapId = $state<string | null>(null)
-	selectedBoxId = $state<string | null>(null)
-	theme = $state<'light' | 'dark'>('dark')
-	placingMode = $state(false) // whether we're in "place location box" mode
+	#packs = new PersistedState<PackConfig[]>('tp:packs', [], { serializer: packsSerializer })
+	#selectedPackId = new PersistedState<string | null>('tp:selectedPackId', null)
+	#selectedMapId = new PersistedState<string | null>('tp:selectedMapId', null)
+	#selectedBoxId = new PersistedState<string | null>('tp:selectedBoxId', null)
+	#theme = new PersistedState<'light' | 'dark'>('tp:theme', 'dark')
+	#placingMode = new PersistedState<boolean>('tp:placingMode', false)
+
+	get packs() {
+		return this.#packs.current
+	}
+	set packs(v) {
+		this.#packs.current = v
+	}
+
+	get selectedPackId() {
+		return this.#selectedPackId.current
+	}
+	set selectedPackId(v) {
+		this.#selectedPackId.current = v
+	}
+
+	get selectedMapId() {
+		return this.#selectedMapId.current
+	}
+	set selectedMapId(v) {
+		this.#selectedMapId.current = v
+	}
+
+	get selectedBoxId() {
+		return this.#selectedBoxId.current
+	}
+	set selectedBoxId(v) {
+		this.#selectedBoxId.current = v
+	}
+
+	get theme() {
+		return this.#theme.current
+	}
+	set theme(v) {
+		this.#theme.current = v
+	}
+
+	get placingMode() {
+		return this.#placingMode.current
+	}
+	set placingMode(v) {
+		this.#placingMode.current = v
+	}
 
 	get selectedPack() {
 		return this.packs.find((p) => p.id === this.selectedPackId) ?? null
