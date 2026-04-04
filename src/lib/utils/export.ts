@@ -7,7 +7,7 @@ import type {
 	PoptrackerLocationJson,
 	PoptrackerSectionJson,
 	PoptrackerMapLocationJson
-} from '../types.js'
+} from '../types'
 
 function parseRules(rules: string[]): string[][] {
 	return rules

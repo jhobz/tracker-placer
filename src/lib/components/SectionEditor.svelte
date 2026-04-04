@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { PoptrackerSection } from '$lib/types.js'
-	import { createSection } from '$lib/state.svelte.js'
+	import type { PoptrackerSection } from '$lib/types'
+	import { createSection } from '$lib/state.svelte'
 
 	type Props = {
 		sections: PoptrackerSection[]

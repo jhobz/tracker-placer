@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { appState } from '$lib/state.svelte.js'
+	import { appState } from '$lib/state.svelte'
 	import MapList from '$lib/components/MapList.svelte'
 	import MapUpload from '$lib/components/MapUpload.svelte'
 	import MapCanvas from '$lib/components/MapCanvas.svelte'

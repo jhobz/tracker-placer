@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import type { MapConfig, LocationBox, PoptrackerLocation, PoptrackerSection } from './types.js'
+import type { MapConfig, LocationBox, PoptrackerLocation, PoptrackerSection } from './types'
 
 export function createMap(): MapConfig {
 	return {

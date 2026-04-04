@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { appState } from '$lib/state.svelte.js'
+	import { appState } from '$lib/state.svelte'
 	import LocationEditor from './LocationEditor.svelte'
 
 	let map = $derived(appState.selectedMap)

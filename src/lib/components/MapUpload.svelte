@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { appState } from '$lib/state.svelte.js'
+	import { appState } from '$lib/state.svelte'
 
 	let dragOver = $state(false)
 	let fileInput: HTMLInputElement | undefined = $state()

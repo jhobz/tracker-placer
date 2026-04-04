@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { PoptrackerLocation } from '$lib/types.js'
-	import { createLocation } from '$lib/state.svelte.js'
+	import type { PoptrackerLocation } from '$lib/types'
+	import { createLocation } from '$lib/state.svelte'
 	import SectionEditor from './SectionEditor.svelte'
 
 	type Props = {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { appState } from '$lib/state.svelte.js'
+	import { appState } from '$lib/state.svelte'
 
 	let map = $derived(appState.selectedMap)
 
@@ -86,8 +86,10 @@
 
 <div
 	bind:this={containerEl}
-	class="relative h-full w-full overflow-auto rounded-xl"
-	class:cursor-crosshair={appState.placingMode}
+	class={{
+		'relative h-full w-full overflow-auto rounded-xl': true,
+		'cursor-crosshair': appState.placingMode
+	}}
 	onclick={handleCanvasClick}
 	onkeydown={(e) => {
 		if (e.key === 'Enter' || e.key === ' ') {
@@ -95,7 +97,6 @@
 		}
 	}}
 	role={appState.placingMode ? 'button' : undefined}
-	tabindex={appState.placingMode ? 0 : undefined}
 	aria-label={appState.placingMode ? 'Click to place location box' : undefined}
 >
 	{#if map?.imageUrl}
