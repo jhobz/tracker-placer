@@ -15,8 +15,14 @@
 			appState.addMap()
 			const map = appState.selectedMap!
 			map.name = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ')
-			map.imageFile = file
-			map.imageUrl = URL.createObjectURL(file)
+			const reader = new FileReader()
+			reader.onload = (e) => {
+				map.imageUrl = e.target?.result as string
+			}
+			reader.onerror = () => {
+				console.error('tracker-placer: failed to read image file', file.name)
+			}
+			reader.readAsDataURL(file)
 		}
 	}
 

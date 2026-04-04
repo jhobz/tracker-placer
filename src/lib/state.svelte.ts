@@ -1,5 +1,21 @@
 import { nanoid } from 'nanoid'
+import { PersistedState } from 'runed'
 import type { MapConfig, LocationBox, PoptrackerLocation, PoptrackerSection } from './types.js'
+
+// Custom serializer for maps: strips non-serializable File objects before saving.
+// Note: imageUrl stores a base64 data URL for persistence; large images may approach
+// localStorage's per-origin size limit (~5 MB).
+const mapsSerializer = {
+	serialize: (maps: MapConfig[]) => JSON.stringify(maps.map((m) => ({ ...m, imageFile: null }))),
+	deserialize: (value: string): MapConfig[] | undefined => {
+		try {
+			return JSON.parse(value) as MapConfig[]
+		} catch (err) {
+			console.error('tracker-placer: failed to restore maps from storage', err)
+			return undefined
+		}
+	}
+}
 
 export function createMap(): MapConfig {
 	return {
@@ -53,13 +69,43 @@ export function createSection(): PoptrackerSection {
 	}
 }
 
-// Global application state using Svelte 5 runes
+// Global application state persisted to localStorage and synced across tabs
 class AppState {
-	maps = $state<MapConfig[]>([])
-	selectedMapId = $state<string | null>(null)
-	selectedBoxId = $state<string | null>(null)
-	theme = $state<'light' | 'dark'>('dark')
-	placingMode = $state(false) // whether we're in "place location box" mode
+	private _maps = new PersistedState<MapConfig[]>('tracker-placer:maps', [], {
+		serializer: mapsSerializer
+	})
+	private _selectedMapId = new PersistedState<string | null>('tracker-placer:selectedMapId', null)
+	private _selectedBoxId = new PersistedState<string | null>('tracker-placer:selectedBoxId', null)
+	private _theme = new PersistedState<'light' | 'dark'>('tracker-placer:theme', 'dark')
+	placingMode = $state(false) // ephemeral UI mode, not persisted
+
+	get maps() {
+		return this._maps.current
+	}
+	set maps(value) {
+		this._maps.current = value
+	}
+
+	get selectedMapId() {
+		return this._selectedMapId.current
+	}
+	set selectedMapId(value) {
+		this._selectedMapId.current = value
+	}
+
+	get selectedBoxId() {
+		return this._selectedBoxId.current
+	}
+	set selectedBoxId(value) {
+		this._selectedBoxId.current = value
+	}
+
+	get theme() {
+		return this._theme.current
+	}
+	set theme(value) {
+		this._theme.current = value
+	}
 
 	get selectedMap() {
 		return this.maps.find((m) => m.id === this.selectedMapId) ?? null

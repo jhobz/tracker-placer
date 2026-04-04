@@ -13,11 +13,14 @@
 		if (!file.type.startsWith('image/')) {
 			return
 		}
-		if (map.imageUrl) {
-			URL.revokeObjectURL(map.imageUrl)
+		const reader = new FileReader()
+		reader.onload = (e) => {
+			map!.imageUrl = e.target?.result as string
 		}
-		map.imageFile = file
-		map.imageUrl = URL.createObjectURL(file)
+		reader.onerror = () => {
+			console.error('tracker-placer: failed to read image file', file.name)
+		}
+		reader.readAsDataURL(file)
 	}
 </script>
 

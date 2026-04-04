@@ -14,7 +14,8 @@
 		"format": "prettier --write ."
 	},
 	"dependencies": {
-		"nanoid": "^5.1.7"
+		"nanoid": "^5.1.7",
+		"runed": "^0.37.1"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.3",
