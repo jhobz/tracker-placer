@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
 
+	let { onupload }: { onupload?: () => void } = $props()
+
 	let dragOver = $state(false)
 	let fileInput: HTMLInputElement | undefined = $state()
 
@@ -18,6 +20,7 @@
 			map.imageFile = file
 			map.imageUrl = URL.createObjectURL(file)
 		}
+		onupload?.()
 	}
 
 	function onDrop(e: DragEvent) {

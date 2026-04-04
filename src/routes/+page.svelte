@@ -207,7 +207,7 @@
 						>✕</button
 					>
 				</div>
-				<MapUpload />
+				<MapUpload onupload={() => (showUploadModal = false)} />
 				<div class="modal-action">
 					<button class="btn" onclick={() => (showUploadModal = false)}>Done</button>
 				</div>
