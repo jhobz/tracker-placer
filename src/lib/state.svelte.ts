@@ -8,6 +8,14 @@ import type {
 	PoptrackerSection
 } from './types'
 
+/**
+ * Strips File objects from PackConfig when saving to localStorage, since they can't be serialized.
+ * When loading from localStorage, the imageFile property will be set to null, and imageUrl will be used to restore the image preview if possible.
+ *
+ * @param value The array of PackConfig to serialize
+ * @returns A JSON string representation of the packs, with imageFile properties removed
+ * @throws Will throw an error if serialization fails
+ */
 const packsSerializer = {
 	serialize: (value: PackConfig[]) =>
 		JSON.stringify(value, (key, val) => (key === 'imageFile' ? null : val)),
@@ -15,8 +23,7 @@ const packsSerializer = {
 		try {
 			return JSON.parse(value) as PackConfig[]
 		} catch (error) {
-			console.error('Failed to deserialize packs from storage:', error)
-			return undefined
+			throw new Error('Failed to deserialize packs from storage.', { cause: error })
 		}
 	}
 }
@@ -88,7 +95,7 @@ class AppState {
 	#selectedMapId = new PersistedState<string | null>('tp:selectedMapId', null)
 	#selectedBoxId = new PersistedState<string | null>('tp:selectedBoxId', null)
 	#theme = new PersistedState<'light' | 'dark'>('tp:theme', 'dark')
-	#placingMode = new PersistedState<boolean>('tp:placingMode', false)
+	placingMode = $state(false)
 
 	get packs() {
 		return this.#packs.current
@@ -123,13 +130,6 @@ class AppState {
 	}
 	set theme(v) {
 		this.#theme.current = v
-	}
-
-	get placingMode() {
-		return this.#placingMode.current
-	}
-	set placingMode(v) {
-		this.#placingMode.current = v
 	}
 
 	get selectedPack() {
