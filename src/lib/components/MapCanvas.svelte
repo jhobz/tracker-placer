@@ -1,7 +1,21 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
 
-	let map = $derived(appState.selectedMap)
+	const map = $derived(appState.selectedMap)
+	let imageUrl = $state('')
+
+	$effect(() => {
+		if (map?.imageFile) {
+			imageUrl = URL.createObjectURL(map.imageFile)
+		}
+
+		return () => {
+			if (imageUrl) {
+				URL.revokeObjectURL(imageUrl)
+			}
+			imageUrl = ''
+		}
+	})
 
 	let containerEl: HTMLDivElement | undefined = $state()
 	let imageEl: HTMLImageElement | undefined = $state()
@@ -78,8 +92,10 @@
 		if (!containerEl) {
 			return
 		}
+
 		const ro = new ResizeObserver(() => updateRenderedRect())
 		ro.observe(containerEl)
+
 		return () => ro.disconnect()
 	})
 </script>
@@ -99,11 +115,11 @@
 	role={appState.placingMode ? 'button' : undefined}
 	aria-label={appState.placingMode ? 'Click to place location box' : undefined}
 >
-	{#if map?.imageUrl}
+	{#if imageUrl}
 		<img
 			bind:this={imageEl}
-			src={map.imageUrl}
-			alt={map.name}
+			src={imageUrl}
+			alt={map?.name}
 			class="block max-h-full max-w-full select-none"
 			draggable="false"
 			onload={onImageLoad}

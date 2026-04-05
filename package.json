@@ -16,8 +16,8 @@
 		"test": "npm run test:unit -- --run"
 	},
 	"dependencies": {
-		"nanoid": "^5.1.7",
-		"runed": "^0.37.1"
+		"localforage": "^1.10.0",
+		"nanoid": "^5.1.7"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.3",

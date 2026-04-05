@@ -31,12 +31,11 @@ describe('MapCanvas', () => {
 		await expect.element(page.getByText(/No image uploaded for this map/)).toBeInTheDocument()
 	})
 
-	it('renders the map image when imageUrl is set', async () => {
+	it('renders the map image when imageFile is set', async () => {
 		const map = createMap()
 		map.name = 'Overworld'
 		// Use a tiny valid data URI so the image actually loads
-		map.imageUrl =
-			'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+		map.imageFile = createTestBlob()
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
@@ -47,8 +46,7 @@ describe('MapCanvas', () => {
 
 	it('shows placing mode aria-label when placingMode is true', async () => {
 		const map = createMap()
-		map.imageUrl =
-			'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+		map.imageFile = createTestBlob()
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 		appState.placingMode = true
@@ -62,8 +60,7 @@ describe('MapCanvas', () => {
 
 	it('renders clickable hitboxes for location boxes', async () => {
 		const map = createMap()
-		map.imageUrl =
-			'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+		map.imageFile = createTestBlob()
 		const box = createLocationBox(50, 50)
 		box.locations[0].name = 'Test Spot'
 		map.locationBoxes.push(box)
@@ -76,3 +73,14 @@ describe('MapCanvas', () => {
 		await expect.element(page.getByRole('button', { name: 'Test Spot' })).toBeInTheDocument()
 	})
 })
+
+function createTestBlob(): Blob | null {
+	return new Blob([
+		Uint8Array.from(
+			atob(
+				'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+			),
+			(c) => c.charCodeAt(0)
+		)
+	])
+}

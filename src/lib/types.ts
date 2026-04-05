@@ -9,7 +9,7 @@ export interface PackConfig {
 export interface MapConfig {
 	id: string
 	name: string
-	imageFile: File | null
+	imageFile: Blob | null
 	imageUrl: string
 	locationSize: number
 	locationBorderThickness: number

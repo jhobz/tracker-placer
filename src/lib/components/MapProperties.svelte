@@ -2,6 +2,20 @@
 	import { appState } from '$lib/state.svelte'
 
 	let map = $derived(appState.selectedMap)
+	let imageUrl = $state('')
+
+	$effect(() => {
+		if (map?.imageFile) {
+			imageUrl = URL.createObjectURL(map.imageFile)
+		}
+
+		return () => {
+			if (imageUrl) {
+				URL.revokeObjectURL(imageUrl)
+			}
+			imageUrl = ''
+		}
+	})
 
 	let fileInput: HTMLInputElement | undefined = $state()
 
@@ -9,15 +23,14 @@
 		if (!files || !files[0] || !map) {
 			return
 		}
+
 		const file = files[0]
+
 		if (!file.type.startsWith('image/')) {
 			return
 		}
-		if (map.imageUrl) {
-			URL.revokeObjectURL(map.imageUrl)
-		}
+
 		map.imageFile = file
-		map.imageUrl = URL.createObjectURL(file)
 	}
 </script>
 
@@ -45,10 +58,10 @@
 			<div class="label">
 				<span class="label-text">Map Image</span>
 			</div>
-			{#if map.imageUrl}
+			{#if imageUrl}
 				<div class="group relative">
 					<img
-						src={map.imageUrl}
+						src={imageUrl}
 						alt={map.name}
 						class="max-h-32 w-full rounded-lg border border-base-300 object-contain"
 					/>

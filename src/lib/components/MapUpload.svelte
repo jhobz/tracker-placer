@@ -6,24 +6,24 @@
 	let dragOver = $state(false)
 	let fileInput: HTMLInputElement | undefined = $state()
 
-	function handleFileSelect(files: FileList | null) {
+	async function handleFileSelect(files: FileList | null) {
 		if (!files || files.length === 0) {
 			return
 		}
+
 		for (const file of files) {
 			if (!file.type.startsWith('image/')) {
 				continue
 			}
+
 			appState.addMap()
 			const map = appState.selectedMap!
 			map.name = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ')
-			map.imageFile = file
-			const reader = new FileReader()
-			reader.onload = (e) => {
-				map.imageUrl = (e.target?.result as string) ?? ''
-			}
-			reader.readAsDataURL(file)
+			const buffer = await file.arrayBuffer()
+			map.imageFile = new Blob([buffer], { type: file.type })
+			map.imageUrl = '/images/' + file.name
 		}
+
 		onupload?.()
 	}
 

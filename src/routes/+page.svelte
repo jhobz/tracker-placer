@@ -40,7 +40,7 @@
 
 		<div class="flex items-center gap-2">
 			<!-- Place mode toggle -->
-			{#if appState.selectedMap?.imageUrl}
+			{#if appState.selectedMap?.imageFile}
 				<button
 					class="btn btn-sm {appState.placingMode ? 'btn-warning' : 'btn-outline'}"
 					onclick={() => (appState.placingMode = !appState.placingMode)}

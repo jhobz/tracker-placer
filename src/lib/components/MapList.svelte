@@ -3,6 +3,24 @@
 
 	type Props = { onUploadNew: () => void }
 	let { onUploadNew }: Props = $props()
+
+	const maps = $derived(appState.maps)
+	let imageUrls = $state<Record<string, string>>({})
+
+	$effect(() => {
+		for (const map of maps) {
+			if (map.imageFile) {
+				imageUrls[map.id] = URL.createObjectURL(map.imageFile)
+			}
+		}
+
+		return () => {
+			for (const url of Object.values(imageUrls)) {
+				URL.revokeObjectURL(url)
+			}
+			imageUrls = {}
+		}
+	})
 </script>
 
 <div class="flex h-full flex-col gap-2">
@@ -15,11 +33,11 @@
 		</button>
 	</div>
 
-	{#if appState.maps.length === 0}
+	{#if maps.length === 0}
 		<p class="p-2 text-center text-xs text-base-content/40">No maps yet</p>
 	{:else}
 		<ul class="flex flex-col gap-1">
-			{#each appState.maps as map (map.id)}
+			{#each maps as map (map.id)}
 				<li>
 					<div
 						class="group flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors {appState.selectedMapId ===
@@ -31,8 +49,8 @@
 							class="flex flex-1 items-center gap-2 text-left"
 							onclick={() => appState.selectMap(map.id)}
 						>
-							{#if map.imageUrl}
-								<img src={map.imageUrl} alt={map.name} class="h-8 w-8 rounded object-cover" />
+							{#if map.imageFile}
+								<img src={imageUrls[map.id]} alt={map.name} class="h-8 w-8 rounded object-cover" />
 							{:else}
 								<div class="flex h-8 w-8 items-center justify-center rounded bg-base-300">
 									<svg

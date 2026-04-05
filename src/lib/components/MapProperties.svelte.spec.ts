@@ -94,9 +94,9 @@ describe('MapProperties', () => {
 		await expect.element(page.getByText('1 location box placed')).toBeInTheDocument()
 	})
 
-	it('shows map image when imageUrl is set', async () => {
+	it('shows map image when imageFile is set', async () => {
 		const map = createMap()
-		map.imageUrl = 'blob:http://localhost/fake'
+		map.imageFile = createTestBlob()
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
@@ -105,3 +105,14 @@ describe('MapProperties', () => {
 		await expect.element(page.getByRole('img', { name: map.name })).toBeInTheDocument()
 	})
 })
+
+function createTestBlob(): Blob | null {
+	return new Blob([
+		Uint8Array.from(
+			atob(
+				'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+			),
+			(c) => c.charCodeAt(0)
+		)
+	])
+}
