@@ -53,14 +53,18 @@
 								use:handleInputMount
 								onblur={(e) => {
 									const val = (e.target as HTMLInputElement).value.trim()
-									if (val) pack.name = val
+									if (val) {
+										pack.name = val
+									}
 									editingPackId = null
 								}}
 								onkeydown={(e) => {
 									if (e.key === 'Enter') {
 										e.preventDefault()
 										const val = (e.target as HTMLInputElement).value.trim()
-										if (val) pack.name = val
+										if (val) {
+											pack.name = val
+										}
 										editingPackId = null
 									}
 									if (e.key === 'Escape') {

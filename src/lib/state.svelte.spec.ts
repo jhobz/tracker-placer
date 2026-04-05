@@ -190,7 +190,7 @@ describe('appState', () => {
 		it('returns the selected map', () => {
 			appState.addMap()
 
-			expect(appState.selectedMap).toBe(appState.maps[0])
+			expect(appState.selectedMap).toStrictEqual(appState.maps[0])
 		})
 	})
 
@@ -293,7 +293,7 @@ describe('appState', () => {
 			appState.addMap()
 			appState.addLocationBox(10, 20)
 
-			expect(appState.selectedBox).toBe(appState.selectedMap!.locationBoxes[0])
+			expect(appState.selectedBox).toStrictEqual(appState.selectedMap!.locationBoxes[0])
 		})
 	})
 
@@ -431,7 +431,7 @@ describe('appState', () => {
 		it('returns the selected pack', () => {
 			appState.addPack()
 
-			expect(appState.selectedPack).toBe(appState.packs[0])
+			expect(appState.selectedPack).toStrictEqual(appState.packs[0])
 		})
 	})
 
