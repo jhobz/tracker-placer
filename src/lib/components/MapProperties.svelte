@@ -1,23 +1,10 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
 
-	let map = $derived(appState.selectedMap)
-	let imageUrl = $state('')
-
-	$effect(() => {
-		if (map?.imageFile) {
-			imageUrl = URL.createObjectURL(map.imageFile)
-		}
-
-		return () => {
-			if (imageUrl) {
-				URL.revokeObjectURL(imageUrl)
-			}
-			imageUrl = ''
-		}
-	})
-
 	let fileInput: HTMLInputElement | undefined = $state()
+
+	const map = $derived(appState.selectedMap)
+	const imageUrl = $derived(appState.getImageUrlForMap(appState.selectedMapId ?? ''))
 
 	function handleImageChange(files: FileList | null) {
 		if (!files || !files[0] || !map) {

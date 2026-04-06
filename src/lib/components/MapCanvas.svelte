@@ -1,22 +1,6 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
 
-	const map = $derived(appState.selectedMap)
-	let imageUrl = $state('')
-
-	$effect(() => {
-		if (map?.imageFile) {
-			imageUrl = URL.createObjectURL(map.imageFile)
-		}
-
-		return () => {
-			if (imageUrl) {
-				URL.revokeObjectURL(imageUrl)
-			}
-			imageUrl = ''
-		}
-	})
-
 	let containerEl: HTMLDivElement | undefined = $state()
 	let imageEl: HTMLImageElement | undefined = $state()
 
@@ -26,6 +10,9 @@
 
 	// Rendered image rect within container
 	let renderedRect = $state({ left: 0, top: 0, width: 0, height: 0 })
+
+	const map = $derived(appState.selectedMap)
+	const imageUrl = $derived(appState.getImageUrlForMap(appState.selectedMapId ?? ''))
 
 	function updateRenderedRect() {
 		if (!imageEl || !containerEl) {

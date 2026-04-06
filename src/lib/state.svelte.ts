@@ -83,10 +83,29 @@ class AppState {
 	theme = $state<'light' | 'dark'>('dark')
 	placingMode = $state(false)
 	ready = $state(false)
+	#mapImageUrls = $state<Record<string, string>>({})
 
 	constructor() {
 		this.#load()
 		this.#setupPersistence()
+
+		$effect.root(() => {
+			$effect(() => {
+				for (const map of this.maps) {
+					if (map.imageFile) {
+						this.#mapImageUrls[map.id] = URL.createObjectURL(map.imageFile)
+					}
+				}
+
+				return () => {
+					for (const url of Object.values(this.#mapImageUrls)) {
+						URL.revokeObjectURL(url)
+					}
+
+					this.#mapImageUrls = {}
+				}
+			})
+		})
 	}
 
 	async #load() {
@@ -166,6 +185,10 @@ class AppState {
 
 	get selectedBox() {
 		return this.selectedMap?.locationBoxes.find((b) => b.id === this.selectedBoxId) ?? null
+	}
+
+	getImageUrlForMap(mapId: string) {
+		return this.#mapImageUrls[mapId]
 	}
 
 	addMap() {
