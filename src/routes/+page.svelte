@@ -121,10 +121,7 @@
 
 		<!-- Center: map tabs + canvas -->
 		<main class="relative flex flex-1 flex-col overflow-hidden">
-			<!-- Map tabs -->
-			<div class="border-b border-base-300 bg-base-200 px-4 pt-2">
-				<MapTabs onUploadNew={() => (showUploadModal = true)} />
-			</div>
+			<MapTabs onUploadNew={() => (showUploadModal = true)} />
 
 			{#if appState.placingMode}
 				<div
