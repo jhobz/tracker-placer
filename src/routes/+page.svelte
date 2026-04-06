@@ -120,7 +120,7 @@
 		</aside>
 
 		<!-- Center: map tabs + canvas -->
-		<main class="relative flex flex-1 flex-col overflow-hidden">
+		<main class="relative grid h-full w-full grid-rows-[auto_minmax(0,1fr)]">
 			<MapTabs onUploadNew={() => (showUploadModal = true)} />
 
 			{#if appState.placingMode}
@@ -143,9 +143,7 @@
 				</div>
 			{/if}
 
-			<div class="min-h-0 flex-1 p-4">
-				<MapCanvas />
-			</div>
+			<MapCanvas />
 		</main>
 
 		<!-- Right sidebar: properties -->

@@ -12,7 +12,7 @@
 	let renderedRect = $state({ left: 0, top: 0, width: 0, height: 0 })
 
 	const map = $derived(appState.selectedMap)
-	const imageUrl = $derived(appState.getImageUrlForMap(appState.selectedMapId ?? ''))
+	const imageUrl = $derived(appState.getImageUrlForMap(map?.id ?? ''))
 
 	function updateRenderedRect() {
 		if (!imageEl || !containerEl) {
@@ -90,7 +90,7 @@
 <div
 	bind:this={containerEl}
 	class={{
-		'relative h-full w-full overflow-auto rounded-xl': true,
+		'relative h-full w-full p-4': true,
 		'cursor-crosshair': appState.placingMode
 	}}
 	onclick={handleCanvasClick}
@@ -102,12 +102,12 @@
 	role={appState.placingMode ? 'button' : undefined}
 	aria-label={appState.placingMode ? 'Click to place location box' : undefined}
 >
-	{#if imageUrl}
+	{#if map && imageUrl}
 		<img
 			bind:this={imageEl}
 			src={imageUrl}
-			alt={map?.name}
-			class="block max-h-full max-w-full select-none"
+			alt={map.name}
+			class="mx-auto max-h-full max-w-full select-none"
 			draggable="false"
 			onload={onImageLoad}
 		/>

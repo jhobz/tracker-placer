@@ -13,8 +13,9 @@
 			<div
 				role="tab"
 				class={{
-					'group tab flex min-w-max items-center gap-1 pr-0 pl-4': true,
-					'tab-active [&::before]:left-0 [&::before]:w-full': appState.selectedMapId === map.id
+					'group tab flex min-w-max items-center gap-1 pr-0 pl-4 hover:bg-base-200': true,
+					'tab-active bg-base-200 [&::before]:left-0 [&::before]:w-full':
+						appState.selectedMapId === map.id
 				}}
 			>
 				<button class="cursor-pointer" onclick={() => appState.selectMap(map.id)}>
@@ -37,9 +38,9 @@
 			</div>
 		{/each}
 	{/if}
-	<div class="tab">
-		<button class="btn btn-ghost btn-sm" onclick={onUploadNew} title="Add map">
-			<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+	<div class="tab p-1">
+		<button class="btn btn-square btn-ghost btn-xs" onclick={onUploadNew} title="Add map">
+			<svg class="aspect-square w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 			</svg>
 		</button>
