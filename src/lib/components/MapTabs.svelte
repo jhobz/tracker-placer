@@ -13,7 +13,7 @@
 			<div
 				role="tab"
 				class={{
-					'group tab flex min-w-max items-center gap-1 pr-0 pl-4 hover:bg-base-200': true,
+					'group tab flex min-w-max items-center gap-1 pr-1 pl-4 hover:bg-base-200': true,
 					'tab-active bg-base-200 [&::before]:left-0 [&::before]:w-full':
 						appState.selectedMapId === map.id
 				}}
@@ -26,7 +26,7 @@
 					onclick={() => appState.removeMap(map.id)}
 					title="Remove map"
 				>
-					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg class="w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"

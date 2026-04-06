@@ -10,6 +10,7 @@
 
 	let showUploadModal = $state(false)
 	let showExportModal = $state(false)
+	let tabsHeight = $state(0)
 
 	// Right sidebar tab
 	let rightTab = $state<'map' | 'box'>('map')
@@ -121,13 +122,16 @@
 
 		<!-- Center: map tabs + canvas -->
 		<main class="relative grid h-full w-full grid-rows-[auto_minmax(0,1fr)]">
-			<MapTabs onUploadNew={() => (showUploadModal = true)} />
+			<div bind:clientHeight={tabsHeight}>
+				<MapTabs onUploadNew={() => (showUploadModal = true)} />
+			</div>
 
 			{#if appState.placingMode}
 				<div
-					class="mx-4 mt-4 mb-2 flex items-center gap-2 rounded-lg border border-warning/50 bg-warning/10 px-3 py-1.5 text-sm text-warning-content"
+					class="absolute top-(--tabsHeight) left-[50%] z-10 my-2 alert -translate-x-[50%] alert-info"
+					style="--tabsHeight: {tabsHeight}px;"
 				>
-					<svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg class="w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
@@ -136,8 +140,8 @@
 						/>
 					</svg>
 					<span
-						>Click anywhere on the map to place a location box. Press <kbd class="kbd kbd-xs"
-							>Esc</kbd
+						>Click anywhere on the map to place a location box. Press <kbd
+							class="kbd kbd-xs text-base-content">Esc</kbd
 						> to cancel.</span
 					>
 				</div>
