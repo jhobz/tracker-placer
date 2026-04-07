@@ -144,7 +144,9 @@
 			</div>
 		{/if}
 
-		<MapCanvas />
+		<div class="p-4">
+			<MapCanvas />
+		</div>
 	</main>
 
 	<!-- Right sidebar: properties -->

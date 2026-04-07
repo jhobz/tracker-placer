@@ -42,6 +42,7 @@
 		if (!renderedRect.width || !renderedRect.height) {
 			return { x: 0, y: 0 }
 		}
+
 		return {
 			x: ((rx - renderedRect.left) / renderedRect.width) * naturalWidth,
 			y: ((ry - renderedRect.top) / renderedRect.height) * naturalHeight
@@ -59,10 +60,11 @@
 		if (!appState.placingMode || !map || !containerEl) {
 			return
 		}
-		const cr = containerEl.getBoundingClientRect()
-		const rx = e.clientX - cr.left
-		const ry = e.clientY - cr.top
-		const { x, y } = renderedToImage(rx, ry)
+
+		const canvasRect = containerEl.getBoundingClientRect()
+		const canvasX = e.clientX - canvasRect.left
+		const canvasY = e.clientY - canvasRect.top
+		const { x, y } = renderedToImage(canvasX, canvasY)
 		appState.addLocationBox(x, y)
 	}
 
@@ -90,7 +92,7 @@
 <div
 	bind:this={containerEl}
 	class={{
-		'relative h-full w-full p-4': true,
+		'relative h-full w-full': true,
 		'cursor-crosshair': appState.placingMode
 	}}
 	onclick={handleCanvasClick}
