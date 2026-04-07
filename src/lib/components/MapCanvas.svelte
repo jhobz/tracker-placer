@@ -118,7 +118,7 @@
 		/>
 
 		<!-- Location boxes overlay -->
-		{#if map && naturalWidth > 0}
+		{#if naturalWidth > 0}
 			<svg
 				class="absolute"
 				viewBox="0 0 {naturalWidth} {naturalHeight}"
@@ -152,13 +152,8 @@
 			</svg>
 		{/if}
 	{:else}
-		<div class="flex h-full flex-col items-center justify-center gap-4">
-			<svg
-				class="h-20 w-20 text-base-content/20"
-				fill="none"
-				stroke="currentColor"
-				viewBox="0 0 24 24"
-			>
+		<div class="h-full content-center justify-items-center text-center text-base-content/40">
+			<svg class="w-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path
 					stroke-linecap="round"
 					stroke-linejoin="round"
@@ -166,11 +161,11 @@
 					d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-3V7m6 16l4.553-2.276A1 1 0 0021 19.382V8.618a1 1 0 00-.553-.894L15 5m0 15V5m0 0L9 7"
 				/>
 			</svg>
-			<p class="text-center text-sm text-base-content/40">
+			<p class="mt-4">
 				{#if map}
-					No image uploaded for this map.<br />Edit the map properties to add one.
+					No image found for this map.<br />Edit the map properties to add one.
 				{:else}
-					Select a map from the sidebar<br />or create a new one to get started.
+					Select a map from the top bar<br />or create a new one to get started.
 				{/if}
 			</p>
 		</div>
