@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
 
-	let fileInput: HTMLInputElement | undefined = $state()
-
 	const map = $derived(appState.selectedMap)
 	const imageUrl = $derived(appState.getImageUrlForMap(appState.selectedMapId ?? ''))
+
+	let fileInput: HTMLInputElement | undefined = $state()
 
 	function handleImageChange(files: FileList | null) {
 		if (!files || !files[0] || !map) {
@@ -41,16 +41,16 @@
 		</label>
 
 		<!-- Image -->
-		<div class="form-control w-full">
+		<label class="form-control group w-full">
 			<div class="label">
 				<span class="label-text">Map Image</span>
 			</div>
 			{#if imageUrl}
-				<div class="group relative">
+				<div class="relative">
 					<img
 						src={imageUrl}
 						alt={map.name}
-						class="max-h-32 w-full rounded-lg border border-base-300 object-contain"
+						class="max-h-64 w-full rounded-box border border-base-300 object-contain"
 					/>
 					<button
 						class="btn absolute top-1 right-1 opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
@@ -71,7 +71,7 @@
 				class="hidden"
 				onchange={(e) => handleImageChange((e.target as HTMLInputElement).files)}
 			/>
-		</div>
+		</label>
 
 		<!-- Location size -->
 		<label class="form-control w-full">

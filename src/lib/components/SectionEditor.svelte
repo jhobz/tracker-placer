@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PoptrackerSection } from '$lib/types'
 	import { createSection } from '$lib/state.svelte'
+	import TrashIcon from './icons/TrashIcon.svelte'
 
 	type Props = {
 		sections: PoptrackerSection[]
@@ -28,26 +29,22 @@
 	</div>
 
 	{#each sections as section, idx (section.id)}
-		<div class="rounded-lg bg-base-200 p-3">
-			<div class="mb-2 flex items-center justify-between">
-				<span class="text-xs font-semibold opacity-60">Section {idx + 1}</span>
+		<details
+			class="collapse-arrow collapse border border-base-100 bg-base-300 open:*:[summary]:bg-accent/20"
+			name="sections-accordion"
+		>
+			<summary class="collapse-title flex items-center justify-between">
+				<span class="text-xs font-semibold">{section.name ?? `Section ${idx + 1}`}</span>
 				<button
-					class="btn text-error btn-ghost btn-xs"
+					class="btn btn-square btn-ghost btn-xs btn-error"
 					onclick={() => removeSection(idx)}
 					title="Remove section"
 				>
-					<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M6 18L18 6M6 6l12 12"
-						/>
-					</svg>
+					<TrashIcon />
 				</button>
-			</div>
+			</summary>
 
-			<div class="flex flex-col gap-2">
+			<div class="collapse-content flex flex-col gap-1">
 				<label class="form-control w-full">
 					<div class="label py-0">
 						<span class="label-text text-xs">Name</span>
@@ -148,7 +145,7 @@
 					</label>
 				</div>
 			</div>
-		</div>
+		</details>
 	{/each}
 
 	{#if sections.length === 0}

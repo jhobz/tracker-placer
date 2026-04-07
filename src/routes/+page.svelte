@@ -150,22 +150,22 @@
 	<!-- Right sidebar: properties -->
 	<aside class="flex flex-col border-l border-base-300 bg-base-200">
 		<!-- Tab switcher -->
-		<div class="tabs-bordered tabs px-3 pt-2">
+		<div class="tabs-lift tabs px-3 pt-2">
 			<button
-				class="tab-sm tab {rightTab === 'map' ? 'tab-active' : ''}"
+				class={{ 'tab-sm tab': true, 'tab-active': rightTab === 'map' }}
 				onclick={() => (rightTab = 'map')}
 			>
 				Map
 			</button>
 			<button
-				class="tab-sm tab {rightTab === 'box' ? 'tab-active' : ''}"
+				class={{ 'tab-sm tab': true, 'tab-active': rightTab === 'box' }}
 				onclick={() => (rightTab = 'box')}
 			>
-				Location
+				Locations
 			</button>
 		</div>
 
-		<div class="flex-1 overflow-y-auto p-3">
+		<div class="flex-1 overflow-y-auto bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]">
 			{#if rightTab === 'map'}
 				{#if appState.selectedMap}
 					<MapProperties />
