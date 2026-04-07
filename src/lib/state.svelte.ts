@@ -28,8 +28,8 @@ export function createMap(): MapConfig {
 		name: 'New Map',
 		imageFile: null,
 		imageUrl: '',
-		locationSize: 16,
-		locationBorderThickness: 1,
+		locationSize: 42,
+		locationBorderThickness: 4,
 		locationBoxes: []
 	}
 }
