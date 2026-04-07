@@ -18,8 +18,10 @@
 		if (!imageEl || !containerEl) {
 			return
 		}
+
 		const r = imageEl.getBoundingClientRect()
 		const cr = containerEl.getBoundingClientRect()
+
 		renderedRect = {
 			left: r.left - cr.left,
 			top: r.top - cr.top,
@@ -32,6 +34,7 @@
 		if (!naturalWidth || !naturalHeight) {
 			return { x: 0, y: 0 }
 		}
+
 		return {
 			x: renderedRect.left + (ix / naturalWidth) * renderedRect.width,
 			y: renderedRect.top + (iy / naturalHeight) * renderedRect.height
@@ -82,7 +85,7 @@
 			return
 		}
 
-		const ro = new ResizeObserver(() => updateRenderedRect())
+		const ro = new ResizeObserver(() => requestAnimationFrame(updateRenderedRect))
 		ro.observe(containerEl)
 
 		return () => ro.disconnect()
@@ -117,50 +120,36 @@
 		<!-- Location boxes overlay -->
 		{#if map && naturalWidth > 0}
 			<svg
-				class="pointer-events-none absolute inset-0 h-full w-full"
-				viewBox="0 0 {renderedRect.width} {renderedRect.height}"
-				style="left: {renderedRect.left}px; top: {renderedRect.top}px; width: {renderedRect.width}px; height: {renderedRect.height}px;"
+				class="absolute"
+				viewBox="0 0 {naturalWidth} {naturalHeight}"
+				style:left="{renderedRect.left}px"
+				style:top="{renderedRect.top}px"
+				style:width="{renderedRect.width}px"
+				style:height="{renderedRect.height}px"
 			>
 				{#each map.locationBoxes as box (box.id)}
-					{@const pos = imageToRendered(box.x, box.y)}
 					{@const { w, h } = getBoxDisplaySize(box)}
-					{@const rw = (w / naturalWidth) * renderedRect.width}
-					{@const rh = (h / naturalHeight) * renderedRect.height}
 					<rect
-						x={pos.x - rw / 2}
-						y={pos.y - rh / 2}
-						width={rw}
-						height={rh}
-						fill={appState.selectedBoxId === box.id
-							? 'rgba(var(--color-primary-rgb, 99, 102, 241), 0.3)'
-							: 'rgba(255, 165, 0, 0.25)'}
-						stroke={appState.selectedBoxId === box.id ? 'oklch(var(--p))' : '#f97316'}
+						x={box.x - w / 2}
+						y={box.y - h / 2}
+						width={w}
+						height={h}
+						fill="oklch(from var(--color-primary) l c h / {appState.selectedBoxId === box.id
+							? 0.75
+							: 0.3})"
+						stroke={appState.selectedBoxId === box.id ? 'white' : 'var(--color-primary)'}
 						stroke-width={map.locationBorderThickness}
 						rx="2"
-						class="pointer-events-none"
+						class="focus:outline-none"
+						onfocus={(e) => {
+							e.stopPropagation()
+							if (!appState.placingMode) {
+								appState.selectBox(box.id)
+							}
+						}}
 					/>
 				{/each}
 			</svg>
-
-			<!-- Clickable hitboxes for boxes (pointer-events enabled) -->
-			{#each map.locationBoxes as box (box.id)}
-				{@const pos = imageToRendered(box.x, box.y)}
-				{@const { w, h } = getBoxDisplaySize(box)}
-				{@const rw = (w / naturalWidth) * renderedRect.width}
-				{@const rh = (h / naturalHeight) * renderedRect.height}
-				<button
-					class="absolute -translate-x-1/2 -translate-y-1/2 rounded focus:outline-none"
-					style="left: {renderedRect.left + pos.x}px; top: {renderedRect.top +
-						pos.y}px; width: {rw}px; height: {rh}px;"
-					title={box.locations.map((l) => l.name).join(', ')}
-					onclick={(e) => {
-						e.stopPropagation()
-						if (!appState.placingMode) {
-							appState.selectBox(box.id)
-						}
-					}}
-				></button>
-			{/each}
 		{/if}
 	{:else}
 		<div class="flex h-full flex-col items-center justify-center gap-4">
