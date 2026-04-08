@@ -118,7 +118,7 @@
 	</header>
 
 	<!-- Left sidebar: pack list -->
-	<aside class="border-r border-base-300 bg-base-200 p-3">
+	<aside class="border-r border-base-300 bg-base-200">
 		<PackList />
 	</aside>
 
