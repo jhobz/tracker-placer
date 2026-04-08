@@ -9,20 +9,24 @@
 	{#if appState.maps.length === 0}
 		<p class="px-3 py-2 text-xs text-base-content/40">No maps yet</p>
 	{:else}
-		{#each appState.maps as map (map.id)}
-			<div
+		{#each appState.maps as map, i (map.id)}
+			<a
 				role="tab"
+				tabindex="0"
 				class={{
-					'group tab flex min-w-max items-center gap-1 pr-1 pl-4 hover:bg-base-200': true,
+					'group tab flex min-w-max cursor-pointer items-center gap-1 pr-1 pl-4 hover:bg-base-200': true,
 					'tab-active bg-base-200 [&::before]:left-0 [&::before]:w-full':
 						appState.selectedMapId === map.id
 				}}
+				href={undefined}
+				onfocus={() => appState.selectMap(map.id)}
 			>
-				<button class="cursor-pointer" onclick={() => appState.selectMap(map.id)}>
-					{map.name}
-				</button>
+				<span>{map.name}</span>
 				<button
-					class="btn btn-square opacity-0 btn-ghost btn-xs group-hover:opacity-100"
+					class={{
+						'btn btn-square opacity-0 btn-ghost btn-xs group-hover:opacity-100': true,
+						'opacity-100': appState.selectedMapId === map.id
+					}}
 					onclick={() => appState.removeMap(map.id)}
 					title="Remove map"
 				>
@@ -35,7 +39,7 @@
 						/>
 					</svg>
 				</button>
-			</div>
+			</a>
 		{/each}
 	{/if}
 	<div class="tab p-1">
