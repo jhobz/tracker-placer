@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { PoptrackerSection } from '$lib/types'
 	import { createSection } from '$lib/state.svelte'
+	import type { PoptrackerSection } from '$lib/types'
 	import TrashIcon from './icons/TrashIcon.svelte'
 
 	type Props = {

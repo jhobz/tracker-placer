@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { PoptrackerLocation } from '$lib/types'
 	import { createLocation } from '$lib/state.svelte'
-	import SectionEditor from './SectionEditor.svelte'
+	import type { PoptrackerLocation } from '$lib/types'
 	import TrashIcon from './icons/TrashIcon.svelte'
+	import SectionEditor from './SectionEditor.svelte'
 
 	type Props = {
 		locations: PoptrackerLocation[]

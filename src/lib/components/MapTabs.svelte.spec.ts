@@ -1,8 +1,8 @@
-import { page } from 'vitest/browser'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { render, cleanup } from 'vitest-browser-svelte'
-import MapTabs from './MapTabs.svelte'
 import { appState, createMap } from '$lib/state.svelte'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render } from 'vitest-browser-svelte'
+import { page } from 'vitest/browser'
+import MapTabs from './MapTabs.svelte'
 
 describe('MapTabs', () => {
 	beforeEach(() => {

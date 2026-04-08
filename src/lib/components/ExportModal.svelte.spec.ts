@@ -1,9 +1,9 @@
-import { page } from 'vitest/browser'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { render, cleanup } from 'vitest-browser-svelte'
-import ExportModal from './ExportModal.svelte'
 import { appState } from '$lib/state.svelte'
-import type { MapConfig, LocationBox, PoptrackerLocation, PoptrackerSection } from '$lib/types'
+import type { LocationBox, MapConfig, PoptrackerLocation, PoptrackerSection } from '$lib/types'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render } from 'vitest-browser-svelte'
+import { page } from 'vitest/browser'
+import ExportModal from './ExportModal.svelte'
 
 function makeSection(overrides: Partial<PoptrackerSection> = {}): PoptrackerSection {
 	return {

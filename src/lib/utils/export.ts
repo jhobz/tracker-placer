@@ -1,12 +1,12 @@
 import type {
-	MapConfig,
 	LocationBox,
+	MapConfig,
 	PoptrackerLocation,
-	PoptrackerSection,
-	PoptrackerMapJson,
 	PoptrackerLocationJson,
-	PoptrackerSectionJson,
-	PoptrackerMapLocationJson
+	PoptrackerMapJson,
+	PoptrackerMapLocationJson,
+	PoptrackerSection,
+	PoptrackerSectionJson
 } from '../types'
 
 function parseRules(rules: string[]): string[][] {

@@ -1,8 +1,8 @@
-import { page } from 'vitest/browser'
-import { describe, expect, it, beforeEach } from 'vitest'
-import { render, cleanup } from 'vitest-browser-svelte'
-import LocationEditor from './LocationEditor.svelte'
 import type { PoptrackerLocation, PoptrackerSection } from '$lib/types'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { cleanup, render } from 'vitest-browser-svelte'
+import { page } from 'vitest/browser'
+import LocationEditor from './LocationEditor.svelte'
 
 function makeSection(overrides: Partial<PoptrackerSection> = {}): PoptrackerSection {
 	return {

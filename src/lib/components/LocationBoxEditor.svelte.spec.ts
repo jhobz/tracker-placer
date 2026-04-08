@@ -1,8 +1,9 @@
+import { appState, createLocationBox, createMap } from '$lib/state.svelte'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { cleanup, render } from 'vitest-browser-svelte'
 import { page } from 'vitest/browser'
-import { describe, expect, it, beforeEach } from 'vitest'
-import { render, cleanup } from 'vitest-browser-svelte'
+
 import LocationBoxEditor from './LocationBoxEditor.svelte'
-import { appState, createMap, createLocationBox } from '$lib/state.svelte'
 
 describe('LocationBoxEditor', () => {
 	beforeEach(() => {

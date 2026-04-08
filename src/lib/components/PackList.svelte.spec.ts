@@ -1,8 +1,8 @@
-import { page, userEvent } from 'vitest/browser'
-import { describe, expect, it, beforeEach } from 'vitest'
-import { render, cleanup } from 'vitest-browser-svelte'
-import PackList from './PackList.svelte'
 import { appState, createPack } from '$lib/state.svelte'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { cleanup, render } from 'vitest-browser-svelte'
+import { page, userEvent } from 'vitest/browser'
+import PackList from './PackList.svelte'
 
 describe('PackList', () => {
 	beforeEach(() => {

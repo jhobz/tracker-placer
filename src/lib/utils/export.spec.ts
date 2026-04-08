@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { exportMapsJson, exportLocationsJson } from './export'
-import type { MapConfig, LocationBox, PoptrackerLocation, PoptrackerSection } from '../types'
+import { describe, expect, it } from 'vitest'
+import type { LocationBox, MapConfig, PoptrackerLocation, PoptrackerSection } from '../types'
+import { exportLocationsJson, exportMapsJson } from './export'
 
 function makeSection(overrides: Partial<PoptrackerSection> = {}): PoptrackerSection {
 	return {

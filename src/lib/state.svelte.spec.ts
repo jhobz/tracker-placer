@@ -1,12 +1,12 @@
-import { describe, expect, it, beforeEach } from 'vitest'
 import {
 	appState,
+	createLocation,
+	createLocationBox,
 	createMap,
 	createPack,
-	createLocationBox,
-	createLocation,
 	createSection
 } from '$lib/state.svelte'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 // --- Factory function tests ---
 

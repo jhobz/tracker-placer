@@ -1,7 +1,6 @@
 <script lang="ts">
-	import TrashIcon from './icons/TrashIcon.svelte'
-
 	import { appState } from '$lib/state.svelte'
+	import TrashIcon from './icons/TrashIcon.svelte'
 	import LocationEditor from './LocationEditor.svelte'
 
 	const map = $derived(appState.selectedMap)

@@ -1,8 +1,8 @@
-import { page } from 'vitest/browser'
-import { describe, expect, it, beforeEach } from 'vitest'
-import { render, cleanup } from 'vitest-browser-svelte'
-import MapUpload from './MapUpload.svelte'
 import { appState } from '$lib/state.svelte'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { cleanup, render } from 'vitest-browser-svelte'
+import { page } from 'vitest/browser'
+import MapUpload from './MapUpload.svelte'
 
 describe('MapUpload', () => {
 	beforeEach(() => {

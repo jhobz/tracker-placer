@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
-	import { exportMapsJson, exportLocationsJson, downloadJson } from '$lib/utils/export'
+	import { downloadJson, exportLocationsJson, exportMapsJson } from '$lib/utils/export'
 
 	type Props = { open: boolean; onclose: () => void }
 	let { open, onclose }: Props = $props()

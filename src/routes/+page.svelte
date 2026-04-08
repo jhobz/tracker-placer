@@ -1,13 +1,13 @@
 <script lang="ts">
+	import ExportModal from '$lib/components/ExportModal.svelte'
 	import Header from '$lib/components/Header.svelte'
-	import { appState } from '$lib/state.svelte'
-	import PackList from '$lib/components/PackList.svelte'
-	import MapTabs from '$lib/components/MapTabs.svelte'
-	import MapUpload from '$lib/components/MapUpload.svelte'
+	import LocationBoxEditor from '$lib/components/LocationBoxEditor.svelte'
 	import MapCanvas from '$lib/components/MapCanvas.svelte'
 	import MapProperties from '$lib/components/MapProperties.svelte'
-	import LocationBoxEditor from '$lib/components/LocationBoxEditor.svelte'
-	import ExportModal from '$lib/components/ExportModal.svelte'
+	import MapTabs from '$lib/components/MapTabs.svelte'
+	import MapUpload from '$lib/components/MapUpload.svelte'
+	import PackList from '$lib/components/PackList.svelte'
+	import { appState } from '$lib/state.svelte'
 
 	let showUploadModal = $state(false)
 	let showExportModal = $state(false)

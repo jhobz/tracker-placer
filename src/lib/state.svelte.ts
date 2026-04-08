@@ -1,9 +1,9 @@
 import localforage from 'localforage'
 import { nanoid } from 'nanoid'
 import type {
-	PackConfig,
-	MapConfig,
 	LocationBox,
+	MapConfig,
+	PackConfig,
 	PoptrackerLocation,
 	PoptrackerSection
 } from './types'
