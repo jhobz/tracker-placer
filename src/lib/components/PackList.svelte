@@ -21,12 +21,37 @@
 		el.focus()
 		el.select()
 	}
+
+	function handleMenuKeyboardNavigation(e: KeyboardEvent) {
+		if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') {
+			return
+		}
+
+		const currentIndex = appState.packs.findIndex((p) => p.id === appState.selectedPackId)
+
+		if (e.key === 'ArrowDown') {
+			let nextIndex = currentIndex + 1
+			if (nextIndex >= appState.packs.length) {
+				nextIndex = 0
+			}
+
+			appState.selectPack(appState.packs[nextIndex].id)
+			return
+		}
+
+		// Yes, we could just use .at(), but TypeScript makes it slightly more annoying
+		let prevIndex = currentIndex - 1
+		if (prevIndex < 0) {
+			prevIndex = appState.packs.length - 1
+		}
+		appState.selectPack(appState.packs[prevIndex].id)
+	}
 </script>
 
 {#if appState.packs.length === 0}
 	<p class="p-2 text-center text-xs text-base-content/40">No packs yet</p>
 {:else}
-	<ul class="menu">
+	<ul class="menu w-full" role="listbox" tabindex="0" onkeyup={handleMenuKeyboardNavigation}>
 		<li class="flex-row items-center justify-between menu-title text-xs tracking-wider uppercase">
 			<h2>Packs</h2>
 			<button class="btn btn-square btn-ghost btn-xs" onclick={handleAddPack} title="Add pack">
@@ -41,7 +66,7 @@
 			</button>
 		</li>
 		{#each appState.packs as pack (pack.id)}
-			<li>
+			<li role="option" aria-selected={appState.selectedPackId === pack.id}>
 				<a
 					class={{
 						'group justify-between font-medium': true,
@@ -49,13 +74,12 @@
 					}}
 					onclick={() => appState.selectPack(pack.id)}
 					ondblclick={() => startEditing(pack.id, pack.name)}
-					role="button"
 					href={undefined}
 				>
 					{#if editingPackId === pack.id}
 						<input
 							type="text"
-							class="input input-xs w-full bg-transparent font-medium"
+							class="input input-xs bg-transparent"
 							value={editingName}
 							use:handleInputMount
 							onblur={(e) => {
@@ -80,11 +104,11 @@
 							}}
 						/>
 					{:else}
-						<span class="truncate">{pack.name}</span>
+						<span class="truncate" title={pack.name}>{pack.name}</span>
 					{/if}
 					<button
 						class={{
-							'btn btn-square opacity-0 btn-ghost btn-xs group-hover:opacity-100': true,
+							'btn btn-square opacity-0 btn-ghost btn-xs group-focus-within:opacity-100 group-hover:opacity-100': true,
 							'opacity-100': appState.selectedPackId === pack.id
 						}}
 						onclick={() => appState.removePack(pack.id)}
