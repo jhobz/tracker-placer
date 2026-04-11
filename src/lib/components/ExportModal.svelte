@@ -64,7 +64,7 @@
 			<div class="modal-action">
 				<button class="btn btn-ghost" onclick={onclose}>Close</button>
 				<button
-					class="btn btn-outline"
+					class="btn btn-secondary"
 					onclick={activeTab === 'maps' ? downloadMaps : downloadLocations}
 				>
 					<MaterialSymbol>download</MaterialSymbol>
