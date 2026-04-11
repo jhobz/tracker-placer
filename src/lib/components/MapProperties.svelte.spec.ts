@@ -59,7 +59,7 @@ describe('MapProperties', () => {
 		render(MapProperties)
 
 		await expect.element(page.getByText('Default Location Size')).toBeInTheDocument()
-		await expect.element(page.getByText('16px')).toBeInTheDocument()
+		await expect.element(page.getByText('42px')).toBeInTheDocument()
 	})
 
 	it('shows Location Border Thickness label and range', async () => {
@@ -70,7 +70,7 @@ describe('MapProperties', () => {
 		render(MapProperties)
 
 		await expect.element(page.getByText('Location Border Thickness')).toBeInTheDocument()
-		await expect.element(page.getByText('1px')).toBeInTheDocument()
+		await expect.element(page.getByText('4px')).toBeInTheDocument()
 	})
 
 	it('shows location box count', async () => {

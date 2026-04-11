@@ -140,25 +140,29 @@
 			>
 				{#each map.locationBoxes as box (box.id)}
 					{@const { w, h } = getBoxDisplaySize(box)}
-					<rect
-						x={box.x - w / 2}
-						y={box.y - h / 2}
-						width={w}
-						height={h}
-						fill="oklch(from var(--color-primary) l c h / {appState.selectedBoxId === box.id
-							? 0.75
-							: 0.3})"
-						stroke={appState.selectedBoxId === box.id ? 'white' : 'var(--color-primary)'}
-						stroke-width={map.locationBorderThickness}
-						rx="2"
-						class="focus:outline-none"
-						onfocus={(e) => {
-							e.stopPropagation()
-							if (!appState.placingMode) {
-								appState.selectBox(box.id)
-							}
-						}}
-					/>
+					<g>
+						<title>{box.locations.map((l) => l.name).join('\n')}</title>
+						<rect
+							x={box.x - w / 2}
+							y={box.y - h / 2}
+							width={w}
+							height={h}
+							fill="oklch(from var(--color-primary) l c h / {appState.selectedBoxId === box.id
+								? 0.75
+								: 0.3})"
+							stroke={appState.selectedBoxId === box.id ? 'white' : 'var(--color-primary)'}
+							stroke-width={map.locationBorderThickness}
+							rx="2"
+							class="focus:outline-none"
+							role="button"
+							onfocus={(e) => {
+								e.stopPropagation()
+								if (!appState.placingMode) {
+									appState.selectBox(box.id)
+								}
+							}}
+						/>
+					</g>
 				{/each}
 			</svg>
 		{/if}

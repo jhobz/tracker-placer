@@ -87,7 +87,7 @@ describe('LocationBoxEditor', () => {
 
 		render(LocationBoxEditor)
 
-		await page.getByRole('button', { name: 'Delete this location box' }).click()
+		await page.getByTitle('Delete this location box').click()
 
 		expect(appState.maps[0].locationBoxes).toHaveLength(0)
 		expect(appState.selectedBoxId).toBeNull()

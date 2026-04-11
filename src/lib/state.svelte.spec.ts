@@ -71,8 +71,8 @@ describe('createMap', () => {
 		expect(map.name).toBe('New Map')
 		expect(map.imageFile).toBeNull()
 		expect(map.imageUrl).toBe('')
-		expect(map.locationSize).toBe(16)
-		expect(map.locationBorderThickness).toBe(1)
+		expect(map.locationSize).toBe(42)
+		expect(map.locationBorderThickness).toBe(4)
 		expect(map.locationBoxes).toEqual([])
 	})
 })
@@ -306,18 +306,18 @@ describe('appState', () => {
 	})
 
 	describe('toggleTheme', () => {
-		it('toggles from dark to light', () => {
-			appState.theme = 'dark'
+		it('toggles from poptracker to light', () => {
+			appState.theme = 'poptracker'
 			appState.toggleTheme()
 
 			expect(appState.theme).toBe('light')
 		})
 
-		it('toggles from light to dark', () => {
+		it('toggles from light to poptracker', () => {
 			appState.theme = 'light'
 			appState.toggleTheme()
 
-			expect(appState.theme).toBe('dark')
+			expect(appState.theme).toBe('poptracker')
 		})
 	})
 

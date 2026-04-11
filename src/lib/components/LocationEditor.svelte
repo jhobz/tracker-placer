@@ -9,26 +9,13 @@
 	}
 	let { locations }: Props = $props()
 
-	let expandedId = $state<string | null>(null)
-
-	$effect(() => {
-		if (!expandedId && locations.length > 0) {
-			expandedId = locations[0].id
-		}
-	})
-
 	function addLocation() {
 		const loc = createLocation()
 		locations.push(loc)
-		expandedId = loc.id
 	}
 
 	function removeLocation(idx: number) {
-		const removed = locations[idx]
 		locations.splice(idx, 1)
-		if (expandedId === removed.id) {
-			expandedId = locations[0]?.id ?? null
-		}
 	}
 </script>
 
@@ -41,17 +28,18 @@
 		</button>
 	</div>
 
-	{#each locations as location, idx (location.id)}
+	{#each locations as location, i (location.id)}
 		<details
 			class="collapse-arrow collapse border border-base-300 bg-base-200 open:*:[summary]:bg-secondary/20"
 			name="locations-accordion"
+			id="location-{i}"
 		>
 			<!-- Header -->
 			<summary class="collapse-title flex items-center justify-between px-3 py-2 transition-colors">
 				<span class="truncate text-sm font-medium">{location.name || 'Unnamed'}</span>
 				<button
 					class="btn mr-8 btn-square btn-ghost btn-xs btn-error"
-					onclick={() => removeLocation(idx)}
+					onclick={() => removeLocation(i)}
 					title="Remove location"
 				>
 					<MaterialSymbol size="sm" deemphasis>delete</MaterialSymbol>
@@ -67,6 +55,7 @@
 					</div>
 					<input
 						type="text"
+						name="location-name-{i}"
 						class="input-bordered input input-sm w-full"
 						bind:value={location.name}
 						placeholder="e.g. Eastern Palace"

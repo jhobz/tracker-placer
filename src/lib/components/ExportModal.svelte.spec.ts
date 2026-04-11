@@ -122,7 +122,7 @@ describe('ExportModal', () => {
 		const onclose = vi.fn()
 		render(ExportModal, { open: true, onclose })
 
-		await page.getByText('Close').click()
+		await page.getByText('Close', { exact: true }).click()
 
 		expect(onclose).toHaveBeenCalledOnce()
 	})
@@ -131,7 +131,7 @@ describe('ExportModal', () => {
 		const onclose = vi.fn()
 		render(ExportModal, { open: true, onclose })
 
-		await page.getByText('✕').click()
+		await page.getByLabelText('Close').click()
 
 		expect(onclose).toHaveBeenCalledOnce()
 	})

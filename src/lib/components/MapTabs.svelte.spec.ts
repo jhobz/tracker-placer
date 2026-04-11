@@ -61,7 +61,7 @@ describe('MapTabs', () => {
 		const onUploadNew = vi.fn()
 		render(MapTabs, { onUploadNew })
 
-		await page.getByRole('button', { name: 'Add map' }).click()
+		await page.getByTitle('Add map').click()
 
 		expect(onUploadNew).toHaveBeenCalledOnce()
 	})
@@ -74,7 +74,7 @@ describe('MapTabs', () => {
 
 		render(MapTabs, { onUploadNew: () => {} })
 
-		await page.getByRole('button', { name: 'Remove map' }).click()
+		await page.getByTitle('Remove map').click()
 
 		expect(appState.maps).toHaveLength(0)
 	})

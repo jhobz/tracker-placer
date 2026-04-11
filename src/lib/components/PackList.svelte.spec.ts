@@ -49,7 +49,7 @@ describe('PackList', () => {
 	it('adds a pack when add button is clicked', async () => {
 		render(PackList)
 
-		await page.getByRole('button', { name: 'Add pack' }).click()
+		await page.getByTitle('Add pack').click()
 
 		expect(appState.packs).toHaveLength(1)
 	})
@@ -62,7 +62,7 @@ describe('PackList', () => {
 
 		render(PackList)
 
-		await page.getByRole('button', { name: 'Remove pack' }).click()
+		await page.getByTitle('Remove pack').click()
 
 		expect(appState.packs).toHaveLength(0)
 	})
@@ -75,8 +75,9 @@ describe('PackList', () => {
 
 		render(PackList)
 
-		const packButton = page.getByText('ALttP')
-		await expect.element(packButton.element().closest('div')!).toHaveClass(/bg-primary/)
+		const option = page.getByRole('option', { has: page.getByText('ALttP') })
+		await expect.element(option).toHaveAttribute('aria-selected', 'true')
+		await expect.element(option.element().querySelector('a')).toHaveClass('menu-active')
 	})
 
 	it('shows an input field on double-click to rename a pack', async () => {
@@ -124,7 +125,7 @@ describe('PackList', () => {
 	it('focuses and selects input when a new pack is added', async () => {
 		render(PackList)
 
-		await page.getByRole('button', { name: 'Add pack' }).click()
+		await page.getByTitle('Add pack').click()
 
 		const input = page.getByRole('textbox')
 		await expect.element(input).toBeInTheDocument()

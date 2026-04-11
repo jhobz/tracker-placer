@@ -31,7 +31,7 @@
 		<div class="modal-box max-w-3xl">
 			<div class="mb-4 flex items-center justify-between">
 				<h3 class="text-lg font-bold">Export JSON Files</h3>
-				<button class="btn btn-circle btn-ghost btn-sm" onclick={onclose}>
+				<button class="btn btn-circle btn-ghost btn-sm" aria-label="Close" onclick={onclose}>
 					<MaterialSymbol>close</MaterialSymbol>
 				</button>
 			</div>

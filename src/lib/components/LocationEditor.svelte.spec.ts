@@ -59,12 +59,12 @@ describe('LocationEditor', () => {
 		await expect.element(page.getByText('Unnamed')).toBeInTheDocument()
 	})
 
-	it('auto-expands the first location', async () => {
+	it('renders locations collapsed by default', async () => {
 		const locations = $state([makeLocation({ name: 'My Location' })])
 		render(LocationEditor, { locations })
 
 		// Expanded content should show the Location Name input
-		await expect.element(page.getByPlaceholder('e.g. Eastern Palace')).toBeInTheDocument()
+		await expect.element(page.getByPlaceholder('e.g. Eastern Palace')).not.toBeVisible()
 	})
 
 	it('shows location name input with correct value when expanded', async () => {
@@ -118,7 +118,7 @@ describe('LocationEditor', () => {
 		const locations = $state([makeLocation()])
 		render(LocationEditor, { locations })
 
-		await page.getByRole('button', { name: 'Remove location' }).click()
+		await page.getByTitle('Remove location').click()
 
 		expect(locations).toHaveLength(0)
 	})
@@ -141,13 +141,18 @@ describe('LocationEditor', () => {
 		])
 		render(LocationEditor, { locations })
 
-		// First location should be auto-expanded
-		await expect.element(page.getByPlaceholder('e.g. Eastern Palace')).toBeInTheDocument()
+		// Expand first location
+		await page.getByText('Location A').click()
 
-		// Click second location to expand it (collapses the first)
+		// Only the first location's content is visible
+		await expect.element(page.getByPlaceholder('e.g. Eastern Palace').first()).toBeVisible()
+		await expect.element(page.getByPlaceholder('e.g. Eastern Palace').last()).not.toBeVisible()
+
+		// Expand second location (collapses the first)
 		await page.getByText('Location B').click()
 
-		// The input should still exist (now for Location B)
-		await expect.element(page.getByPlaceholder('e.g. Eastern Palace')).toHaveValue('Location B')
+		// Only the second location's content is visible
+		await expect.element(page.getByPlaceholder('e.g. Eastern Palace').first()).not.toBeVisible()
+		await expect.element(page.getByPlaceholder('e.g. Eastern Palace').last()).toBeVisible()
 	})
 })

@@ -33,7 +33,7 @@ describe('SectionEditor', () => {
 		const sections = $state([makeSection()])
 		render(SectionEditor, { sections })
 
-		await expect.element(page.getByText('Section 1')).toBeInTheDocument()
+		await expect.element(page.getByText('Test Section')).toBeInTheDocument()
 	})
 
 	it('renders section name input with value', async () => {
@@ -56,7 +56,7 @@ describe('SectionEditor', () => {
 		const sections = $state([makeSection()])
 		render(SectionEditor, { sections })
 
-		await page.getByRole('button', { name: 'Remove section' }).click()
+		await page.getByTitle('Remove section').click()
 
 		expect(sections).toHaveLength(0)
 	})
@@ -75,8 +75,8 @@ describe('SectionEditor', () => {
 		])
 		render(SectionEditor, { sections })
 
-		await expect.element(page.getByText('Section 1')).toBeInTheDocument()
-		await expect.element(page.getByText('Section 2')).toBeInTheDocument()
+		await expect.element(page.getByText('First')).toBeInTheDocument()
+		await expect.element(page.getByText('Second')).toBeInTheDocument()
 	})
 
 	it('renders chest image inputs', async () => {

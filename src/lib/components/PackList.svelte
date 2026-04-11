@@ -49,16 +49,17 @@
 	}
 </script>
 
-{#if appState.packs.length === 0}
-	<p class="p-2 text-center text-xs text-base-content/40">No packs yet</p>
-{:else}
-	<ul class="menu w-full" role="listbox" tabindex="0" onkeyup={handleMenuKeyboardNavigation}>
-		<li class="flex-row items-center justify-between menu-title text-xs tracking-wider uppercase">
-			<h2>Packs</h2>
-			<button class="btn btn-square btn-ghost btn-xs" onclick={handleAddPack} title="Add pack">
-				<MaterialSymbol>add</MaterialSymbol>
-			</button>
-		</li>
+<ul class="menu w-full" role="listbox" tabindex="0" onkeyup={handleMenuKeyboardNavigation}>
+	<li class="flex-row items-center justify-between menu-title text-xs tracking-wider uppercase">
+		<h2>Packs</h2>
+		<button class="btn btn-square btn-ghost btn-xs" onclick={handleAddPack} title="Add pack">
+			<MaterialSymbol>add</MaterialSymbol>
+		</button>
+	</li>
+
+	{#if appState.packs.length === 0}
+		<p class="p-2 text-center text-xs text-base-content/40">No packs yet</p>
+	{:else}
 		{#each appState.packs as pack (pack.id)}
 			<li role="option" aria-selected={appState.selectedPackId === pack.id}>
 				<a
@@ -113,5 +114,5 @@
 				</a>
 			</li>
 		{/each}
-	</ul>
-{/if}
+	{/if}
+</ul>
