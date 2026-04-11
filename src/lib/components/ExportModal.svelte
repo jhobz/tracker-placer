@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
 	import { downloadJson, exportLocationsJson, exportMapsJson } from '$lib/utils/export'
+	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	type Props = { open: boolean; onclose: () => void }
 	let { open, onclose }: Props = $props()
@@ -30,7 +31,9 @@
 		<div class="modal-box max-w-3xl">
 			<div class="mb-4 flex items-center justify-between">
 				<h3 class="text-lg font-bold">Export JSON Files</h3>
-				<button class="btn btn-circle btn-ghost btn-sm" onclick={onclose}>✕</button>
+				<button class="btn btn-circle btn-ghost btn-sm" onclick={onclose}>
+					<MaterialSymbol>close</MaterialSymbol>
+				</button>
 			</div>
 
 			<p class="mb-4 text-sm text-base-content/60">
@@ -64,25 +67,11 @@
 					class="btn btn-outline"
 					onclick={activeTab === 'maps' ? downloadMaps : downloadLocations}
 				>
-					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-						/>
-					</svg>
+					<MaterialSymbol>download</MaterialSymbol>
 					Download {activeTab === 'maps' ? 'maps.json' : 'locations.json'}
 				</button>
 				<button class="btn btn-primary" onclick={downloadAll}>
-					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-						/>
-					</svg>
+					<MaterialSymbol>download</MaterialSymbol>
 					Download All
 				</button>
 			</div>

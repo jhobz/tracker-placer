@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
+	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	type Props = { onUploadNew: () => void }
 	let { onUploadNew }: Props = $props()
@@ -30,23 +31,14 @@
 					onclick={() => appState.removeMap(map.id)}
 					title="Remove map"
 				>
-					<svg class="w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M6 18L18 6M6 6l12 12"
-						/>
-					</svg>
+					<MaterialSymbol size="sm" deemphasis>close</MaterialSymbol>
 				</button>
 			</a>
 		{/each}
 	{/if}
 	<div class="tab p-1">
 		<button class="btn btn-square btn-ghost btn-xs" onclick={onUploadNew} title="Add map">
-			<svg class="aspect-square w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-			</svg>
+			<MaterialSymbol deemphasis>add</MaterialSymbol>
 		</button>
 	</div>
 </div>

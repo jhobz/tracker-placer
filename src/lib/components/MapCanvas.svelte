@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
+	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	let containerEl: HTMLDivElement | undefined = $state()
 	let imageEl: HTMLImageElement | undefined = $state()
@@ -163,14 +164,7 @@
 		{/if}
 	{:else}
 		<div class="h-full content-center justify-items-center text-center text-base-content/40">
-			<svg class="w-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="1"
-					d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-3V7m6 16l4.553-2.276A1 1 0 0021 19.382V8.618a1 1 0 00-.553-.894L15 5m0 15V5m0 0L9 7"
-				/>
-			</svg>
+			<MaterialSymbol size="4xl">map_search</MaterialSymbol>
 			<p class="mt-4">
 				{#if map}
 					No image found for this map.<br />Edit the map properties to add one.

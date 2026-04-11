@@ -80,7 +80,7 @@ class AppState {
 	selectedPackId = $state<string | null>(null)
 	selectedMapId = $state<string | null>(null)
 	selectedBoxId = $state<string | null>(null)
-	theme = $state<'light' | 'dark'>('dark')
+	theme = $state<'light' | 'poptracker'>('poptracker')
 	placingMode = $state(false)
 	ready = $state(false)
 	#mapImageUrls = $state<Record<string, string>>({})
@@ -114,7 +114,7 @@ class AppState {
 			store.getItem<string>('selectedPackId'),
 			store.getItem<string>('selectedMapId'),
 			store.getItem<string>('selectedBoxId'),
-			store.getItem<'light' | 'dark'>('theme')
+			store.getItem<'light' | 'poptracker'>('theme')
 		])
 
 		if (packs != null) {
@@ -285,7 +285,7 @@ class AppState {
 	}
 
 	toggleTheme() {
-		this.theme = this.theme === 'dark' ? 'light' : 'dark'
+		this.theme = this.theme === 'poptracker' ? 'light' : 'poptracker'
 	}
 }
 

@@ -6,6 +6,7 @@
 	import MapProperties from '$lib/components/MapProperties.svelte'
 	import MapTabs from '$lib/components/MapTabs.svelte'
 	import MapUpload from '$lib/components/MapUpload.svelte'
+	import MaterialSymbol from '$lib/components/MaterialSymbol.svelte'
 	import PackList from '$lib/components/PackList.svelte'
 	import { appState } from '$lib/state.svelte'
 
@@ -41,14 +42,7 @@
 
 		{#if appState.placingMode}
 			<div class="absolute top-0 left-[50%] z-10 my-4 alert -translate-x-[50%] alert-info">
-				<svg class="w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-					/>
-				</svg>
+				<MaterialSymbol>info</MaterialSymbol>
 				<span
 					>Click anywhere on the map to place a location box. Press <kbd
 						class="kbd kbd-xs text-base-content">Esc</kbd
@@ -85,25 +79,13 @@
 				{#if appState.selectedMap}
 					<MapProperties />
 				{:else}
-					<div class="flex flex-col items-center justify-center gap-3 py-8">
-						<svg
-							class="h-12 w-12 text-base-content/20"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="1.5"
-								d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-3V7m6 16l4.553-2.276A1 1 0 0021 19.382V8.618a1 1 0 00-.553-.894L15 5m0 15V5m0 0L9 7"
-							/>
-						</svg>
-						<p class="text-center text-sm text-base-content/40">
+					<div class="flex flex-col items-center justify-center gap-2 py-8 text-base-content/40">
+						<MaterialSymbol size="4xl" deemphasis>map</MaterialSymbol>
+						<p class="text-center text-sm">
 							No map selected.<br />Add a map to get started.
 						</p>
 						<button class="btn btn-sm btn-primary" onclick={() => (showUploadModal = true)}>
-							Add Map
+							Add map
 						</button>
 					</div>
 				{/if}
@@ -119,9 +101,9 @@
 			<div class="modal-box">
 				<div class="mb-4 flex items-center justify-between">
 					<h3 class="text-lg font-bold">Add Map Images</h3>
-					<button class="btn btn-circle btn-ghost btn-sm" onclick={() => (showUploadModal = false)}
-						>✕</button
-					>
+					<button class="btn btn-circle btn-ghost btn-sm" onclick={() => (showUploadModal = false)}>
+						<MaterialSymbol>close</MaterialSymbol>
+					</button>
 				</div>
 				<MapUpload onupload={() => (showUploadModal = false)} />
 				<div class="modal-action">

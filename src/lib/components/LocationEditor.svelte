@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createLocation } from '$lib/state.svelte'
 	import type { PoptrackerLocation } from '$lib/types'
-	import TrashIcon from './icons/TrashIcon.svelte'
+	import MaterialSymbol from './MaterialSymbol.svelte'
 	import SectionEditor from './SectionEditor.svelte'
 
 	type Props = {
@@ -36,9 +36,7 @@
 	<div class="flex items-center justify-between text-sm">
 		<span class="font-medium">Locations</span>
 		<button class="btn btn-ghost btn-xs" onclick={addLocation}>
-			<svg class="w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-			</svg>
+			<MaterialSymbol size="sm">add</MaterialSymbol>
 			Add
 		</button>
 	</div>
@@ -56,7 +54,7 @@
 					onclick={() => removeLocation(idx)}
 					title="Remove location"
 				>
-					<TrashIcon />
+					<MaterialSymbol size="sm" deemphasis>delete</MaterialSymbol>
 				</button>
 			</summary>
 

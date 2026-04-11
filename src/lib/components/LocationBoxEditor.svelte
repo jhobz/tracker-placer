@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
-	import TrashIcon from './icons/TrashIcon.svelte'
 	import LocationEditor from './LocationEditor.svelte'
+	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	const map = $derived(appState.selectedMap)
 	const box = $derived(appState.selectedBox)
@@ -18,7 +18,7 @@
 				onclick={() => appState.removeLocationBox(map.id, box.id)}
 				title="Delete this location box"
 			>
-				<TrashIcon />
+				<MaterialSymbol size="sm" deemphasis>delete</MaterialSymbol>
 			</button>
 		</div>
 
@@ -83,20 +83,7 @@
 	</div>
 {:else}
 	<div class="my-8 flex flex-col place-items-center gap-2 text-center text-sm text-base-content/40">
-		<svg class="w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="1.5"
-				d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-			/>
-			<path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="1.5"
-				d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-			/>
-		</svg>
+		<MaterialSymbol size="4xl" emphasis>not_listed_location</MaterialSymbol>
 		<p>Click a location box on the map<br />to edit its properties</p>
 	</div>
 {/if}

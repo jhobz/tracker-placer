@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createSection } from '$lib/state.svelte'
 	import type { PoptrackerSection } from '$lib/types'
-	import TrashIcon from './icons/TrashIcon.svelte'
+	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	type Props = {
 		sections: PoptrackerSection[]
@@ -21,9 +21,7 @@
 	<div class="flex items-center justify-between">
 		<span class="text-sm font-medium">Sections</span>
 		<button class="btn btn-ghost btn-xs" onclick={addSection}>
-			<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-			</svg>
+			<MaterialSymbol size="sm">add</MaterialSymbol>
 			Add
 		</button>
 	</div>
@@ -33,14 +31,14 @@
 			class="collapse-arrow collapse border border-base-100 bg-base-300 open:*:[summary]:bg-accent/20"
 			name="sections-accordion"
 		>
-			<summary class="collapse-title flex items-center justify-between">
+			<summary class="collapse-title flex items-center justify-between px-3 py-2 transition-colors">
 				<span class="text-xs font-semibold">{section.name ?? `Section ${idx + 1}`}</span>
 				<button
-					class="btn btn-square btn-ghost btn-xs btn-error"
+					class="btn mr-8 btn-square btn-ghost btn-xs btn-error"
 					onclick={() => removeSection(idx)}
 					title="Remove section"
 				>
-					<TrashIcon />
+					<MaterialSymbol size="sm" deemphasis>delete</MaterialSymbol>
 				</button>
 			</summary>
 
