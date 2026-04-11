@@ -60,7 +60,17 @@
 	}
 
 	function handleCanvasClick(e: MouseEvent) {
-		if (!appState.placingMode || !map || !containerEl) {
+		if (!map || !containerEl) {
+			return
+		}
+
+		if (e.target instanceof Element && e.target.tagName !== 'rect' && !appState.placingMode) {
+			appState.selectedBoxId = null
+			return
+		}
+
+		if (e.target instanceof Element && e.target.tagName === 'rect') {
+			// Let the click event on boxes be handled by their own handlers
 			return
 		}
 
