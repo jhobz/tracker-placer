@@ -30,6 +30,7 @@
 					}}
 					onclick={() => appState.removeMap(map.id)}
 					title="Remove map"
+					aria-label="Remove map"
 				>
 					<MaterialSymbol size="sm" deemphasis>close</MaterialSymbol>
 				</button>
@@ -37,7 +38,12 @@
 		{/each}
 	{/if}
 	<div class="tab p-1">
-		<button class="btn btn-square btn-ghost btn-xs" onclick={onUploadNew} title="Add map">
+		<button
+			class="btn btn-square btn-ghost btn-xs"
+			onclick={onUploadNew}
+			title="Add map"
+			aria-label="Add map"
+		>
 			<MaterialSymbol deemphasis>add</MaterialSymbol>
 		</button>
 	</div>

@@ -2,7 +2,20 @@
 	import { appState } from '$lib/state.svelte'
 
 	const map = $derived(appState.selectedMap)
-	const imageUrl = $derived(appState.getImageUrlForMap(appState.selectedMapId ?? ''))
+	let imageUrl = $state('')
+	$effect(() => {
+		if (!map || !map.imageFile) {
+			imageUrl = ''
+			return
+		}
+
+		imageUrl = URL.createObjectURL(map.imageFile)
+
+		return () => {
+			URL.revokeObjectURL(imageUrl)
+		}
+	})
+	// const imageUrl = $derived(appState.getImageUrlForMap(appState.selectedMapId ?? ''))
 
 	let fileInput: HTMLInputElement | undefined = $state()
 

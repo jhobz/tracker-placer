@@ -1,7 +1,6 @@
 import { appState, createLocationBox, createMap } from '$lib/state.svelte'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
-import { page } from 'vitest/browser'
 import MapProperties from './MapProperties.svelte'
 
 describe('MapProperties', () => {
@@ -15,9 +14,9 @@ describe('MapProperties', () => {
 	})
 
 	it('renders nothing when no map is selected', async () => {
-		render(MapProperties)
+		const { getByText } = render(MapProperties)
 
-		await expect.element(page.getByText('Map Properties')).not.toBeInTheDocument()
+		await expect.element(getByText('Map Properties')).not.toBeInTheDocument()
 	})
 
 	it('renders Map Properties heading when a map is selected', async () => {
@@ -25,9 +24,9 @@ describe('MapProperties', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapProperties)
+		const { getByText } = render(MapProperties)
 
-		await expect.element(page.getByText('Map Properties')).toBeInTheDocument()
+		await expect.element(getByText('Map Properties')).toBeVisible()
 	})
 
 	it('shows the map name input with current value', async () => {
@@ -36,9 +35,9 @@ describe('MapProperties', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapProperties)
+		const { getByPlaceholder } = render(MapProperties)
 
-		await expect.element(page.getByPlaceholder('e.g. Overworld')).toHaveValue('Overworld')
+		await expect.element(getByPlaceholder('e.g. Overworld')).toHaveValue('Overworld')
 	})
 
 	it('shows Choose Image button when no image is set', async () => {
@@ -46,9 +45,9 @@ describe('MapProperties', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapProperties)
+		const { getByText } = render(MapProperties)
 
-		await expect.element(page.getByText('Choose Image')).toBeInTheDocument()
+		await expect.element(getByText('Choose Image')).toBeVisible()
 	})
 
 	it('shows Default Location Size label and range', async () => {
@@ -56,10 +55,10 @@ describe('MapProperties', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapProperties)
+		const { getByText } = render(MapProperties)
 
-		await expect.element(page.getByText('Default Location Size')).toBeInTheDocument()
-		await expect.element(page.getByText('42px')).toBeInTheDocument()
+		await expect.element(getByText('Default Location Size')).toBeVisible()
+		await expect.element(getByText('42px')).toBeVisible()
 	})
 
 	it('shows Location Border Thickness label and range', async () => {
@@ -67,10 +66,10 @@ describe('MapProperties', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapProperties)
+		const { getByText } = render(MapProperties)
 
-		await expect.element(page.getByText('Location Border Thickness')).toBeInTheDocument()
-		await expect.element(page.getByText('4px')).toBeInTheDocument()
+		await expect.element(getByText('Location Border Thickness')).toBeVisible()
+		await expect.element(getByText('4px')).toBeVisible()
 	})
 
 	it('shows location box count', async () => {
@@ -78,9 +77,9 @@ describe('MapProperties', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapProperties)
+		const { getByText } = render(MapProperties)
 
-		await expect.element(page.getByText('0 location boxes placed')).toBeInTheDocument()
+		await expect.element(getByText('0 location boxes placed')).toBeVisible()
 	})
 
 	it('shows singular "box" when exactly 1 box exists', async () => {
@@ -89,9 +88,9 @@ describe('MapProperties', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapProperties)
+		const { getByText } = render(MapProperties)
 
-		await expect.element(page.getByText('1 location box placed')).toBeInTheDocument()
+		await expect.element(getByText('1 location box placed')).toBeVisible()
 	})
 
 	it('shows map image when imageFile is set', async () => {
@@ -100,9 +99,9 @@ describe('MapProperties', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapProperties)
+		const { getByRole } = render(MapProperties)
 
-		await expect.element(page.getByRole('img', { name: map.name })).toBeInTheDocument()
+		await expect.element(getByRole('img', { name: map.name })).toBeVisible()
 	})
 })
 

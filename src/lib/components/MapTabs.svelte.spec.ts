@@ -1,7 +1,6 @@
 import { appState, createMap } from '$lib/state.svelte'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
-import { page } from 'vitest/browser'
 import MapTabs from './MapTabs.svelte'
 
 describe('MapTabs', () => {
@@ -15,9 +14,9 @@ describe('MapTabs', () => {
 	})
 
 	it('shows empty state when no maps exist', async () => {
-		render(MapTabs, { onUploadNew: () => {} })
+		const { getByText } = render(MapTabs, { onUploadNew: () => {} })
 
-		await expect.element(page.getByText('No maps yet')).toBeInTheDocument()
+		await expect.element(getByText('No maps yet')).toBeVisible()
 	})
 
 	it('renders map names as tabs', async () => {
@@ -27,10 +26,10 @@ describe('MapTabs', () => {
 		map2.name = 'Dungeon'
 		appState.maps.push(map1, map2)
 
-		render(MapTabs, { onUploadNew: () => {} })
+		const { getByRole } = render(MapTabs, { onUploadNew: () => {} })
 
-		await expect.element(page.getByRole('tab', { name: 'Overworld' })).toBeInTheDocument()
-		await expect.element(page.getByRole('tab', { name: 'Dungeon' })).toBeInTheDocument()
+		await expect.element(getByRole('tab', { name: 'Overworld' })).toBeVisible()
+		await expect.element(getByRole('tab', { name: 'Dungeon' })).toBeVisible()
 	})
 
 	it('marks the selected map tab as active', async () => {
@@ -39,9 +38,9 @@ describe('MapTabs', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapTabs, { onUploadNew: () => {} })
+		const { getByRole } = render(MapTabs, { onUploadNew: () => {} })
 
-		const tab = page.getByRole('tab', { name: 'Overworld' })
+		const tab = getByRole('tab', { name: 'Overworld' })
 		await expect.element(tab).toHaveClass(/tab-active/)
 	})
 
@@ -50,18 +49,17 @@ describe('MapTabs', () => {
 		map.name = 'Overworld'
 		appState.maps.push(map)
 
-		render(MapTabs, { onUploadNew: () => {} })
-
-		await page.getByRole('tab', { name: 'Overworld' }).click()
+		const { getByRole } = render(MapTabs, { onUploadNew: () => {} })
+		await getByRole('tab', { name: 'Overworld' }).click()
 
 		expect(appState.selectedMapId).toBe(map.id)
 	})
 
 	it('calls onUploadNew when add button is clicked', async () => {
 		const onUploadNew = vi.fn()
-		render(MapTabs, { onUploadNew })
+		const { getByRole } = render(MapTabs, { onUploadNew })
 
-		await page.getByTitle('Add map').click()
+		await getByRole('button', { name: 'Add map' }).click()
 
 		expect(onUploadNew).toHaveBeenCalledOnce()
 	})
@@ -72,16 +70,15 @@ describe('MapTabs', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapTabs, { onUploadNew: () => {} })
-
-		await page.getByTitle('Remove map').click()
+		const { getByRole } = render(MapTabs, { onUploadNew: () => {} })
+		await getByRole('button', { name: 'Remove map' }).click()
 
 		expect(appState.maps).toHaveLength(0)
 	})
 
 	it('uses DaisyUI tabs component classes', async () => {
-		render(MapTabs, { onUploadNew: () => {} })
+		const { getByRole } = render(MapTabs, { onUploadNew: () => {} })
 
-		await expect.element(page.getByRole('tablist')).toBeInTheDocument()
+		await expect.element(getByRole('tablist')).toBeVisible()
 	})
 })

@@ -57,25 +57,20 @@
 	</main>
 
 	<!-- Right sidebar: properties -->
-	<aside class="flex flex-col border-l border-base-300 bg-base-200">
+	<aside class="h-full border-l border-base-300 bg-base-200">
 		<!-- Tab switcher -->
-		<div class="tabs-lift tabs px-3 pt-2">
-			<button
-				class={{ 'tab-sm tab': true, 'tab-active': rightTab === 'map' }}
-				onclick={() => (rightTab = 'map')}
+		<div class="tabs-lift tabs h-full pt-2 tabs-sm">
+			<input
+				type="radio"
+				name="right-tab"
+				class="tab ml-2"
+				bind:group={rightTab}
+				value="map"
+				aria-label="Map"
+			/>
+			<div
+				class="tab-content overflow-y-auto rounded-none border-l-0 border-base-300 bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]"
 			>
-				Map
-			</button>
-			<button
-				class={{ 'tab-sm tab': true, 'tab-active': rightTab === 'box' }}
-				onclick={() => (rightTab = 'box')}
-			>
-				Locations
-			</button>
-		</div>
-
-		<div class="flex-1 overflow-y-auto bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]">
-			{#if rightTab === 'map'}
 				{#if appState.selectedMap}
 					<MapProperties />
 				{:else}
@@ -89,9 +84,25 @@
 						</button>
 					</div>
 				{/if}
-			{:else}
+			</div>
+
+			<input
+				type="radio"
+				name="right-tab"
+				class="tab"
+				bind:group={rightTab}
+				value="box"
+				aria-label="Locations"
+			/>
+			<div
+				class="tab-content overflow-y-auto rounded-none border-l-0 border-base-300 bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]"
+			>
 				<LocationBoxEditor />
-			{/if}
+			</div>
+		</div>
+
+		<div class="">
+			{#if rightTab === 'map'}{:else}{/if}
 		</div>
 	</aside>
 

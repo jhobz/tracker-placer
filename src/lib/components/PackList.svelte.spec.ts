@@ -1,7 +1,7 @@
 import { appState, createPack } from '$lib/state.svelte'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
-import { page, userEvent } from 'vitest/browser'
+import { userEvent } from 'vitest/browser'
 import PackList from './PackList.svelte'
 
 describe('PackList', () => {
@@ -14,10 +14,10 @@ describe('PackList', () => {
 	})
 
 	it('shows empty state when no packs exist', async () => {
-		render(PackList)
+		const { getByText } = render(PackList)
 
-		await expect.element(page.getByText('Packs', { exact: true })).toBeInTheDocument()
-		await expect.element(page.getByText('No packs yet')).toBeInTheDocument()
+		await expect.element(getByText('Packs', { exact: true })).toBeVisible()
+		await expect.element(getByText('No packs yet')).toBeVisible()
 	})
 
 	it('renders pack names in the list', async () => {
@@ -28,10 +28,10 @@ describe('PackList', () => {
 		appState.packs.push(pack1, pack2)
 		appState.selectedPackId = pack1.id
 
-		render(PackList)
+		const { getByText } = render(PackList)
 
-		await expect.element(page.getByText('ALttP')).toBeInTheDocument()
-		await expect.element(page.getByText('SM')).toBeInTheDocument()
+		await expect.element(getByText('ALttP')).toBeVisible()
+		await expect.element(getByText('SM')).toBeVisible()
 	})
 
 	it('selects a pack when clicked', async () => {
@@ -39,17 +39,15 @@ describe('PackList', () => {
 		pack.name = 'ALttP'
 		appState.packs.push(pack)
 
-		render(PackList)
-
-		await page.getByText('ALttP').click()
+		const { getByText } = render(PackList)
+		await getByText('ALttP').click()
 
 		expect(appState.selectedPackId).toBe(pack.id)
 	})
 
 	it('adds a pack when add button is clicked', async () => {
-		render(PackList)
-
-		await page.getByTitle('Add pack').click()
+		const { getByRole } = render(PackList)
+		await getByRole('button', { name: 'Add pack' }).click()
 
 		expect(appState.packs).toHaveLength(1)
 	})
@@ -60,9 +58,8 @@ describe('PackList', () => {
 		appState.packs.push(pack)
 		appState.selectedPackId = pack.id
 
-		render(PackList)
-
-		await page.getByTitle('Remove pack').click()
+		const { getByRole } = render(PackList)
+		await getByRole('button', { name: 'Remove pack' }).click()
 
 		expect(appState.packs).toHaveLength(0)
 	})
@@ -73,9 +70,9 @@ describe('PackList', () => {
 		appState.packs.push(pack)
 		appState.selectedPackId = pack.id
 
-		render(PackList)
+		const { getByRole, getByText } = render(PackList)
 
-		const option = page.getByRole('option', { has: page.getByText('ALttP') })
+		const option = getByRole('option', { has: getByText('ALttP') })
 		await expect.element(option).toHaveAttribute('aria-selected', 'true')
 		await expect.element(option.element().querySelector('a')).toHaveClass('menu-active')
 	})
@@ -86,49 +83,46 @@ describe('PackList', () => {
 		appState.packs.push(pack)
 		appState.selectedPackId = pack.id
 
-		render(PackList)
+		const { getByText, getByRole } = render(PackList)
+		await userEvent.dblClick(getByText('ALttP').element())
 
-		await userEvent.dblClick(page.getByText('ALttP').element())
-
-		await expect.element(page.getByRole('textbox')).toBeInTheDocument()
-		await expect.element(page.getByRole('textbox')).toHaveValue('ALttP')
+		await expect.element(getByRole('textbox')).toBeVisible()
+		await expect.element(getByRole('textbox')).toHaveValue('ALttP')
 	})
 
 	it('updates the pack name when Enter is pressed in rename input', async () => {
 		appState.addPack()
 		appState.packs[0].name = 'ALttP'
 
-		render(PackList)
-
-		await userEvent.dblClick(page.getByText('ALttP').element())
-		await page.getByRole('textbox').fill('Renamed Pack')
+		const { getByText, getByRole } = render(PackList)
+		await userEvent.dblClick(getByText('ALttP').element())
+		await getByRole('textbox').fill('Renamed Pack')
 		await userEvent.keyboard('{Enter}')
 
 		expect(appState.packs[0].name).toBe('Renamed Pack')
-		await expect.element(page.getByRole('textbox')).not.toBeInTheDocument()
+		await expect.element(getByRole('textbox')).not.toBeInTheDocument()
 	})
 
 	it('commits rename on blur', async () => {
 		appState.addPack()
 		appState.packs[0].name = 'ALttP'
 
-		render(PackList)
-
-		await userEvent.dblClick(page.getByText('ALttP').element())
-		await page.getByRole('textbox').fill('Blurred Pack')
+		const { getByText, getByRole } = render(PackList)
+		await userEvent.dblClick(getByText('ALttP').element())
+		await getByRole('textbox').fill('Blurred Pack')
 		await userEvent.tab()
 
-		await expect.element(page.getByRole('textbox')).not.toBeInTheDocument()
+		await expect.element(getByRole('textbox')).not.toBeInTheDocument()
 		expect(appState.packs[0].name).toBe('Blurred Pack')
 	})
 
 	it('focuses and selects input when a new pack is added', async () => {
-		render(PackList)
+		const { getByTitle, getByRole } = render(PackList)
 
-		await page.getByTitle('Add pack').click()
+		await getByTitle('Add pack').click()
 
-		const input = page.getByRole('textbox')
-		await expect.element(input).toBeInTheDocument()
+		const input = getByRole('textbox')
+		await expect.element(input).toBeVisible()
 		expect(document.activeElement).toBe(input.element())
 	})
 })

@@ -52,7 +52,12 @@
 <ul class="menu w-full" role="listbox" tabindex="0" onkeyup={handleMenuKeyboardNavigation}>
 	<li class="flex-row items-center justify-between menu-title text-xs tracking-wider uppercase">
 		<h2>Packs</h2>
-		<button class="btn btn-square btn-ghost btn-xs" onclick={handleAddPack} title="Add pack">
+		<button
+			class="btn btn-square btn-ghost btn-xs"
+			onclick={handleAddPack}
+			title="Add pack"
+			aria-label="Add pack"
+		>
 			<MaterialSymbol>add</MaterialSymbol>
 		</button>
 	</li>
@@ -108,6 +113,7 @@
 						}}
 						onclick={() => appState.removePack(pack.id)}
 						title="Remove pack"
+						aria-label="Remove pack"
 					>
 						<MaterialSymbol size="sm">close</MaterialSymbol>
 					</button>

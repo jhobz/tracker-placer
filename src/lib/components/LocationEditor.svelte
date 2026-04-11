@@ -22,7 +22,7 @@
 <div class="flex flex-col gap-2">
 	<div class="flex items-center justify-between text-sm">
 		<span class="font-medium">Locations</span>
-		<button class="btn btn-ghost btn-xs" onclick={addLocation}>
+		<button class="btn btn-ghost btn-xs" onclick={addLocation} aria-label="Add location">
 			<MaterialSymbol size="sm">add</MaterialSymbol>
 			Add
 		</button>
@@ -41,6 +41,7 @@
 					class="btn mr-8 btn-square btn-ghost btn-xs btn-error"
 					onclick={() => removeLocation(i)}
 					title="Remove location"
+					aria-label="Remove location"
 				>
 					<MaterialSymbol size="sm" deemphasis>delete</MaterialSymbol>
 				</button>
@@ -70,6 +71,7 @@
 						</div>
 						<input
 							type="text"
+							name="chest-unopened-{i}"
 							class="input-bordered input input-xs w-full font-mono"
 							bind:value={location.chest_unopened_img}
 							placeholder="images/items/chest.png"
@@ -81,6 +83,7 @@
 						</div>
 						<input
 							type="text"
+							name="chest-opened-{i}"
 							class="input-bordered input input-xs w-full font-mono"
 							bind:value={location.chest_opened_img}
 							placeholder="images/items/chest_open.png"
@@ -95,6 +98,7 @@
 					</div>
 					<input
 						type="text"
+						name="inherit-icon-from-{i}"
 						class="input-bordered input input-xs w-full font-mono"
 						bind:value={location.inherit_icon_from}
 						placeholder="parent_location_name"
@@ -108,6 +112,7 @@
 						<span class="label-text-alt text-xs opacity-50">one per line</span>
 					</div>
 					<textarea
+						name="access-rules-{i}"
 						class="textarea-bordered textarea w-full font-mono textarea-xs"
 						rows="2"
 						placeholder="{'{item1}'} and {'{item2}'}"
@@ -128,6 +133,7 @@
 						<span class="label-text-alt text-xs opacity-50">one per line</span>
 					</div>
 					<textarea
+						name="visibility-rules-{i}"
 						class="textarea-bordered textarea w-full font-mono textarea-xs"
 						rows="2"
 						placeholder={'{setting}'}

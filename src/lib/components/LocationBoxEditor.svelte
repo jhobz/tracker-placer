@@ -16,7 +16,8 @@
 			<button
 				class="btn btn-square btn-ghost btn-xs btn-error"
 				onclick={() => appState.removeLocationBox(map.id, box.id)}
-				title="Delete this location box"
+				title="Delete location box"
+				aria-label="Delete location box"
 			>
 				<MaterialSymbol size="sm" deemphasis>delete</MaterialSymbol>
 			</button>

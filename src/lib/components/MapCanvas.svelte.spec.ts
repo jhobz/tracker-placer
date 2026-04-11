@@ -1,7 +1,6 @@
 import { appState, createLocationBox, createMap } from '$lib/state.svelte'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
-import { page } from 'vitest/browser'
 import MapCanvas from './MapCanvas.svelte'
 
 describe('MapCanvas', () => {
@@ -16,9 +15,9 @@ describe('MapCanvas', () => {
 	})
 
 	it('shows prompt to select a map when none is selected', async () => {
-		render(MapCanvas)
+		const { getByText } = render(MapCanvas)
 
-		await expect.element(page.getByText(/Select a map from the top bar/)).toBeInTheDocument()
+		await expect.element(getByText(/Select a map from the top bar/)).toBeVisible()
 	})
 
 	it('shows prompt to upload image when map has no image', async () => {
@@ -26,9 +25,9 @@ describe('MapCanvas', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapCanvas)
+		const { getByText } = render(MapCanvas)
 
-		await expect.element(page.getByText(/No image found for this map/)).toBeInTheDocument()
+		await expect.element(getByText(/No image found for this map/)).toBeVisible()
 	})
 
 	it('renders the map image when imageFile is set', async () => {
@@ -39,9 +38,9 @@ describe('MapCanvas', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapCanvas)
+		const { getByRole } = render(MapCanvas)
 
-		await expect.element(page.getByRole('img', { name: 'Overworld' })).toBeInTheDocument()
+		await expect.element(getByRole('img', { name: 'Overworld' })).toBeVisible()
 	})
 
 	it('shows placing mode aria-label when placingMode is true', async () => {
@@ -51,11 +50,9 @@ describe('MapCanvas', () => {
 		appState.selectedMapId = map.id
 		appState.placingMode = true
 
-		render(MapCanvas)
+		const { getByRole } = render(MapCanvas)
 
-		await expect
-			.element(page.getByRole('button', { name: 'Click to place location box' }))
-			.toBeInTheDocument()
+		await expect.element(getByRole('button', { name: 'Click to place location box' })).toBeVisible()
 	})
 
 	it('renders focusable svgs for location boxes', async () => {
@@ -67,10 +64,11 @@ describe('MapCanvas', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		render(MapCanvas)
+		const { getByText, container } = render(MapCanvas)
 
 		// The rect has an accompanying title element with the location name(s)
-		await expect.element(page.getByText('Test Spot')).toBeInTheDocument()
+		await expect.element(getByText('Test Spot')).toBeInTheDocument()
+		await expect.element(container.querySelector('rect')).toBeVisible()
 	})
 })
 

@@ -13,7 +13,20 @@
 	let renderedRect = $state({ left: 0, top: 0, width: 0, height: 0 })
 
 	const map = $derived(appState.selectedMap)
-	const imageUrl = $derived(appState.getImageUrlForMap(map?.id ?? ''))
+	let imageUrl = $state('')
+	$effect(() => {
+		if (!map || !map.imageFile) {
+			imageUrl = ''
+			return
+		}
+
+		imageUrl = URL.createObjectURL(map.imageFile)
+
+		return () => {
+			URL.revokeObjectURL(imageUrl)
+		}
+	})
+	// const imageUrl = $derived(appState.getImageUrlForMap(map?.id ?? ''))
 
 	function updateRenderedRect() {
 		if (!imageEl || !containerEl) {

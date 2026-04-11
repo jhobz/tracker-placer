@@ -1,7 +1,6 @@
 import type { PoptrackerSection } from '$lib/types'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
-import { page } from 'vitest/browser'
 import SectionEditor from './SectionEditor.svelte'
 
 function makeSection(overrides: Partial<PoptrackerSection> = {}): PoptrackerSection {
@@ -24,48 +23,48 @@ describe('SectionEditor', () => {
 	})
 
 	it('renders empty state when no sections', async () => {
-		render(SectionEditor, { sections: [] })
+		const { getByText } = render(SectionEditor, { sections: [] })
 
-		await expect.element(page.getByText('No sections. Add one above.')).toBeInTheDocument()
+		await expect.element(getByText('No sections. Add one above.')).toBeVisible()
 	})
 
 	it('renders a section with its index label', async () => {
 		const sections = $state([makeSection()])
-		render(SectionEditor, { sections })
+		const { getByText } = render(SectionEditor, { sections })
 
-		await expect.element(page.getByText('Test Section')).toBeInTheDocument()
+		await expect.element(getByText('Test Section')).toBeVisible()
 	})
 
 	it('renders section name input with value', async () => {
 		const sections = $state([makeSection({ name: 'My Section' })])
-		render(SectionEditor, { sections })
+		const { getByPlaceholder } = render(SectionEditor, { sections })
 
-		await expect.element(page.getByPlaceholder('Section name')).toHaveValue('My Section')
+		await expect.element(getByPlaceholder('Section name')).toHaveValue('My Section')
 	})
 
 	it('adds a new section when Add button is clicked', async () => {
 		const sections: PoptrackerSection[] = $state([makeSection()])
-		render(SectionEditor, { sections })
+		const { getByRole } = render(SectionEditor, { sections })
 
-		await page.getByRole('button', { name: 'Add' }).click()
+		await getByRole('button', { name: 'Add' }).click()
 
 		expect(sections).toHaveLength(2)
 	})
 
 	it('removes a section when remove button is clicked', async () => {
 		const sections = $state([makeSection()])
-		render(SectionEditor, { sections })
+		const { getByTitle } = render(SectionEditor, { sections })
 
-		await page.getByTitle('Remove section').click()
+		await getByTitle('Remove section').click()
 
 		expect(sections).toHaveLength(0)
 	})
 
 	it('renders item_count and hosted_item inputs', async () => {
 		const sections = $state([makeSection({ item_count: 3, hosted_item: 'sword' })])
-		render(SectionEditor, { sections })
+		const { getByPlaceholder } = render(SectionEditor, { sections })
 
-		await expect.element(page.getByPlaceholder('item_name')).toHaveValue('sword')
+		await expect.element(getByPlaceholder('item_name')).toHaveValue('sword')
 	})
 
 	it('renders multiple sections with correct labels', async () => {
@@ -73,25 +72,27 @@ describe('SectionEditor', () => {
 			makeSection({ id: 'sec-1', name: 'First' }),
 			makeSection({ id: 'sec-2', name: 'Second' })
 		])
-		render(SectionEditor, { sections })
+		const { getByText } = render(SectionEditor, { sections })
 
-		await expect.element(page.getByText('First')).toBeInTheDocument()
-		await expect.element(page.getByText('Second')).toBeInTheDocument()
+		await expect.element(getByText('First')).toBeVisible()
+		await expect.element(getByText('Second')).toBeVisible()
 	})
 
 	it('renders chest image inputs', async () => {
 		const sections = $state([makeSection()])
-		render(SectionEditor, { sections })
 
-		await expect.element(page.getByText('Chest Unopened Img')).toBeInTheDocument()
-		await expect.element(page.getByText('Chest Opened Img')).toBeInTheDocument()
+		const { getByText } = render(SectionEditor, { sections })
+
+		await expect.element(getByText('Chest Unopened Img')).toBeInTheDocument()
+		await expect.element(getByText('Chest Opened Img')).toBeInTheDocument()
 	})
 
 	it('renders access rules and visibility rules textareas', async () => {
 		const sections = $state([makeSection()])
-		render(SectionEditor, { sections })
 
-		await expect.element(page.getByText('Access Rules')).toBeInTheDocument()
-		await expect.element(page.getByText('Visibility Rules')).toBeInTheDocument()
+		const { getByText } = render(SectionEditor, { sections })
+
+		await expect.element(getByText('Access Rules')).toBeInTheDocument()
+		await expect.element(getByText('Visibility Rules')).toBeInTheDocument()
 	})
 })
