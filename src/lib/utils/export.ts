@@ -63,9 +63,9 @@ function exportMapLocationRef(box: LocationBox, mapName?: string): PoptrackerMap
 		x: Math.round(box.x),
 		y: Math.round(box.y)
 	}
-	// if (box.size > 0) {
-	obj.size = box.size
-	// }
+	if (box.size > 0) {
+		obj.size = box.size
+	}
 	return obj
 }
 
