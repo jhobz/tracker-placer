@@ -1,7 +1,7 @@
 {
 	"name": "tracker-placer",
 	"private": true,
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -15,6 +15,7 @@
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run"
 	},
+	"packageManager": "pnpm@10.33.0",
 	"dependencies": {
 		"localforage": "^1.10.0",
 		"nanoid": "^5.1.7"
