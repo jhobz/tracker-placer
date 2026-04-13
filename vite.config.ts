@@ -1,8 +1,8 @@
-import { defineConfig } from 'vitest/config'
+import { sveltekit } from '@sveltejs/kit/vite'
+import tailwindcss from '@tailwindcss/vite'
 import { playwright } from '@vitest/browser-playwright'
 import devtoolsJson from 'vite-plugin-devtools-json'
-import tailwindcss from '@tailwindcss/vite'
-import { sveltekit } from '@sveltejs/kit/vite'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
@@ -32,6 +32,9 @@ export default defineConfig({
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
 				}
 			}
-		]
+		],
+		coverage: {
+			include: ['src']
+		}
 	}
 })

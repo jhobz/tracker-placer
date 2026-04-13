@@ -1,22 +1,38 @@
 import type {
-	MapConfig,
 	LocationBox,
+	MapConfig,
 	PoptrackerLocation,
-	PoptrackerSection,
-	PoptrackerMapJson,
 	PoptrackerLocationJson,
-	PoptrackerSectionJson,
-	PoptrackerMapLocationJson
+	PoptrackerMapJson,
+	PoptrackerMapLocationJson,
+	PoptrackerSection,
+	PoptrackerSectionJson
 } from '../types'
+import { validateLocationsJson, validateMapsJson } from './validate'
 
-function parseRules(rules: string[]): string[][] {
-	return rules
-		.map((r) => r.trim())
-		.filter((r) => r.length > 0)
-		.map((r) => [r])
+export class ExportValidationError extends Error {
+	constructor(message: string) {
+		super(message)
+		this.name = 'ExportValidationError'
+	}
 }
 
-function exportSection(section: PoptrackerSection): PoptrackerSectionJson {
+function parseRules(rules: string | string[] | string[][]): string | string[] | string[][] {
+	if (typeof rules === 'string') {
+		return rules.trim()
+	} else if (Array.isArray(rules)) {
+		if (rules.every((r) => typeof r === 'string')) {
+			return (rules as string[]).map((r) => r.trim()).filter((r) => r.length > 0)
+		} else {
+			return (rules as string[][]).map((arr) =>
+				arr.map((r) => r.trim()).filter((r) => r.length > 0)
+			)
+		}
+	}
+	return rules
+}
+
+function exportSection(section: PoptrackerSection | PoptrackerSectionJson): PoptrackerSectionJson {
 	const obj: PoptrackerSectionJson = {
 		name: section.name
 	}
@@ -26,13 +42,11 @@ function exportSection(section: PoptrackerSection): PoptrackerSectionJson {
 	if (section.hosted_item) {
 		obj.hosted_item = section.hosted_item
 	}
-	const ar = parseRules(section.access_rules)
-	if (ar.length > 0) {
-		obj.access_rules = ar
+	if (section.access_rules?.length) {
+		obj.access_rules = parseRules(section.access_rules)
 	}
-	const vr = parseRules(section.visibility_rules)
-	if (vr.length > 0) {
-		obj.visibility_rules = vr
+	if (section.visibility_rules?.length) {
+		obj.visibility_rules = parseRules(section.visibility_rules)
 	}
 	if (section.chest_unopened_img) {
 		obj.chest_unopened_img = section.chest_unopened_img
@@ -43,28 +57,22 @@ function exportSection(section: PoptrackerSection): PoptrackerSectionJson {
 	return obj
 }
 
-function exportMapLocationRef(box: LocationBox, mapName: string): PoptrackerMapLocationJson {
+function exportMapLocationRef(box: LocationBox, mapName?: string): PoptrackerMapLocationJson {
 	const obj: PoptrackerMapLocationJson = {
 		map: mapName,
 		x: Math.round(box.x),
 		y: Math.round(box.y)
 	}
-	if (box.size > 0) {
-		obj.size = box.size
-	}
-	if (box.rectWidth > 0) {
-		obj.rect_width = box.rectWidth
-	}
-	if (box.rectHeight > 0) {
-		obj.rect_height = box.rectHeight
-	}
+	// if (box.size > 0) {
+	obj.size = box.size
+	// }
 	return obj
 }
 
 function exportLocation(
-	location: PoptrackerLocation,
+	location: PoptrackerLocation | PoptrackerLocationJson,
 	box: LocationBox,
-	mapName: string
+	mapName?: string
 ): PoptrackerLocationJson {
 	const obj: PoptrackerLocationJson = {
 		name: location.name
@@ -75,24 +83,19 @@ function exportLocation(
 	if (location.chest_opened_img) {
 		obj.chest_opened_img = location.chest_opened_img
 	}
-	if (location.inherit_icon_from) {
-		obj.inherit_icon_from = location.inherit_icon_from
+
+	if (location.access_rules?.length) {
+		obj.access_rules = parseRules(location.access_rules)
+	}
+	if (location.visibility_rules?.length) {
+		obj.visibility_rules = parseRules(location.visibility_rules)
 	}
 
-	const ar = parseRules(location.access_rules)
-	if (ar.length > 0) {
-		obj.access_rules = ar
-	}
-	const vr = parseRules(location.visibility_rules)
-	if (vr.length > 0) {
-		obj.visibility_rules = vr
+	if (location.sections?.length) {
+		obj.sections = (location.sections as PoptrackerSectionJson[]).map(exportSection)
 	}
 
-	if (location.sections.length > 0) {
-		obj.sections = location.sections.map(exportSection)
-	}
-
-	if (location.children.length > 0) {
+	if (location.children?.length) {
 		obj.children = location.children.map((c) => exportLocation(c, box, mapName))
 	}
 
@@ -101,24 +104,54 @@ function exportLocation(
 	return obj
 }
 
-export function exportMapsJson(maps: MapConfig[]): PoptrackerMapJson[] {
-	return maps.map((map) => ({
-		name: map.name,
-		location_size: map.locationSize,
-		location_border_thickness: map.locationBorderThickness,
-		img: `images/maps/${map.name.toLowerCase().replace(/\s+/g, '_')}.png`
-	}))
+export function exportMapsJson(
+	maps: MapConfig[],
+	overrideErrors: boolean = false
+): PoptrackerMapJson[] {
+	const result = maps.map((map) => {
+		return {
+			name: map.name as PoptrackerMapJson['name'],
+			location_size: map.location_size as PoptrackerMapJson['location_size'],
+			location_border_thickness:
+				map.location_border_thickness as PoptrackerMapJson['location_border_thickness'],
+			location_shape: map.location_shape as PoptrackerMapJson['location_shape'],
+			img: `images/maps/${(map.name ?? '').toString().toLowerCase().replace(/\s+/g, '_')}.png`
+		} satisfies PoptrackerMapJson
+	})
+
+	if (!overrideErrors && !validateMapsJson(result)) {
+		throw new ExportValidationError(
+			`Validation failed for maps.json: ${
+				validateMapsJson.errors?.map((e) => `${e.instancePath} ${e.message}`).join(', ') ??
+				'Unknown validation error'
+			}`
+		)
+	}
+
+	return result
 }
 
-export function exportLocationsJson(maps: MapConfig[]): PoptrackerLocationJson[] {
+export function exportLocationsJson(
+	maps: MapConfig[],
+	overrideErrors: boolean = false
+): PoptrackerLocationJson[] {
 	const locations: PoptrackerLocationJson[] = []
 
 	for (const map of maps) {
 		for (const box of map.locationBoxes) {
 			for (const location of box.locations) {
-				locations.push(exportLocation(location, box, map.name))
+				locations.push(exportLocation(location, box, map.name as PoptrackerMapJson['name']))
 			}
 		}
+	}
+
+	if (!overrideErrors && !validateLocationsJson(locations)) {
+		throw new ExportValidationError(
+			`Validation failed for locations.json: ${
+				validateLocationsJson.errors?.map((e) => `${e.instancePath} ${e.message}`).join(', ') ??
+				'Unknown validation error'
+			}`
+		)
 	}
 
 	return locations

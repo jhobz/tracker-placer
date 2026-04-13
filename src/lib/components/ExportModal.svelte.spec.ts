@@ -1,9 +1,191 @@
-import { page } from 'vitest/browser'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { render, cleanup } from 'vitest-browser-svelte'
-import ExportModal from './ExportModal.svelte'
 import { appState } from '$lib/state.svelte'
-import type { MapConfig, LocationBox, PoptrackerLocation, PoptrackerSection } from '$lib/types'
+import type { LocationBox, MapConfig, PoptrackerLocation, PoptrackerSection } from '$lib/types'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render } from 'vitest-browser-svelte'
+import ExportModal from './ExportModal.svelte'
+
+describe('ExportModal', () => {
+	beforeEach(() => {
+		cleanup()
+		appState.packs.length = 0
+		appState.selectedPackId = null
+		appState.addPack()
+	})
+
+	it('does not render content when open is false', async () => {
+		const { getByText } = render(ExportModal, { open: false, onclose: () => {} })
+
+		await expect.element(getByText('Export JSON Files')).not.toBeInTheDocument()
+	})
+
+	it('renders modal when open is true', async () => {
+		const { getByText, getByRole } = render(ExportModal, { open: true, onclose: () => {} })
+
+		await expect.element(getByText('Export JSON Files')).toBeInTheDocument()
+		await expect.element(getByRole('button', { name: 'maps.json', exact: true })).toBeVisible()
+		await expect.element(getByRole('button', { name: 'locations.json', exact: true })).toBeVisible()
+	})
+
+	it('shows maps.json tab by default', async () => {
+		appState.maps.push(makeMap({ name: 'Overworld' }))
+
+		const { getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+		// maps tab should be active and show maps JSON content in the <pre>
+		await expect.element(getByText('"Overworld"')).toBeVisible()
+	})
+
+	it('switches to locations.json tab on click', async () => {
+		appState.maps.push(
+			makeMap({
+				name: 'Overworld',
+				locationBoxes: [makeBox({ locations: [makeLocation({ name: 'Kakariko' })] })]
+			})
+		)
+
+		const { getByText } = render(ExportModal, { open: true, onclose: () => {} })
+		await getByText('locations.json').click()
+
+		// Should show location name in the preview
+		await expect.element(getByText('"Kakariko"')).toBeVisible()
+	})
+
+	it('shows empty arrays when no maps exist', async () => {
+		const { getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+		// maps.json tab should show empty array
+		await expect.element(getByText('[]')).toBeVisible()
+	})
+
+	it('calls onclose when close button is clicked', async () => {
+		const onclose = vi.fn()
+
+		const { getByText } = render(ExportModal, { open: true, onclose })
+		await getByText('Close', { exact: true }).click()
+
+		expect(onclose).toHaveBeenCalledOnce()
+	})
+
+	it('calls onclose when ✕ button is clicked', async () => {
+		const onclose = vi.fn()
+
+		const { getByLabelText } = render(ExportModal, { open: true, onclose })
+		await getByLabelText('Close').click()
+
+		expect(onclose).toHaveBeenCalledOnce()
+	})
+
+	it('calls downloadJson for current tab when Download button is clicked', async () => {
+		const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock')
+		const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
+		appState.maps.push(makeMap({ name: 'Overworld' }))
+
+		const { getByRole } = render(ExportModal, { open: true, onclose: () => {} })
+		// Default tab is maps, click the single-file download button
+		await getByRole('button', { name: /Download maps\.json/ }).click()
+
+		expect(createObjectURLSpy).toHaveBeenCalledOnce()
+		expect(revokeObjectURLSpy).toHaveBeenCalledOnce()
+
+		createObjectURLSpy.mockRestore()
+		revokeObjectURLSpy.mockRestore()
+	})
+
+	it('calls downloadJson for locations tab when switched', async () => {
+		const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock')
+		const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
+		appState.maps.push(makeMap({ name: 'Overworld' }))
+
+		const { getByRole } = render(ExportModal, { open: true, onclose: () => {} })
+		await getByRole('button', { name: 'locations.json', exact: true }).click()
+		await getByRole('button', { name: /Download locations\.json/ }).click()
+
+		expect(createObjectURLSpy).toHaveBeenCalledOnce()
+		expect(revokeObjectURLSpy).toHaveBeenCalledOnce()
+
+		createObjectURLSpy.mockRestore()
+		revokeObjectURLSpy.mockRestore()
+	})
+
+	it('calls downloadJson twice when Download All is clicked', async () => {
+		const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock')
+		const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
+		appState.maps.push(makeMap({ name: 'Overworld' }))
+
+		const { getByRole } = render(ExportModal, { open: true, onclose: () => {} })
+		await getByRole('button', { name: /Download All/ }).click()
+
+		// downloadAll calls downloadMaps + downloadLocations, each creating a blob
+		expect(createObjectURLSpy).toHaveBeenCalledTimes(2)
+		expect(revokeObjectURLSpy).toHaveBeenCalledTimes(2)
+
+		createObjectURLSpy.mockRestore()
+		revokeObjectURLSpy.mockRestore()
+	})
+
+	it('displays description text about Poptracker pack', async () => {
+		const { getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+		await expect.element(getByText(/Download the generated JSON files/)).toBeVisible()
+	})
+
+	// Integration tests for validation before download
+
+	describe('validation UI', () => {
+		it('blocks export and shows error if maps.json is invalid', async () => {
+			appState.addPack()
+			appState.maps.push(makeMap({ name: 123 as unknown as string }))
+			const { getByRole, getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+			const downloadBtn = getByRole('button', { name: /Download maps\.json/ })
+			await downloadBtn.click()
+
+			await expect.element(getByText(/Validation failed/)).toBeVisible()
+		})
+
+		it('allows override to force export when invalid', async () => {
+			appState.addPack()
+			appState.maps.push(makeMap({ name: 123 as unknown as string }))
+			const { getByRole, getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+			const downloadBtn = getByRole('button', { name: /Download maps\.json/ })
+			await downloadBtn.click()
+
+			const overrideBtn = getByRole('button', { name: /Export anyway/ })
+			await overrideBtn.click()
+
+			await expect.element(getByText(/Validation failed/)).not.toBeInTheDocument()
+		})
+
+		it('shows error and blocks export for invalid locations', async () => {
+			const invalidLocation = makeLocation({ name: 123 as unknown as string })
+			const box = makeBox({ locations: [invalidLocation] })
+			appState.addPack()
+			appState.maps.push(makeMap({ locationBoxes: [box] }))
+			const { getByRole, getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+			await getByRole('button', { name: 'locations.json', exact: true }).click()
+			const downloadBtn = getByRole('button', { name: /Download locations\.json/ })
+			await downloadBtn.click()
+
+			await expect.element(getByText(/Validation failed/)).toBeVisible()
+		})
+
+		it('shows error and blocks export for invalid sections', async () => {
+			const invalidLocation = makeLocation({ sections: [makeSection({ item_count: -1 })] })
+			const box = makeBox({ locations: [invalidLocation] })
+			appState.addPack()
+			appState.maps.push(makeMap({ locationBoxes: [box] }))
+			const { getByRole, getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+			await getByRole('button', { name: 'locations.json', exact: true }).click()
+			const downloadBtn = getByRole('button', { name: /Download locations\.json/ })
+			await downloadBtn.click()
+
+			await expect.element(getByText(/Validation failed/)).toBeVisible()
+		})
+	})
+})
 
 function makeSection(overrides: Partial<PoptrackerSection> = {}): PoptrackerSection {
 	return {
@@ -25,7 +207,6 @@ function makeLocation(overrides: Partial<PoptrackerLocation> = {}): PoptrackerLo
 		name: 'Test Location',
 		chest_unopened_img: '',
 		chest_opened_img: '',
-		inherit_icon_from: '',
 		access_rules: [],
 		visibility_rules: [],
 		sections: [makeSection()],
@@ -41,8 +222,6 @@ function makeBox(overrides: Partial<LocationBox> = {}): LocationBox {
 		x: 100,
 		y: 200,
 		size: 0,
-		rectWidth: 0,
-		rectHeight: 0,
 		locations: [makeLocation()],
 		...overrides
 	}
@@ -54,141 +233,10 @@ function makeMap(overrides: Partial<MapConfig> = {}): MapConfig {
 		name: 'Overworld',
 		imageFile: null,
 		imageUrl: '',
-		locationSize: 16,
-		locationBorderThickness: 1,
+		location_size: 16,
+		location_border_thickness: 1,
+		location_shape: 'rect',
 		locationBoxes: [makeBox()],
 		...overrides
 	}
 }
-
-describe('ExportModal', () => {
-	beforeEach(() => {
-		cleanup()
-		appState.packs.length = 0
-		appState.selectedPackId = null
-		appState.addPack()
-	})
-
-	it('does not render content when open is false', async () => {
-		render(ExportModal, { open: false, onclose: () => {} })
-
-		await expect.element(page.getByText('Export JSON Files')).not.toBeInTheDocument()
-	})
-
-	it('renders modal when open is true', async () => {
-		render(ExportModal, { open: true, onclose: () => {} })
-
-		await expect.element(page.getByText('Export JSON Files')).toBeInTheDocument()
-		await expect
-			.element(page.getByRole('button', { name: 'maps.json', exact: true }))
-			.toBeInTheDocument()
-		await expect
-			.element(page.getByRole('button', { name: 'locations.json', exact: true }))
-			.toBeInTheDocument()
-	})
-
-	it('shows maps.json tab by default', async () => {
-		appState.maps.push(makeMap({ name: 'Overworld' }))
-		render(ExportModal, { open: true, onclose: () => {} })
-
-		// maps tab should be active and show maps JSON content in the <pre>
-		await expect.element(page.getByText('"Overworld"')).toBeInTheDocument()
-	})
-
-	it('switches to locations.json tab on click', async () => {
-		appState.maps.push(
-			makeMap({
-				name: 'Overworld',
-				locationBoxes: [makeBox({ locations: [makeLocation({ name: 'Kakariko' })] })]
-			})
-		)
-		render(ExportModal, { open: true, onclose: () => {} })
-
-		// Click locations tab
-		await page.getByText('locations.json').click()
-
-		// Should show location name in the preview
-		await expect.element(page.getByText('"Kakariko"')).toBeInTheDocument()
-	})
-
-	it('shows empty arrays when no maps exist', async () => {
-		render(ExportModal, { open: true, onclose: () => {} })
-
-		// maps.json tab should show empty array
-		await expect.element(page.getByText('[]')).toBeInTheDocument()
-	})
-
-	it('calls onclose when close button is clicked', async () => {
-		const onclose = vi.fn()
-		render(ExportModal, { open: true, onclose })
-
-		await page.getByText('Close').click()
-
-		expect(onclose).toHaveBeenCalledOnce()
-	})
-
-	it('calls onclose when ✕ button is clicked', async () => {
-		const onclose = vi.fn()
-		render(ExportModal, { open: true, onclose })
-
-		await page.getByText('✕').click()
-
-		expect(onclose).toHaveBeenCalledOnce()
-	})
-
-	it('calls downloadJson for current tab when Download button is clicked', async () => {
-		const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock')
-		const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
-		appState.maps.push(makeMap({ name: 'Overworld' }))
-		render(ExportModal, { open: true, onclose: () => {} })
-
-		// Default tab is maps, click the single-file download button
-		await page.getByRole('button', { name: /Download maps\.json/ }).click()
-
-		expect(createObjectURLSpy).toHaveBeenCalledOnce()
-		expect(revokeObjectURLSpy).toHaveBeenCalledOnce()
-
-		createObjectURLSpy.mockRestore()
-		revokeObjectURLSpy.mockRestore()
-	})
-
-	it('calls downloadJson for locations tab when switched', async () => {
-		const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock')
-		const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
-		appState.maps.push(makeMap({ name: 'Overworld' }))
-		render(ExportModal, { open: true, onclose: () => {} })
-
-		// Switch to locations tab
-		await page.getByRole('button', { name: 'locations.json', exact: true }).click()
-
-		await page.getByRole('button', { name: /Download locations\.json/ }).click()
-
-		expect(createObjectURLSpy).toHaveBeenCalledOnce()
-		expect(revokeObjectURLSpy).toHaveBeenCalledOnce()
-
-		createObjectURLSpy.mockRestore()
-		revokeObjectURLSpy.mockRestore()
-	})
-
-	it('calls downloadJson twice when Download All is clicked', async () => {
-		const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock')
-		const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
-		appState.maps.push(makeMap({ name: 'Overworld' }))
-		render(ExportModal, { open: true, onclose: () => {} })
-
-		await page.getByRole('button', { name: /Download All/ }).click()
-
-		// downloadAll calls downloadMaps + downloadLocations, each creating a blob
-		expect(createObjectURLSpy).toHaveBeenCalledTimes(2)
-		expect(revokeObjectURLSpy).toHaveBeenCalledTimes(2)
-
-		createObjectURLSpy.mockRestore()
-		revokeObjectURLSpy.mockRestore()
-	})
-
-	it('displays description text about Poptracker pack', async () => {
-		render(ExportModal, { open: true, onclose: () => {} })
-
-		await expect.element(page.getByText(/Download the generated JSON files/)).toBeInTheDocument()
-	})
-})
