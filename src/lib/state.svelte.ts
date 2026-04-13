@@ -28,8 +28,9 @@ export function createMap(): MapConfig {
 		name: 'New Map',
 		imageFile: null,
 		imageUrl: '',
-		locationSize: 42,
-		locationBorderThickness: 4,
+		location_size: 42,
+		location_border_thickness: 4,
+		location_shape: 'rect',
 		locationBoxes: []
 	}
 }
@@ -40,8 +41,6 @@ export function createLocationBox(x: number, y: number): LocationBox {
 		x,
 		y,
 		size: 0,
-		rectWidth: 0,
-		rectHeight: 0,
 		locations: [createLocation()]
 	}
 }
@@ -52,7 +51,6 @@ export function createLocation(): PoptrackerLocation {
 		name: 'New Location',
 		chest_unopened_img: '',
 		chest_opened_img: '',
-		inherit_icon_from: '',
 		access_rules: [],
 		visibility_rules: [],
 		sections: [createSection()],

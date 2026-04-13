@@ -90,7 +90,7 @@
 		<label class="form-control w-full">
 			<div class="label">
 				<span class="label-text">Default Location Size</span>
-				<span class="label-text-alt text-base-content/50">{map.locationSize}px</span>
+				<span class="label-text-alt text-base-content/50">{map.location_size}px</span>
 			</div>
 			<input
 				type="range"
@@ -98,7 +98,7 @@
 				max="64"
 				step="1"
 				class="range range-primary range-sm"
-				bind:value={map.locationSize}
+				bind:value={map.location_size}
 			/>
 		</label>
 
@@ -106,7 +106,7 @@
 		<label class="form-control w-full">
 			<div class="label">
 				<span class="label-text">Location Border Thickness</span>
-				<span class="label-text-alt text-base-content/50">{map.locationBorderThickness}px</span>
+				<span class="label-text-alt text-base-content/50">{map.location_border_thickness}px</span>
 			</div>
 			<input
 				type="range"
@@ -114,7 +114,7 @@
 				max="8"
 				step="1"
 				class="range range-primary range-sm"
-				bind:value={map.locationBorderThickness}
+				bind:value={map.location_border_thickness}
 			/>
 		</label>
 

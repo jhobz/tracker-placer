@@ -128,6 +128,63 @@ describe('ExportModal', () => {
 
 		await expect.element(getByText(/Download the generated JSON files/)).toBeVisible()
 	})
+
+	// Integration tests for validation before download
+
+	describe('validation UI', () => {
+		it('blocks export and shows error if maps.json is invalid', async () => {
+			appState.addPack()
+			appState.maps.push(makeMap({ name: 123 as unknown as string }))
+			const { getByRole, getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+			const downloadBtn = getByRole('button', { name: /Download maps\.json/ })
+			await downloadBtn.click()
+
+			await expect.element(getByText(/Validation failed/)).toBeVisible()
+		})
+
+		it('allows override to force export when invalid', async () => {
+			appState.addPack()
+			appState.maps.push(makeMap({ name: 123 as unknown as string }))
+			const { getByRole, getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+			const downloadBtn = getByRole('button', { name: /Download maps\.json/ })
+			await downloadBtn.click()
+
+			const overrideBtn = getByRole('button', { name: /Export anyway/ })
+			await overrideBtn.click()
+
+			await expect.element(getByText(/Validation failed/)).not.toBeInTheDocument()
+		})
+
+		it('shows error and blocks export for invalid locations', async () => {
+			const invalidLocation = makeLocation({ name: 123 as unknown as string })
+			const box = makeBox({ locations: [invalidLocation] })
+			appState.addPack()
+			appState.maps.push(makeMap({ locationBoxes: [box] }))
+			const { getByRole, getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+			await getByRole('button', { name: 'locations.json', exact: true }).click()
+			const downloadBtn = getByRole('button', { name: /Download locations\.json/ })
+			await downloadBtn.click()
+
+			await expect.element(getByText(/Validation failed/)).toBeVisible()
+		})
+
+		it('shows error and blocks export for invalid sections', async () => {
+			const invalidLocation = makeLocation({ sections: [makeSection({ item_count: -1 })] })
+			const box = makeBox({ locations: [invalidLocation] })
+			appState.addPack()
+			appState.maps.push(makeMap({ locationBoxes: [box] }))
+			const { getByRole, getByText } = render(ExportModal, { open: true, onclose: () => {} })
+
+			await getByRole('button', { name: 'locations.json', exact: true }).click()
+			const downloadBtn = getByRole('button', { name: /Download locations\.json/ })
+			await downloadBtn.click()
+
+			await expect.element(getByText(/Validation failed/)).toBeVisible()
+		})
+	})
 })
 
 function makeSection(overrides: Partial<PoptrackerSection> = {}): PoptrackerSection {
@@ -150,7 +207,6 @@ function makeLocation(overrides: Partial<PoptrackerLocation> = {}): PoptrackerLo
 		name: 'Test Location',
 		chest_unopened_img: '',
 		chest_opened_img: '',
-		inherit_icon_from: '',
 		access_rules: [],
 		visibility_rules: [],
 		sections: [makeSection()],
@@ -166,8 +222,6 @@ function makeBox(overrides: Partial<LocationBox> = {}): LocationBox {
 		x: 100,
 		y: 200,
 		size: 0,
-		rectWidth: 0,
-		rectHeight: 0,
 		locations: [makeLocation()],
 		...overrides
 	}
@@ -179,8 +233,9 @@ function makeMap(overrides: Partial<MapConfig> = {}): MapConfig {
 		name: 'Overworld',
 		imageFile: null,
 		imageUrl: '',
-		locationSize: 16,
-		locationBorderThickness: 1,
+		location_size: 16,
+		location_border_thickness: 1,
+		location_shape: 'rect',
 		locationBoxes: [makeBox()],
 		...overrides
 	}

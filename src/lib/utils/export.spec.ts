@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { LocationBox, MapConfig, PoptrackerLocation, PoptrackerSection } from '../types'
-import { exportLocationsJson, exportMapsJson } from './export'
+import { exportLocationsJson, exportMapsJson, ExportValidationError } from './export'
 
 function makeSection(overrides: Partial<PoptrackerSection> = {}): PoptrackerSection {
 	return {
@@ -22,7 +22,6 @@ function makeLocation(overrides: Partial<PoptrackerLocation> = {}): PoptrackerLo
 		name: 'Test Location',
 		chest_unopened_img: '',
 		chest_opened_img: '',
-		inherit_icon_from: '',
 		access_rules: [],
 		visibility_rules: [],
 		sections: [],
@@ -38,8 +37,6 @@ function makeBox(overrides: Partial<LocationBox> = {}): LocationBox {
 		x: 100.7,
 		y: 200.3,
 		size: 0,
-		rectWidth: 0,
-		rectHeight: 0,
 		locations: [],
 		...overrides
 	}
@@ -51,8 +48,9 @@ function makeMap(overrides: Partial<MapConfig> = {}): MapConfig {
 		name: 'Overworld',
 		imageFile: null,
 		imageUrl: '',
-		locationSize: 16,
-		locationBorderThickness: 1,
+		location_size: 16,
+		location_border_thickness: 1,
+		location_shape: 'rect',
 		locationBoxes: [],
 		...overrides
 	}
@@ -70,6 +68,7 @@ describe('exportMapsJson', () => {
 			name: 'Overworld',
 			location_size: 16,
 			location_border_thickness: 1,
+			location_shape: 'rect',
 			img: 'images/maps/overworld.png'
 		})
 	})
@@ -157,30 +156,6 @@ describe('exportLocationsJson', () => {
 		expect(result[0].map_locations![0].size).toBe(24)
 	})
 
-	it('includes rect_width and rect_height when > 0', () => {
-		const location = makeLocation()
-		const box = makeBox({ rectWidth: 32, rectHeight: 48, locations: [location] })
-		const maps = [makeMap({ locationBoxes: [box] })]
-
-		const result = exportLocationsJson(maps)
-		const mapLoc = result[0].map_locations![0]
-
-		expect(mapLoc.rect_width).toBe(32)
-		expect(mapLoc.rect_height).toBe(48)
-	})
-
-	it('omits rect_width and rect_height when 0', () => {
-		const location = makeLocation()
-		const box = makeBox({ rectWidth: 0, rectHeight: 0, locations: [location] })
-		const maps = [makeMap({ locationBoxes: [box] })]
-
-		const result = exportLocationsJson(maps)
-		const mapLoc = result[0].map_locations![0]
-
-		expect(mapLoc).not.toHaveProperty('rect_width')
-		expect(mapLoc).not.toHaveProperty('rect_height')
-	})
-
 	it('omits optional location fields when empty', () => {
 		const location = makeLocation()
 		const box = makeBox({ locations: [location] })
@@ -198,8 +173,7 @@ describe('exportLocationsJson', () => {
 	it('includes optional location fields when set', () => {
 		const location = makeLocation({
 			chest_unopened_img: 'chest.png',
-			chest_opened_img: 'chest_open.png',
-			inherit_icon_from: 'parent'
+			chest_opened_img: 'chest_open.png'
 		})
 		const box = makeBox({ locations: [location] })
 		const maps = [makeMap({ locationBoxes: [box] })]
@@ -208,31 +182,46 @@ describe('exportLocationsJson', () => {
 
 		expect(result[0].chest_unopened_img).toBe('chest.png')
 		expect(result[0].chest_opened_img).toBe('chest_open.png')
-		expect(result[0].inherit_icon_from).toBe('parent')
 	})
 
-	it('parses access_rules into nested arrays', () => {
-		const location = makeLocation({
+	it('handles access_rules as a string, an array of strings, or an array of string arrays', () => {
+		const location1 = makeLocation({
+			access_rules: 'has_hookshot,has_bow'
+		})
+		const location2 = makeLocation({
 			access_rules: ['has_hookshot', 'has_bow']
 		})
-		const box = makeBox({ locations: [location] })
+		const location3 = makeLocation({
+			access_rules: [['has_hookshot', 'has_bow'], ['has_boots']]
+		})
+		const box = makeBox({ locations: [location1, location2, location3] })
 		const maps = [makeMap({ locationBoxes: [box] })]
 
 		const result = exportLocationsJson(maps)
 
-		expect(result[0].access_rules).toEqual([['has_hookshot'], ['has_bow']])
+		expect(result[0].access_rules).toEqual('has_hookshot,has_bow')
+		expect(result[1].access_rules).toEqual(['has_hookshot', 'has_bow'])
+		expect(result[2].access_rules).toEqual([['has_hookshot', 'has_bow'], ['has_boots']])
 	})
 
-	it('parses visibility_rules into nested arrays', () => {
-		const location = makeLocation({
+	it('handles visibility_rules as a string, an array of strings, or an array of string arrays', () => {
+		const location1 = makeLocation({
+			visibility_rules: 'map_revealed'
+		})
+		const location2 = makeLocation({
 			visibility_rules: ['map_revealed']
 		})
-		const box = makeBox({ locations: [location] })
+		const location3 = makeLocation({
+			visibility_rules: [['map_revealed']]
+		})
+		const box = makeBox({ locations: [location1, location2, location3] })
 		const maps = [makeMap({ locationBoxes: [box] })]
 
 		const result = exportLocationsJson(maps)
 
-		expect(result[0].visibility_rules).toEqual([['map_revealed']])
+		expect(result[0].visibility_rules).toEqual('map_revealed')
+		expect(result[1].visibility_rules).toEqual(['map_revealed'])
+		expect(result[2].visibility_rules).toEqual([['map_revealed']])
 	})
 
 	it('trims whitespace and filters empty rules', () => {
@@ -244,7 +233,7 @@ describe('exportLocationsJson', () => {
 
 		const result = exportLocationsJson(maps)
 
-		expect(result[0].access_rules).toEqual([['has_hookshot'], ['has_bow']])
+		expect(result[0].access_rules).toEqual(['has_hookshot', 'has_bow'])
 	})
 
 	it('exports sections with all fields', () => {
@@ -267,8 +256,8 @@ describe('exportLocationsJson', () => {
 		expect(sec.name).toBe('Item')
 		expect(sec.item_count).toBe(3)
 		expect(sec.hosted_item).toBe('sword')
-		expect(sec.access_rules).toEqual([['has_key']])
-		expect(sec.visibility_rules).toEqual([['boss_defeated']])
+		expect(sec.access_rules).toEqual(['has_key'])
+		expect(sec.visibility_rules).toEqual(['boss_defeated'])
 		expect(sec.chest_unopened_img).toBe('big_chest.png')
 		expect(sec.chest_opened_img).toBe('big_chest_open.png')
 	})
@@ -293,6 +282,18 @@ describe('exportLocationsJson', () => {
 		const result = exportLocationsJson(maps)
 
 		expect(result[0].sections![0].item_count).toBe(5)
+	})
+
+	it('fails validation when item_count is less than 0', () => {
+		const section = makeSection({ item_count: -1 })
+		const location = makeLocation({ sections: [section] })
+		const box = makeBox({ locations: [location] })
+		const maps = [makeMap({ locationBoxes: [box] })]
+
+		expect(() => exportLocationsJson(maps)).toThrow(ExportValidationError)
+		expect(() => exportLocationsJson(maps)).toThrow(
+			'Validation failed for locations.json: /0/sections/0/item_count must be >= 0'
+		)
 	})
 
 	it('omits optional section fields when empty', () => {

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
+	import type { MapLocationRef } from '$lib/types'
 	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	let containerEl: HTMLDivElement | undefined = $state()
@@ -66,11 +67,9 @@
 		}
 	}
 
-	function getBoxDisplaySize(box: { size: number; rectWidth: number; rectHeight: number }) {
-		const size = box.size > 0 ? box.size : (map?.locationSize ?? 16)
-		const w = box.rectWidth > 0 ? box.rectWidth : size
-		const h = box.rectHeight > 0 ? box.rectHeight : size
-		return { w, h }
+	function getBoxDisplaySize(box: MapLocationRef) {
+		const size = box.size && box.size > 0 ? box.size : (map?.location_size ?? 16)
+		return { w: size, h: size }
 	}
 
 	function handleCanvasClick(e: MouseEvent) {
@@ -164,7 +163,7 @@
 								? 0.75
 								: 0.3})"
 							stroke={appState.selectedBoxId === box.id ? 'white' : 'var(--color-primary)'}
-							stroke-width={map.locationBorderThickness}
+							stroke-width={map.location_border_thickness}
 							rx="2"
 							class="focus:outline-none"
 							role="button"

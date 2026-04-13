@@ -35,8 +35,8 @@
 			</div>
 		</div>
 
-		<!-- Size overrides -->
-		<span class="text-xs font-medium text-base-content/70">Size Override</span>
+		<!-- Shape overrides -->
+		<span class="text-xs font-medium text-base-content/70">Shape Overrides</span>
 		<label>
 			<div class="label py-0">
 				<span class="label-text text-xs">Size</span>
@@ -44,38 +44,14 @@
 			</div>
 			<input
 				type="number"
-				class="input-bordered input input-xs w-full"
+				class="input-bordered input input-xs"
 				bind:value={box.size}
-				min="0"
-				max="256"
+				min={-1}
+				max={256}
+				step={1}
 			/>
 		</label>
-		<div class="flex gap-2">
-			<label>
-				<div class="label py-0">
-					<span class="label-text text-xs">Rect Width</span>
-					<span class="label-text-alt text-xs opacity-50">0=square</span>
-				</div>
-				<input
-					type="number"
-					class="input-bordered input input-xs w-full"
-					bind:value={box.rectWidth}
-					min="0"
-				/>
-			</label>
-			<label>
-				<div class="label py-0">
-					<span class="label-text text-xs">Rect Height</span>
-					<span class="label-text-alt text-xs opacity-50">0=square</span>
-				</div>
-				<input
-					type="number"
-					class="input-bordered input input-xs w-full"
-					bind:value={box.rectHeight}
-					min="0"
-				/>
-			</label>
-		</div>
+		<span class="text-xs text-base-content/40">More shape overrides coming soon.</span>
 
 		<div class="divider"></div>
 

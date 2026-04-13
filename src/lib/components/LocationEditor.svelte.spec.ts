@@ -49,12 +49,11 @@ describe('LocationEditor', () => {
 	it('shows icon fields when expanded', async () => {
 		const locations = $state([makeLocation()])
 
-		const { getByText, getByPlaceholder } = render(LocationEditor, { locations })
+		const { getByText, getByRole } = render(LocationEditor, { locations })
 		await getByText('Test Location').click() // expand the location
 
-		// Inherit Icon From only appears in LocationEditor (not SectionEditor)
-		await expect.element(getByText('Inherit Icon From')).toBeVisible()
-		await expect.element(getByPlaceholder('parent_location_name')).toBeVisible()
+		await expect.element(getByRole('textbox', { name: 'Chest Unopened Img' })).toBeVisible()
+		await expect.element(getByRole('textbox', { name: 'Chest Opened Img' })).toBeVisible()
 	})
 
 	it('shows access rules and visibility rules fields', async () => {
@@ -152,7 +151,6 @@ function makeLocation(overrides: Partial<PoptrackerLocation> = {}): PoptrackerLo
 		name: 'Test Location',
 		chest_unopened_img: '',
 		chest_opened_img: '',
-		inherit_icon_from: '',
 		access_rules: [],
 		visibility_rules: [],
 		sections: [makeSection()],

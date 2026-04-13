@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createLocation } from '$lib/state.svelte'
-	import type { PoptrackerLocation } from '$lib/types'
+	import type { PoptrackerLocation, PoptrackerSection } from '$lib/types'
 	import MaterialSymbol from './MaterialSymbol.svelte'
 	import SectionEditor from './SectionEditor.svelte'
 
@@ -16,6 +16,21 @@
 
 	function removeLocation(idx: number) {
 		locations.splice(idx, 1)
+	}
+
+	function convertRulesToString(
+		rules: PoptrackerLocation['access_rules'] | PoptrackerLocation['visibility_rules']
+	): string {
+		if (!rules) {
+			return ''
+		}
+		if (typeof rules === 'string') {
+			return rules
+		}
+		if (Array.isArray(rules) && rules.every((r) => typeof r === 'string')) {
+			return rules.join('\n')
+		}
+		return rules.flatMap((r) => (typeof r === 'string' ? [r] : r)).join('\n')
 	}
 </script>
 
@@ -91,20 +106,6 @@
 					</label>
 				</div>
 
-				<!-- Inherit icon from -->
-				<label class="w-full">
-					<div class="label py-0">
-						<span class="label-text text-xs">Inherit Icon From</span>
-					</div>
-					<input
-						type="text"
-						name="inherit-icon-from-{i}"
-						class="input-bordered input input-xs w-full font-mono"
-						bind:value={location.inherit_icon_from}
-						placeholder="parent_location_name"
-					/>
-				</label>
-
 				<!-- Access rules -->
 				<label class="w-full">
 					<div class="label py-0">
@@ -115,8 +116,8 @@
 						name="access-rules-{i}"
 						class="textarea-bordered textarea w-full font-mono textarea-xs"
 						rows="2"
-						placeholder="{'{item1}'} and {'{item2}'}"
-						value={location.access_rules.join('\n')}
+						placeholder={'{item1},{item2}'}
+						value={convertRulesToString(location.access_rules)}
 						onchange={(e) => {
 							location.access_rules = (e.target as HTMLTextAreaElement).value
 								.split('\n')
@@ -137,7 +138,7 @@
 						class="textarea-bordered textarea w-full font-mono textarea-xs"
 						rows="2"
 						placeholder={'{setting}'}
-						value={location.visibility_rules.join('\n')}
+						value={convertRulesToString(location.visibility_rules)}
 						onchange={(e) => {
 							location.visibility_rules = (e.target as HTMLTextAreaElement).value
 								.split('\n')
@@ -149,7 +150,7 @@
 
 				<!-- Sections -->
 				<div class="divider my-0 text-xs opacity-50"></div>
-				<SectionEditor sections={location.sections} />
+				<SectionEditor sections={(location.sections as PoptrackerSection[]) ?? []} />
 			</div>
 		</details>
 	{/each}

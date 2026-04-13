@@ -15,6 +15,21 @@
 	function removeSection(idx: number) {
 		sections.splice(idx, 1)
 	}
+
+	function convertRulesToString(
+		rules: PoptrackerSection['access_rules'] | PoptrackerSection['visibility_rules']
+	): string {
+		if (!rules) {
+			return ''
+		}
+		if (typeof rules === 'string') {
+			return rules
+		}
+		if (Array.isArray(rules) && rules.every((r) => typeof r === 'string')) {
+			return rules.join('\n')
+		}
+		return rules.flatMap((r) => (typeof r === 'string' ? [r] : r)).join('\n')
+	}
 </script>
 
 <div class="flex flex-col gap-3">
@@ -89,7 +104,7 @@
 						class="textarea-bordered textarea w-full font-mono textarea-xs"
 						rows="2"
 						placeholder="{'{item1}'} and {'{item2}'}"
-						value={section.access_rules.join('\n')}
+						value={convertRulesToString(section.access_rules)}
 						onchange={(e) => {
 							section.access_rules = (e.target as HTMLTextAreaElement).value
 								.split('\n')
@@ -108,7 +123,7 @@
 						class="textarea-bordered textarea w-full font-mono textarea-xs"
 						rows="2"
 						placeholder={'{setting}'}
-						value={section.visibility_rules.join('\n')}
+						value={convertRulesToString(section.visibility_rules)}
 						onchange={(e) => {
 							section.visibility_rules = (e.target as HTMLTextAreaElement).value
 								.split('\n')

@@ -1,27 +1,66 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
-	import { downloadJson, exportLocationsJson, exportMapsJson } from '$lib/utils/export'
+	import {
+		downloadJson,
+		exportLocationsJson,
+		exportMapsJson,
+		ExportValidationError
+	} from '$lib/utils/export'
 	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	type Props = { open: boolean; onclose: () => void }
 	let { open, onclose }: Props = $props()
 
-	let mapsJson = $derived(JSON.stringify(exportMapsJson(appState.maps), null, 2))
-	let locationsJson = $derived(JSON.stringify(exportLocationsJson(appState.maps), null, 2))
+	let mapsJson = $derived(JSON.stringify(exportMapsJson(appState.maps, true), null, 2))
+	let locationsJson = $derived(JSON.stringify(exportLocationsJson(appState.maps, true), null, 2))
 
 	let activeTab = $state<'maps' | 'locations'>('maps')
+	let validationError = $state<string | null>(null)
+	let allowOverride = $state<boolean>(false)
 
-	function downloadMaps() {
-		downloadJson('maps.json', exportMapsJson(appState.maps))
+	function tryDownloadMaps(overrideErrors = false) {
+		try {
+			const mapsData = exportMapsJson(appState.maps, overrideErrors)
+			validationError = null
+			allowOverride = false
+			downloadJson('maps.json', mapsData)
+		} catch (err) {
+			if (err instanceof ExportValidationError && !allowOverride) {
+				validationError = err.message
+				return
+			}
+		}
 	}
 
-	function downloadLocations() {
-		downloadJson('locations.json', exportLocationsJson(appState.maps))
+	function tryDownloadLocations(overrideErrors = false) {
+		try {
+			const locationsData = exportLocationsJson(appState.maps, overrideErrors)
+			validationError = null
+			allowOverride = false
+			downloadJson('locations.json', locationsData)
+		} catch (err) {
+			if (err instanceof ExportValidationError && !allowOverride) {
+				validationError = err.message
+				return
+			}
+		}
 	}
 
-	function downloadAll() {
-		downloadMaps()
-		downloadLocations()
+	function tryDownloadAll() {
+		tryDownloadMaps()
+		tryDownloadLocations()
+	}
+
+	function handleOverride() {
+		allowOverride = true
+		validationError = null
+
+		if (activeTab === 'maps') {
+			tryDownloadMaps(true)
+			return
+		}
+
+		tryDownloadLocations(true)
 	}
 </script>
 
@@ -61,19 +100,27 @@
 						: locationsJson}</pre>
 			</div>
 
-			<div class="modal-action">
+			<div class="modal-action flex-wrap">
 				<button class="btn btn-ghost" onclick={onclose}>Close</button>
 				<button
 					class="btn btn-secondary"
-					onclick={activeTab === 'maps' ? downloadMaps : downloadLocations}
+					onclick={() => (activeTab === 'maps' ? tryDownloadMaps() : tryDownloadLocations())}
+					disabled={!!validationError && !allowOverride}
 				>
 					<MaterialSymbol>download</MaterialSymbol>
 					Download {activeTab === 'maps' ? 'maps.json' : 'locations.json'}
 				</button>
-				<button class="btn btn-primary" onclick={downloadAll}>
+				<button class="btn btn-primary" onclick={tryDownloadAll}>
 					<MaterialSymbol>download</MaterialSymbol>
 					Download All
 				</button>
+				{#if validationError}
+					<br />
+					<div class="alert flex grow justify-between alert-error">
+						{validationError}
+						<button class="btn btn-warning" onclick={handleOverride}>Export anyway</button>
+					</div>
+				{/if}
 			</div>
 		</div>
 		<div

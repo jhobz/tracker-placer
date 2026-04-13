@@ -47,7 +47,7 @@ describe('LocationBoxEditor', () => {
 		await expect.element(getByText('250')).toBeVisible()
 	})
 
-	it('shows size override inputs', async () => {
+	it('shows size override input', async () => {
 		const map = createMap()
 		const box = createLocationBox(100, 200)
 		map.locationBoxes.push(box)
@@ -55,11 +55,9 @@ describe('LocationBoxEditor', () => {
 		appState.selectedMapId = map.id
 		appState.selectedBoxId = box.id
 
-		const { getByText } = render(LocationBoxEditor)
+		const { getByRole } = render(LocationBoxEditor)
 
-		await expect.element(getByText('Size Override')).toBeVisible()
-		await expect.element(getByText('Rect Width')).toBeVisible()
-		await expect.element(getByText('Rect Height')).toBeVisible()
+		await expect.element(getByRole('spinbutton', { name: 'Size' })).toBeVisible()
 	})
 
 	it('renders the Locations section via LocationEditor', async () => {
