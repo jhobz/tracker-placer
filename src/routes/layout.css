@@ -1,2 +1,37 @@
 @import 'tailwindcss';
 @plugin 'daisyui';
+@plugin 'daisyui/theme' {
+	name: 'poptracker';
+	default: true;
+	prefersdark: true;
+	color-scheme: 'dark';
+
+	--color-base-100: oklch(24.8% 0 89.88);
+	--color-base-200: oklch(17.8% 0 89.88);
+	--color-base-300: oklch(0% 0 89.88);
+	--color-base-content: oklch(99.7% 0 89.88);
+	--color-primary: oklch(52% 0.174 36.121);
+	--color-primary-content: oklch(100% 0.174 36.121);
+	--color-secondary: oklch(78.9% 0.142 73.966);
+	--color-secondary-content: oklch(20.7% 0.142 73.966);
+	--color-accent: oklch(72.5% 0.12 201.078);
+	--color-accent-content: oklch(21.8% 0.12 201.078);
+	--color-neutral: oklch(14% 0.005 285.823);
+	--color-neutral-content: oklch(92% 0.004 286.32);
+	--color-info: oklch(83.6% 0 232.661);
+	--color-info-content: oklch(20.4% 0 232.661);
+	--color-success: oklch(86.9% 0.288 142.594);
+	--color-success-content: oklch(26.1% 0.288 142.594);
+	--color-warning: oklch(96.8% 0.206 109.705);
+	--color-warning-content: oklch(34.1% 0.206 109.705);
+	--color-error: oklch(54.1% 0.216 28.583);
+	--color-error-content: oklch(100% 0.216 28.583);
+	--radius-selector: 2rem;
+	--radius-field: 0.25rem;
+	--radius-box: 1rem;
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+	--border: 1px;
+	--depth: 1;
+	--noise: 1;
+}

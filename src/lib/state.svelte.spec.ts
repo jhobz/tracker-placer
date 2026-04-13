@@ -1,12 +1,12 @@
-import { describe, expect, it, beforeEach } from 'vitest'
 import {
 	appState,
+	createLocation,
+	createLocationBox,
 	createMap,
 	createPack,
-	createLocationBox,
-	createLocation,
 	createSection
 } from '$lib/state.svelte'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 // --- Factory function tests ---
 
@@ -40,7 +40,6 @@ describe('createLocation', () => {
 		expect(loc.name).toBe('New Location')
 		expect(loc.chest_unopened_img).toBe('')
 		expect(loc.chest_opened_img).toBe('')
-		expect(loc.inherit_icon_from).toBe('')
 		expect(loc.access_rules).toEqual([])
 		expect(loc.visibility_rules).toEqual([])
 		expect(loc.sections).toHaveLength(1)
@@ -57,8 +56,6 @@ describe('createLocationBox', () => {
 		expect(box.x).toBe(100)
 		expect(box.y).toBe(200)
 		expect(box.size).toBe(0)
-		expect(box.rectWidth).toBe(0)
-		expect(box.rectHeight).toBe(0)
 		expect(box.locations).toHaveLength(1)
 	})
 })
@@ -71,8 +68,9 @@ describe('createMap', () => {
 		expect(map.name).toBe('New Map')
 		expect(map.imageFile).toBeNull()
 		expect(map.imageUrl).toBe('')
-		expect(map.locationSize).toBe(16)
-		expect(map.locationBorderThickness).toBe(1)
+		expect(map.location_size).toBe(42)
+		expect(map.location_border_thickness).toBe(4)
+		expect(map.location_shape).toBe('rect')
 		expect(map.locationBoxes).toEqual([])
 	})
 })
@@ -306,18 +304,18 @@ describe('appState', () => {
 	})
 
 	describe('toggleTheme', () => {
-		it('toggles from dark to light', () => {
-			appState.theme = 'dark'
+		it('toggles from poptracker to light', () => {
+			appState.theme = 'poptracker'
 			appState.toggleTheme()
 
 			expect(appState.theme).toBe('light')
 		})
 
-		it('toggles from light to dark', () => {
+		it('toggles from light to poptracker', () => {
 			appState.theme = 'light'
 			appState.toggleTheme()
 
-			expect(appState.theme).toBe('dark')
+			expect(appState.theme).toBe('poptracker')
 		})
 	})
 

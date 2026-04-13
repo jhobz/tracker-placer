@@ -1,21 +1,21 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
 
-	let map = $derived(appState.selectedMap)
+	const map = $derived(appState.selectedMap)
 	let imageUrl = $state('')
-
 	$effect(() => {
-		if (map?.imageFile) {
-			imageUrl = URL.createObjectURL(map.imageFile)
+		if (!map || !map.imageFile) {
+			imageUrl = ''
+			return
 		}
+
+		imageUrl = URL.createObjectURL(map.imageFile)
 
 		return () => {
-			if (imageUrl) {
-				URL.revokeObjectURL(imageUrl)
-			}
-			imageUrl = ''
+			URL.revokeObjectURL(imageUrl)
 		}
 	})
+	// const imageUrl = $derived(appState.getImageUrlForMap(appState.selectedMapId ?? ''))
 
 	let fileInput: HTMLInputElement | undefined = $state()
 
@@ -54,16 +54,16 @@
 		</label>
 
 		<!-- Image -->
-		<div class="form-control w-full">
+		<label class="form-control group w-full">
 			<div class="label">
 				<span class="label-text">Map Image</span>
 			</div>
 			{#if imageUrl}
-				<div class="group relative">
+				<div class="relative">
 					<img
 						src={imageUrl}
 						alt={map.name}
-						class="max-h-32 w-full rounded-lg border border-base-300 object-contain"
+						class="max-h-64 w-full rounded-box border border-base-300 object-contain"
 					/>
 					<button
 						class="btn absolute top-1 right-1 opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
@@ -84,13 +84,13 @@
 				class="hidden"
 				onchange={(e) => handleImageChange((e.target as HTMLInputElement).files)}
 			/>
-		</div>
+		</label>
 
 		<!-- Location size -->
 		<label class="form-control w-full">
 			<div class="label">
 				<span class="label-text">Default Location Size</span>
-				<span class="label-text-alt text-base-content/50">{map.locationSize}px</span>
+				<span class="label-text-alt text-base-content/50">{map.location_size}px</span>
 			</div>
 			<input
 				type="range"
@@ -98,7 +98,7 @@
 				max="64"
 				step="1"
 				class="range range-primary range-sm"
-				bind:value={map.locationSize}
+				bind:value={map.location_size}
 			/>
 		</label>
 
@@ -106,7 +106,7 @@
 		<label class="form-control w-full">
 			<div class="label">
 				<span class="label-text">Location Border Thickness</span>
-				<span class="label-text-alt text-base-content/50">{map.locationBorderThickness}px</span>
+				<span class="label-text-alt text-base-content/50">{map.location_border_thickness}px</span>
 			</div>
 			<input
 				type="range"
@@ -114,7 +114,7 @@
 				max="8"
 				step="1"
 				class="range range-primary range-sm"
-				bind:value={map.locationBorderThickness}
+				bind:value={map.location_border_thickness}
 			/>
 		</label>
 

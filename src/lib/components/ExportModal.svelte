@@ -1,26 +1,66 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
-	import { exportMapsJson, exportLocationsJson, downloadJson } from '$lib/utils/export'
+	import {
+		downloadJson,
+		exportLocationsJson,
+		exportMapsJson,
+		ExportValidationError
+	} from '$lib/utils/export'
+	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	type Props = { open: boolean; onclose: () => void }
 	let { open, onclose }: Props = $props()
 
-	let mapsJson = $derived(JSON.stringify(exportMapsJson(appState.maps), null, 2))
-	let locationsJson = $derived(JSON.stringify(exportLocationsJson(appState.maps), null, 2))
+	let mapsJson = $derived(JSON.stringify(exportMapsJson(appState.maps, true), null, 2))
+	let locationsJson = $derived(JSON.stringify(exportLocationsJson(appState.maps, true), null, 2))
 
 	let activeTab = $state<'maps' | 'locations'>('maps')
+	let validationError = $state<string | null>(null)
+	let allowOverride = $state<boolean>(false)
 
-	function downloadMaps() {
-		downloadJson('maps.json', exportMapsJson(appState.maps))
+	function tryDownloadMaps(overrideErrors = false) {
+		try {
+			const mapsData = exportMapsJson(appState.maps, overrideErrors)
+			validationError = null
+			allowOverride = false
+			downloadJson('maps.json', mapsData)
+		} catch (err) {
+			if (err instanceof ExportValidationError && !allowOverride) {
+				validationError = err.message
+				return
+			}
+		}
 	}
 
-	function downloadLocations() {
-		downloadJson('locations.json', exportLocationsJson(appState.maps))
+	function tryDownloadLocations(overrideErrors = false) {
+		try {
+			const locationsData = exportLocationsJson(appState.maps, overrideErrors)
+			validationError = null
+			allowOverride = false
+			downloadJson('locations.json', locationsData)
+		} catch (err) {
+			if (err instanceof ExportValidationError && !allowOverride) {
+				validationError = err.message
+				return
+			}
+		}
 	}
 
-	function downloadAll() {
-		downloadMaps()
-		downloadLocations()
+	function tryDownloadAll() {
+		tryDownloadMaps()
+		tryDownloadLocations()
+	}
+
+	function handleOverride() {
+		allowOverride = true
+		validationError = null
+
+		if (activeTab === 'maps') {
+			tryDownloadMaps(true)
+			return
+		}
+
+		tryDownloadLocations(true)
 	}
 </script>
 
@@ -30,7 +70,9 @@
 		<div class="modal-box max-w-3xl">
 			<div class="mb-4 flex items-center justify-between">
 				<h3 class="text-lg font-bold">Export JSON Files</h3>
-				<button class="btn btn-circle btn-ghost btn-sm" onclick={onclose}>✕</button>
+				<button class="btn btn-circle btn-ghost btn-sm" aria-label="Close" onclick={onclose}>
+					<MaterialSymbol>close</MaterialSymbol>
+				</button>
 			</div>
 
 			<p class="mb-4 text-sm text-base-content/60">
@@ -58,33 +100,27 @@
 						: locationsJson}</pre>
 			</div>
 
-			<div class="modal-action">
+			<div class="modal-action flex-wrap">
 				<button class="btn btn-ghost" onclick={onclose}>Close</button>
 				<button
-					class="btn btn-outline"
-					onclick={activeTab === 'maps' ? downloadMaps : downloadLocations}
+					class="btn btn-secondary"
+					onclick={() => (activeTab === 'maps' ? tryDownloadMaps() : tryDownloadLocations())}
+					disabled={!!validationError && !allowOverride}
 				>
-					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-						/>
-					</svg>
+					<MaterialSymbol>download</MaterialSymbol>
 					Download {activeTab === 'maps' ? 'maps.json' : 'locations.json'}
 				</button>
-				<button class="btn btn-primary" onclick={downloadAll}>
-					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-						/>
-					</svg>
+				<button class="btn btn-primary" onclick={tryDownloadAll}>
+					<MaterialSymbol>download</MaterialSymbol>
 					Download All
 				</button>
+				{#if validationError}
+					<br />
+					<div class="alert flex grow justify-between alert-error">
+						{validationError}
+						<button class="btn btn-warning" onclick={handleOverride}>Export anyway</button>
+					</div>
+				{/if}
 			</div>
 		</div>
 		<div

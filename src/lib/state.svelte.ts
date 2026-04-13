@@ -1,9 +1,9 @@
 import localforage from 'localforage'
 import { nanoid } from 'nanoid'
 import type {
-	PackConfig,
-	MapConfig,
 	LocationBox,
+	MapConfig,
+	PackConfig,
 	PoptrackerLocation,
 	PoptrackerSection
 } from './types'
@@ -28,8 +28,9 @@ export function createMap(): MapConfig {
 		name: 'New Map',
 		imageFile: null,
 		imageUrl: '',
-		locationSize: 16,
-		locationBorderThickness: 1,
+		location_size: 42,
+		location_border_thickness: 4,
+		location_shape: 'rect',
 		locationBoxes: []
 	}
 }
@@ -40,8 +41,6 @@ export function createLocationBox(x: number, y: number): LocationBox {
 		x,
 		y,
 		size: 0,
-		rectWidth: 0,
-		rectHeight: 0,
 		locations: [createLocation()]
 	}
 }
@@ -52,7 +51,6 @@ export function createLocation(): PoptrackerLocation {
 		name: 'New Location',
 		chest_unopened_img: '',
 		chest_opened_img: '',
-		inherit_icon_from: '',
 		access_rules: [],
 		visibility_rules: [],
 		sections: [createSection()],
@@ -80,7 +78,7 @@ class AppState {
 	selectedPackId = $state<string | null>(null)
 	selectedMapId = $state<string | null>(null)
 	selectedBoxId = $state<string | null>(null)
-	theme = $state<'light' | 'dark'>('dark')
+	theme = $state<'light' | 'poptracker'>('poptracker')
 	placingMode = $state(false)
 	ready = $state(false)
 
@@ -95,7 +93,7 @@ class AppState {
 			store.getItem<string>('selectedPackId'),
 			store.getItem<string>('selectedMapId'),
 			store.getItem<string>('selectedBoxId'),
-			store.getItem<'light' | 'dark'>('theme')
+			store.getItem<'light' | 'poptracker'>('theme')
 		])
 
 		if (packs != null) {
@@ -262,7 +260,7 @@ class AppState {
 	}
 
 	toggleTheme() {
-		this.theme = this.theme === 'dark' ? 'light' : 'dark'
+		this.theme = this.theme === 'poptracker' ? 'light' : 'poptracker'
 	}
 }
 
