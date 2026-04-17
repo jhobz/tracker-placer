@@ -6,6 +6,8 @@
 	let containerEl: HTMLDivElement | undefined = $state()
 	let imageEl: HTMLImageElement | undefined = $state()
 
+	let isHoldingCtrl = $state(false)
+
 	// Natural image dimensions
 	let naturalWidth = $state(0)
 	let naturalHeight = $state(0)
@@ -15,6 +17,7 @@
 
 	const map = $derived(appState.selectedMap)
 	let imageUrl = $state('')
+
 	$effect(() => {
 		if (!map || !map.imageFile) {
 			imageUrl = ''
@@ -27,7 +30,24 @@
 			URL.revokeObjectURL(imageUrl)
 		}
 	})
-	// const imageUrl = $derived(appState.getImageUrlForMap(map?.id ?? ''))
+
+	function handleKeyDown(e: KeyboardEvent) {
+		if (e.key !== 'Control' || isHoldingCtrl) {
+			return
+		}
+
+		isHoldingCtrl = true
+		appState.placingMode = true
+	}
+
+	function handleKeyUp(e: KeyboardEvent) {
+		if (e.key !== 'Control' || !isHoldingCtrl) {
+			return
+		}
+
+		isHoldingCtrl = false
+		appState.placingMode = false
+	}
 
 	function updateRenderedRect() {
 		if (!imageEl || !containerEl) {
@@ -77,7 +97,10 @@
 			return
 		}
 
-		if (e.target instanceof Element && e.target.tagName !== 'rect' && !appState.placingMode) {
+		// Place mode if appState.placingMode or Ctrl is held
+		const placing = appState.placingMode || e.ctrlKey
+
+		if (e.target instanceof Element && e.target.tagName !== 'rect' && !placing) {
 			appState.selectedBoxId = null
 			return
 		}
@@ -87,11 +110,13 @@
 			return
 		}
 
-		const canvasRect = containerEl.getBoundingClientRect()
-		const canvasX = e.clientX - canvasRect.left
-		const canvasY = e.clientY - canvasRect.top
-		const { x, y } = renderedToImage(canvasX, canvasY)
-		appState.addLocationBox(x, y)
+		if (placing) {
+			const canvasRect = containerEl.getBoundingClientRect()
+			const canvasX = e.clientX - canvasRect.left
+			const canvasY = e.clientY - canvasRect.top
+			const { x, y } = renderedToImage(canvasX, canvasY)
+			appState.addLocationBox(x, y)
+		}
 	}
 
 	function onImageLoad(e: Event) {
@@ -115,6 +140,8 @@
 	})
 </script>
 
+<svelte:window onkeydown={handleKeyDown} onkeyup={handleKeyUp} />
+
 <div
 	bind:this={containerEl}
 	class={{
@@ -127,8 +154,9 @@
 			handleCanvasClick(e as unknown as MouseEvent)
 		}
 	}}
-	role={appState.placingMode ? 'button' : undefined}
-	aria-label={appState.placingMode ? 'Click to place location box' : undefined}
+	role="button"
+	aria-label="Click to place location box"
+	tabindex="-1"
 >
 	{#if map && imageUrl}
 		<img
