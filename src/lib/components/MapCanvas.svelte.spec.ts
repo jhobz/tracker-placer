@@ -1,6 +1,7 @@
 import { appState, createLocationBox, createMap } from '$lib/state.svelte'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
+import { userEvent } from 'vitest/browser'
 import MapCanvas from './MapCanvas.svelte'
 
 describe('MapCanvas', () => {
@@ -69,6 +70,53 @@ describe('MapCanvas', () => {
 		// The rect has an accompanying title element with the location name(s)
 		await expect.element(getByText('Test Spot')).toBeInTheDocument()
 		await expect.element(container.querySelector('rect')).toBeVisible()
+	})
+
+	describe('Ctrl enters Place Mode', () => {
+		beforeEach(() => {
+			const map = createMap()
+			map.imageFile = createTestBlob()
+			appState.maps.push(map)
+			appState.selectedMapId = map.id
+		})
+
+		it('should enter place mode when Ctrl is held and exit when released', async () => {
+			render(MapCanvas)
+			expect(appState.placingMode).toBe(false)
+
+			// Simulate holding Ctrl
+			await userEvent.keyboard('{Control>}')
+			expect(appState.placingMode).toBe(true)
+
+			// Simulate releasing Ctrl
+			await userEvent.keyboard('{/Control}')
+			expect(appState.placingMode).toBe(false)
+		})
+
+		it('should place a box on Ctrl+Click even if not in place mode', async () => {
+			const { getByRole } = render(MapCanvas)
+			const canvas = getByRole('button', { name: 'Click to place location box' })
+			const prevCount = appState.selectedMap!.locationBoxes.length
+			expect(appState.placingMode).toBe(false)
+
+			// Simulate Ctrl+Click
+			await canvas.click({ modifiers: ['Control'], position: { x: 10, y: 10 } })
+
+			expect(appState.selectedMap!.locationBoxes.length).toBe(prevCount + 1)
+		})
+
+		it('should exit place mode if already in place mode Ctrl is pressed & released', async () => {
+			render(MapCanvas)
+			appState.placingMode = true
+
+			// Simulate holding Ctrl
+			await userEvent.keyboard('{Control>}')
+			expect(appState.placingMode).toBe(true)
+
+			// Simulate releasing Ctrl
+			await userEvent.keyboard('{/Control}')
+			expect(appState.placingMode).toBe(false)
+		})
 	})
 })
 
