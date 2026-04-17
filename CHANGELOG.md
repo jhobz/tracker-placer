@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.0.0...tracker-placer-v1.1.0) (2026-04-17)
+
+
+### Features
+
+* enable ctrl+click on canvas to place box ([ac2a3a3](https://github.com/jhobz/tracker-placer/commit/ac2a3a32d433c5583f21e0c587a86554cc84e98c))
+* enable ctrl+click on canvas to place box ([32b4322](https://github.com/jhobz/tracker-placer/commit/32b432206c0f0403e037d1728e0ede476f2eca6e))
+
 ## [1.0.0](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.0.0...tracker-placer-v1.0.0) (2026-04-13)
 
 
