@@ -1,12 +1,12 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-      - main
+  release:
+    types:
+      - published
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
@@ -40,16 +42,19 @@ jobs:
       - name: Build
         run: pnpm build
         env:
-          BASE_PATH: "/${{ github.event.repository.name }}"
+          BASE_PATH: '/${{ github.event.repository.name }}'
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          name: github-pages-release
           path: build
 
   deploy:
     name: Deploy to GitHub Pages
     needs: build
+    outputs:
+      health_check_passed: ${{ steps.health_check.outcome == 'success' }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -58,3 +63,108 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-release
+
+      - name: Health check deployed site
+        id: health_check
+        continue-on-error: true
+        run: |
+          status="$(curl --location --silent --show-error --output /dev/null --write-out '%{http_code}' --retry 5 --retry-delay 5 --retry-all-errors '${{ steps.deployment.outputs.page_url }}')"
+          echo "Initial deployment health check status: ${status}"
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+          test "$status" = "200"
+
+  rollback:
+    name: Roll back failed release
+    if: needs.deploy.outputs.health_check_passed != 'true'
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find previous release
+        id: previous_release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const currentTag = context.payload.release?.tag_name;
+            const releases = await github.paginate(github.rest.repos.listReleases, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+            const previous = releases.find(
+              (release) =>
+                !release.draft &&
+                !release.prerelease &&
+                release.tag_name !== currentTag
+            );
+            core.setOutput('tag', previous?.tag_name ?? '');
+
+      - name: Checkout previous release
+        if: steps.previous_release.outputs.tag != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.previous_release.outputs.tag }}
+
+      - name: Set up pnpm
+        if: steps.previous_release.outputs.tag != ''
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        if: steps.previous_release.outputs.tag != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.previous_release.outputs.tag != ''
+        run: pnpm install
+
+      - name: Configure Pages
+        if: steps.previous_release.outputs.tag != ''
+        uses: actions/configure-pages@v5
+
+      - name: Build previous release
+        if: steps.previous_release.outputs.tag != ''
+        run: pnpm build
+        env:
+          BASE_PATH: '/${{ github.event.repository.name }}'
+
+      - name: Upload rollback artifact
+        if: steps.previous_release.outputs.tag != ''
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages-rollback
+          path: build
+
+      - name: Deploy rollback
+        if: steps.previous_release.outputs.tag != ''
+        id: rollback_deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-rollback
+
+      - name: Health check rollback deployment
+        if: steps.previous_release.outputs.tag != ''
+        run: |
+          status="$(curl --location --silent --show-error --output /dev/null --write-out '%{http_code}' --retry 5 --retry-delay 5 --retry-all-errors '${{ steps.rollback_deployment.outputs.page_url }}')"
+          echo "Rollback deployment health check status: ${status}"
+          test "$status" = "200"
+
+      - name: Convert failed release to draft
+        if: always() && needs.deploy.outputs.health_check_passed != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+              draft: true
+            });
+
+      - name: Mark release deployment failure
+        run: |
+          echo "Deployment health check failed. Rolled back to previous release and converted this release to draft."
+          exit 1
