@@ -1,5 +1,6 @@
 import adapter from '@sveltejs/adapter-static'
 import { relative, sep } from 'node:path'
+import pkg from './package.json' with { type: 'json' }
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -26,6 +27,9 @@ const config = {
 		}),
 		paths: {
 			base: process.env.NODE_ENV === 'dev' ? '' : process.env.BASE_PATH
+		},
+		version: {
+			name: pkg.version
 		}
 	}
 }

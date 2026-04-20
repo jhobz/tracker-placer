@@ -1,7 +1,5 @@
 <script lang="ts">
-	// This has to be in its own group or for some reason some linter adds an extra ending bracket erroneously
-	import pkg from '../../package.json' with { type: 'json' }
-
+	import { dev, version } from '$app/environment'
 	import ExportModal from '$lib/components/ExportModal.svelte'
 	import Header from '$lib/components/Header.svelte'
 	import LocationBoxEditor from '$lib/components/LocationBoxEditor.svelte'
@@ -39,7 +37,7 @@
 	<aside class="flex flex-col justify-between border-r border-base-300 bg-base-200">
 		<PackList />
 		<p class="mb-2 text-center font-mono text-xs text-base-content/20">
-			v{pkg.version}
+			v{version}{dev ? '-dev' : ''}
 		</p>
 	</aside>
 
