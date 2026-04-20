@@ -5,6 +5,7 @@
 	import ExportModal from '$lib/components/ExportModal.svelte'
 	import Header from '$lib/components/Header.svelte'
 	import LocationBoxEditor from '$lib/components/LocationBoxEditor.svelte'
+	import LocationsTab from '$lib/components/LocationsTab/LocationsTab.svelte'
 	import MapCanvas from '$lib/components/MapCanvas.svelte'
 	import MapProperties from '$lib/components/MapProperties.svelte'
 	import MapTabs from '$lib/components/MapTabs.svelte'
@@ -17,7 +18,7 @@
 	let showExportModal = $state(false)
 
 	// Right sidebar tab
-	let rightTab = $state<'map' | 'box'>('map')
+	let rightTab = $state<'map' | 'box' | 'locations'>('map')
 
 	// Auto-switch to box tab when a box is selected
 	$effect(() => {
@@ -107,10 +108,21 @@
 			>
 				<LocationBoxEditor />
 			</div>
-		</div>
 
-		<div class="">
-			{#if rightTab === 'map'}{:else}{/if}
+			<!-- Locations -->
+			<input
+				type="radio"
+				name="right-tab"
+				class="tab mr-1 ml-auto"
+				bind:group={rightTab}
+				value="locations"
+				aria-label="Locations"
+			/>
+			<div
+				class="tab-content overflow-y-auto rounded-none border-l-0 border-base-300 bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]"
+			>
+				<LocationsTab />
+			</div>
 		</div>
 	</aside>
 
