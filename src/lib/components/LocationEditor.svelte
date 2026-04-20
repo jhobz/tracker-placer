@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { createLocation } from '$lib/state.svelte'
-	import type { PoptrackerLocation, PoptrackerSection } from '$lib/types'
+	import type { Location, PoptrackerSection } from '$lib/types'
 	import MaterialSymbol from './MaterialSymbol.svelte'
 	import SectionEditor from './SectionEditor.svelte'
 
 	type Props = {
-		locations: PoptrackerLocation[]
+		locations: Location[]
 	}
 	let { locations }: Props = $props()
 
@@ -19,7 +19,7 @@
 	}
 
 	function convertRulesToString(
-		rules: PoptrackerLocation['access_rules'] | PoptrackerLocation['visibility_rules']
+		rules: Location['access_rules'] | Location['visibility_rules']
 	): string {
 		if (!rules) {
 			return ''
@@ -43,7 +43,7 @@
 		</button>
 	</div>
 
-	{#each locations as location, i (location.id)}
+	{#each locations as location, i}
 		<details
 			class="collapse-arrow collapse border border-base-300 bg-base-200 open:*:[summary]:bg-secondary/20"
 			name="locations-accordion"

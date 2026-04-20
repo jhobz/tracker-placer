@@ -1,4 +1,4 @@
-import type { PoptrackerLocation, PoptrackerSection } from '$lib/types'
+import type { Location, PoptrackerSection } from '$lib/types'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
 import LocationEditor from './LocationEditor.svelte'
@@ -97,8 +97,8 @@ describe('LocationEditor', () => {
 
 	it('renders multiple locations', async () => {
 		const locations = $state([
-			makeLocation({ id: 'loc-1', name: 'Location A' }),
-			makeLocation({ id: 'loc-2', name: 'Location B' })
+			makeLocation({ name: 'Location A' }),
+			makeLocation({ name: 'Location B' })
 		])
 
 		const { getByText } = render(LocationEditor, { locations })
@@ -109,8 +109,8 @@ describe('LocationEditor', () => {
 
 	it('switches expanded location when another header is clicked', async () => {
 		const locations = $state([
-			makeLocation({ id: 'loc-1', name: 'Location A', sections: [] }),
-			makeLocation({ id: 'loc-2', name: 'Location B', sections: [] })
+			makeLocation({ name: 'Location A', sections: [] }),
+			makeLocation({ name: 'Location B', sections: [] })
 		])
 
 		const { getByText, getByPlaceholder } = render(LocationEditor, { locations })
@@ -145,9 +145,8 @@ function makeSection(overrides: Partial<PoptrackerSection> = {}): PoptrackerSect
 	}
 }
 
-function makeLocation(overrides: Partial<PoptrackerLocation> = {}): PoptrackerLocation {
+function makeLocation(overrides: Partial<Location> = {}): Location {
 	return {
-		id: 'loc-1',
 		name: 'Test Location',
 		chest_unopened_img: '',
 		chest_opened_img: '',

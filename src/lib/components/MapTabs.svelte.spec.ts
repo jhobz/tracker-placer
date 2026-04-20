@@ -9,7 +9,7 @@ describe('MapTabs', () => {
 		appState.packs.length = 0
 		appState.selectedPackId = null
 		appState.selectedMapId = null
-		appState.selectedBoxId = null
+		appState.selectedBox = null
 		appState.addPack()
 	})
 

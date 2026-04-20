@@ -21,7 +21,7 @@
 
 	// Auto-switch to box tab when a box is selected
 	$effect(() => {
-		if (appState.selectedBoxId) {
+		if (appState.selectedBox) {
 			rightTab = 'box'
 		}
 	})
@@ -66,6 +66,7 @@
 	<aside class="h-full border-l border-base-300 bg-base-200">
 		<!-- Tab switcher -->
 		<div class="tabs-lift tabs h-full pt-2 tabs-sm">
+			<!-- Map -->
 			<input
 				type="radio"
 				name="right-tab"
@@ -92,13 +93,14 @@
 				{/if}
 			</div>
 
+			<!-- Box -->
 			<input
 				type="radio"
 				name="right-tab"
 				class="tab"
 				bind:group={rightTab}
 				value="box"
-				aria-label="Locations"
+				aria-label="Box"
 			/>
 			<div
 				class="tab-content overflow-y-auto rounded-none border-l-0 border-base-300 bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]"

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
+	import { findAllLocationsContainingMapLocation } from '$lib/utils/locations'
 	import LocationEditor from './LocationEditor.svelte'
 	import MaterialSymbol from './MaterialSymbol.svelte'
 
@@ -15,7 +16,7 @@
 			</h2>
 			<button
 				class="btn btn-square btn-ghost btn-xs btn-error"
-				onclick={() => appState.removeLocationBox(map.id, box.id)}
+				onclick={() => appState.removeLocationBox(box)}
 				title="Delete location box"
 				aria-label="Delete location box"
 			>
@@ -27,11 +28,11 @@
 		<div class="flex justify-center gap-4 rounded-field bg-base-300 p-3">
 			<div class="flex flex-col items-center">
 				<span class="text-xs text-base-content/50">X</span>
-				<span class="font-mono text-sm font-bold">{Math.round(box.x)}</span>
+				<span class="font-mono text-sm font-bold">{Math.round(box.x ?? -1)}</span>
 			</div>
 			<div class="flex flex-col items-center">
 				<span class="text-xs text-base-content/50">Y</span>
-				<span class="font-mono text-sm font-bold">{Math.round(box.y)}</span>
+				<span class="font-mono text-sm font-bold">{Math.round(box.y ?? -1)}</span>
 			</div>
 		</div>
 
@@ -56,7 +57,9 @@
 		<div class="divider"></div>
 
 		<!-- Locations within this box -->
-		<LocationEditor locations={box.locations} />
+		<LocationEditor
+			locations={findAllLocationsContainingMapLocation(appState.selectedPack?.locations ?? [], box)}
+		/>
 	</div>
 {:else}
 	<div class="my-8 flex flex-col place-items-center gap-2 text-center text-sm text-base-content/40">

@@ -1,5 +1,5 @@
 import { appState } from '$lib/state.svelte'
-import type { LocationBox, MapConfig, PoptrackerLocation, PoptrackerSection } from '$lib/types'
+import type { Location, MapConfig, PoptrackerSection } from '$lib/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
 import ExportModal from './ExportModal.svelte'
@@ -36,12 +36,11 @@ describe('ExportModal', () => {
 	})
 
 	it('switches to locations.json tab on click', async () => {
-		appState.maps.push(
-			makeMap({
-				name: 'Overworld',
-				locationBoxes: [makeBox({ locations: [makeLocation({ name: 'Kakariko' })] })]
-			})
-		)
+		appState.addMap()
+		appState.addLocationBox(0, 0)
+		const pack = appState.selectedPack
+		expect(pack).not.toBeNull()
+		pack!.locations[0].name = 'Kakariko'
 
 		const { getByText } = render(ExportModal, { open: true, onclose: () => {} })
 		await getByText('locations.json').click()
@@ -159,9 +158,9 @@ describe('ExportModal', () => {
 
 		it('shows error and blocks export for invalid locations', async () => {
 			const invalidLocation = makeLocation({ name: 123 as unknown as string })
-			const box = makeBox({ locations: [invalidLocation] })
 			appState.addPack()
-			appState.maps.push(makeMap({ locationBoxes: [box] }))
+			appState.maps.push(makeMap())
+			appState.selectedPack!.locations.push(invalidLocation)
 			const { getByRole, getByText } = render(ExportModal, { open: true, onclose: () => {} })
 
 			await getByRole('button', { name: 'locations.json', exact: true }).click()
@@ -173,9 +172,9 @@ describe('ExportModal', () => {
 
 		it('shows error and blocks export for invalid sections', async () => {
 			const invalidLocation = makeLocation({ sections: [makeSection({ item_count: -1 })] })
-			const box = makeBox({ locations: [invalidLocation] })
 			appState.addPack()
-			appState.maps.push(makeMap({ locationBoxes: [box] }))
+			appState.maps.push(makeMap())
+			appState.selectedPack!.locations.push(invalidLocation)
 			const { getByRole, getByText } = render(ExportModal, { open: true, onclose: () => {} })
 
 			await getByRole('button', { name: 'locations.json', exact: true }).click()
@@ -201,9 +200,8 @@ function makeSection(overrides: Partial<PoptrackerSection> = {}): PoptrackerSect
 	}
 }
 
-function makeLocation(overrides: Partial<PoptrackerLocation> = {}): PoptrackerLocation {
+function makeLocation(overrides: Partial<Location> = {}): Location {
 	return {
-		id: 'loc-1',
 		name: 'Test Location',
 		chest_unopened_img: '',
 		chest_opened_img: '',
@@ -212,17 +210,6 @@ function makeLocation(overrides: Partial<PoptrackerLocation> = {}): PoptrackerLo
 		sections: [makeSection()],
 		children: [],
 		map_locations: [],
-		...overrides
-	}
-}
-
-function makeBox(overrides: Partial<LocationBox> = {}): LocationBox {
-	return {
-		id: 'box-1',
-		x: 100,
-		y: 200,
-		size: 0,
-		locations: [makeLocation()],
 		...overrides
 	}
 }
@@ -236,7 +223,6 @@ function makeMap(overrides: Partial<MapConfig> = {}): MapConfig {
 		location_size: 16,
 		location_border_thickness: 1,
 		location_shape: 'rect',
-		locationBoxes: [makeBox()],
 		...overrides
 	}
 }

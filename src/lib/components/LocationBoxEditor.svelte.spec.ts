@@ -1,4 +1,4 @@
-import { appState, createLocationBox, createMap } from '$lib/state.svelte'
+import { appState, createLocation, createMap } from '$lib/state.svelte'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
 
@@ -10,7 +10,7 @@ describe('LocationBoxEditor', () => {
 		appState.packs.length = 0
 		appState.selectedPackId = null
 		appState.selectedMapId = null
-		appState.selectedBoxId = null
+		appState.selectedBox = null
 		appState.addPack()
 	})
 
@@ -21,12 +21,16 @@ describe('LocationBoxEditor', () => {
 	})
 
 	it('shows Location Box heading when a box is selected', async () => {
+		appState.addPack()
+		const pack = appState.selectedPack!
 		const map = createMap()
-		const box = createLocationBox(150, 250)
-		map.locationBoxes.push(box)
-		appState.maps.push(map)
+		pack.maps.push(map)
+		const location = createLocation()
+		const box = { map: map.id, x: 150, y: 250 }
+		location.map_locations = [box]
+		pack.locations.push(location)
 		appState.selectedMapId = map.id
-		appState.selectedBoxId = box.id
+		appState.selectedBox = box
 
 		const { getByText } = render(LocationBoxEditor)
 
@@ -34,12 +38,16 @@ describe('LocationBoxEditor', () => {
 	})
 
 	it('displays rounded X and Y coordinates', async () => {
+		appState.addPack()
 		const map = createMap()
-		const box = createLocationBox(150.7, 250.3)
-		map.locationBoxes.push(box)
-		appState.maps.push(map)
+		const box = { map: map.id, x: 150.7, y: 250.3 }
+		const location = createLocation()
+		location.map_locations = [box]
+		const pack = appState.selectedPack!
+		pack.maps.push(map)
+		pack.locations.push(location)
 		appState.selectedMapId = map.id
-		appState.selectedBoxId = box.id
+		appState.selectedBox = box
 
 		const { getByText } = render(LocationBoxEditor)
 
@@ -47,13 +55,17 @@ describe('LocationBoxEditor', () => {
 		await expect.element(getByText('250')).toBeVisible()
 	})
 
-	it('shows size override input', async () => {
+	it('shows shape override inputs', async () => {
+		appState.addPack()
 		const map = createMap()
-		const box = createLocationBox(100, 200)
-		map.locationBoxes.push(box)
-		appState.maps.push(map)
+		const box = { map: map.id, x: 100, y: 200 }
+		const location = createLocation()
+		location.map_locations = [box]
+		const pack = appState.selectedPack!
+		pack.maps.push(map)
+		pack.locations.push(location)
 		appState.selectedMapId = map.id
-		appState.selectedBoxId = box.id
+		appState.selectedBox = box
 
 		const { getByRole } = render(LocationBoxEditor)
 
@@ -61,12 +73,16 @@ describe('LocationBoxEditor', () => {
 	})
 
 	it('renders the Locations section via LocationEditor', async () => {
+		appState.addPack()
 		const map = createMap()
-		const box = createLocationBox(100, 200)
-		map.locationBoxes.push(box)
-		appState.maps.push(map)
+		const box = { map: map.id, x: 100, y: 200 }
+		const location = createLocation()
+		location.map_locations = [box]
+		const pack = appState.selectedPack!
+		pack.maps.push(map)
+		pack.locations.push(location)
 		appState.selectedMapId = map.id
-		appState.selectedBoxId = box.id
+		appState.selectedBox = box
 
 		const { getByText } = render(LocationBoxEditor)
 
@@ -76,17 +92,20 @@ describe('LocationBoxEditor', () => {
 
 	it('removes the location box when delete button is clicked', async () => {
 		const map = createMap()
-		const box = createLocationBox(100, 200)
-		map.locationBoxes.push(box)
-		appState.maps.push(map)
+		const box = { map: map.id, x: 100, y: 200 }
+		const location = createLocation()
+		location.map_locations = [box]
+		const pack = appState.selectedPack!
+		pack.maps.push(map)
+		pack.locations.push(location)
 		appState.selectedMapId = map.id
-		appState.selectedBoxId = box.id
+		appState.selectedBox = box
 
 		const { getByRole } = render(LocationBoxEditor)
 
 		await getByRole('button', { name: 'Delete location box' }).click()
 
-		expect(appState.maps[0].locationBoxes).toHaveLength(0)
-		expect(appState.selectedBoxId).toBeNull()
+		expect(pack.locations[0].map_locations).toHaveLength(0)
+		expect(appState.selectedBox).toBeNull()
 	})
 })

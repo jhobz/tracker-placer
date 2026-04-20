@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
-	import type { MapLocationRef } from '$lib/types'
+	import type { MapLocation } from '$lib/types'
+	import {
+		areMapLocationsEqual,
+		findAllLocationsContainingMapLocation,
+		findAllMapLocationsForMap
+	} from '$lib/utils/locations'
 	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	let containerEl: HTMLDivElement | undefined = $state()
@@ -16,6 +21,8 @@
 	let renderedRect = $state({ left: 0, top: 0, width: 0, height: 0 })
 
 	const map = $derived(appState.selectedMap)
+	const locations = $derived(appState.selectedPack?.locations ?? [])
+	const locationBoxes = $derived(findAllMapLocationsForMap(locations, map?.name ?? ''))
 	let imageUrl = $state('')
 
 	$effect(() => {
@@ -87,7 +94,7 @@
 		}
 	}
 
-	function getBoxDisplaySize(box: MapLocationRef) {
+	function getBoxDisplaySize(box: MapLocation) {
 		const size = box.size && box.size > 0 ? box.size : (map?.location_size ?? 16)
 		return { w: size, h: size }
 	}
@@ -99,9 +106,8 @@
 
 		// Place mode if appState.placingMode or Ctrl is held
 		const placing = appState.placingMode || e.ctrlKey
-
 		if (e.target instanceof Element && e.target.tagName !== 'rect' && !placing) {
-			appState.selectedBoxId = null
+			appState.selectedBox = null
 			return
 		}
 
@@ -178,19 +184,23 @@
 				style:width="{renderedRect.width}px"
 				style:height="{renderedRect.height}px"
 			>
-				{#each map.locationBoxes as box (box.id)}
+				{#each locationBoxes as box}
 					{@const { w, h } = getBoxDisplaySize(box)}
+					{@const [x, y] = [box.x ?? -1, box.y ?? -1]}
+					{@const isSelected = areMapLocationsEqual(appState.selectedBox, box)}
 					<g>
-						<title>{box.locations.map((l) => l.name).join('\n')}</title>
+						<title
+							>{findAllLocationsContainingMapLocation(locations, box)
+								.map((l) => l.name)
+								.join('\n')}</title
+						>
 						<rect
-							x={box.x - w / 2}
-							y={box.y - h / 2}
+							x={x - w / 2}
+							y={y - h / 2}
 							width={w}
 							height={h}
-							fill="oklch(from var(--color-primary) l c h / {appState.selectedBoxId === box.id
-								? 0.75
-								: 0.3})"
-							stroke={appState.selectedBoxId === box.id ? 'white' : 'var(--color-primary)'}
+							fill="oklch(from var(--color-primary) l c h / {isSelected ? 0.75 : 0.3})"
+							stroke={isSelected ? 'white' : 'var(--color-primary)'}
 							stroke-width={map.location_border_thickness}
 							rx="2"
 							class="focus:outline-none"
@@ -198,7 +208,7 @@
 							onfocus={(e) => {
 								e.stopPropagation()
 								if (!appState.placingMode) {
-									appState.selectBox(box.id)
+									appState.selectBox(box)
 								}
 							}}
 						/>

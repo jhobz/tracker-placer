@@ -10,7 +10,7 @@ describe('PackList', () => {
 		appState.packs.length = 0
 		appState.selectedPackId = null
 		appState.selectedMapId = null
-		appState.selectedBoxId = null
+		appState.selectedBox = null
 	})
 
 	it('shows empty state when no packs exist', async () => {

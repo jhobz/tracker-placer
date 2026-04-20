@@ -12,7 +12,9 @@
 	let { open, onclose }: Props = $props()
 
 	let mapsJson = $derived(JSON.stringify(exportMapsJson(appState.maps, true), null, 2))
-	let locationsJson = $derived(JSON.stringify(exportLocationsJson(appState.maps, true), null, 2))
+	let locationsJson = $derived(
+		JSON.stringify(exportLocationsJson(appState.selectedPack, true), null, 2)
+	)
 
 	let activeTab = $state<'maps' | 'locations'>('maps')
 	let validationError = $state<string | null>(null)
@@ -34,7 +36,7 @@
 
 	function tryDownloadLocations(overrideErrors = false) {
 		try {
-			const locationsData = exportLocationsJson(appState.maps, overrideErrors)
+			const locationsData = exportLocationsJson(appState.selectedPack, overrideErrors)
 			validationError = null
 			allowOverride = false
 			downloadJson('locations.json', locationsData)

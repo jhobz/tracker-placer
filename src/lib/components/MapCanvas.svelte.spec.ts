@@ -1,4 +1,4 @@
-import { appState, createLocationBox, createMap } from '$lib/state.svelte'
+import { appState, createMap } from '$lib/state.svelte'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
 import { userEvent } from 'vitest/browser'
@@ -10,7 +10,7 @@ describe('MapCanvas', () => {
 		appState.packs.length = 0
 		appState.selectedPackId = null
 		appState.selectedMapId = null
-		appState.selectedBoxId = null
+		appState.selectedBox = null
 		appState.placingMode = false
 		appState.addPack()
 	})
@@ -57,13 +57,13 @@ describe('MapCanvas', () => {
 	})
 
 	it('renders focusable svgs for location boxes', async () => {
+		const pack = appState.selectedPack!
 		const map = createMap()
+		pack.maps.push(map)
 		map.imageFile = createTestBlob()
-		const box = createLocationBox(50, 50)
-		box.locations[0].name = 'Test Spot'
-		map.locationBoxes.push(box)
-		appState.maps.push(map)
 		appState.selectedMapId = map.id
+		appState.addLocationBox(50, 50)
+		pack.locations[0].name = 'Test Spot'
 
 		const { getByText, container } = render(MapCanvas)
 
@@ -96,13 +96,13 @@ describe('MapCanvas', () => {
 		it('should place a box on Ctrl+Click even if not in place mode', async () => {
 			const { getByRole } = render(MapCanvas)
 			const canvas = getByRole('button', { name: 'Click to place location box' })
-			const prevCount = appState.selectedMap!.locationBoxes.length
+			const prevCount = appState.selectedPack?.locations.length ?? -1
 			expect(appState.placingMode).toBe(false)
 
 			// Simulate Ctrl+Click
 			await canvas.click({ modifiers: ['Control'], position: { x: 10, y: 10 } })
 
-			expect(appState.selectedMap!.locationBoxes.length).toBe(prevCount + 1)
+			expect(appState.selectedPack?.locations.length).toBe(prevCount + 1)
 		})
 
 		it('should exit place mode if already in place mode Ctrl is pressed & released', async () => {
