@@ -55,6 +55,64 @@ export const findAllLocationsContainingMapLocation = (
 }
 
 /**
+ * Recursively (depth-first) searches through the given locations and their children to find a location with the given name.
+ * @param locations The array of locations to search through.
+ * @param name The name of the location to find.
+ * @returns The location with the given name, or `null` if not found.
+ */
+export const findLocationByName = (locations: Location[], name: string): Location | null => {
+	if (!locations || locations.length === 0) {
+		return null
+	}
+
+	for (const loc of locations) {
+		if (loc.name === name) {
+			return loc
+		}
+
+		if (loc.children) {
+			const found = findLocationByName(loc.children, name)
+			if (found) {
+				return found
+			}
+		}
+	}
+
+	return null
+}
+
+/**
+ * Recursively (depth-first) searches through the given locations and their children to find a location by reference.
+ * @param locations The array of locations to search through.
+ * @param location The location reference to find.
+ * @returns A tuple containing the location with the given reference (or `null` if not found) and the path to that location as a string (empty if not found).
+ */
+export const findLocation = (
+	locations: Location[],
+	location: Location | null,
+	path: string = ''
+): [Location | null, string] => {
+	if (!locations || locations.length === 0 || !location) {
+		return [null, '']
+	}
+
+	for (const loc of locations) {
+		if (loc === location) {
+			return [loc, `${path}/${loc.name}`]
+		}
+
+		if (loc.children) {
+			const found = findLocation(loc.children, location, `${path}/${loc.name}`)
+			if (found[0]) {
+				return found
+			}
+		}
+	}
+
+	return [null, '']
+}
+
+/**
  * Compares two map location objects for equality by checking that all keys and their corresponding values
  * are present and equal in both objects. The comparison is shallow for each key-value pair, but ensures that
  * both objects have exactly the same keys and values.
@@ -93,6 +151,12 @@ export const areMapLocationsEqual = (ml1: MapLocation | null, ml2: MapLocation |
 	return allFirstKeysMatch && allSecondKeysMatch
 }
 
+/**
+ * Compares two sets of rules for equality. The rules can be strings, arrays of strings, or arrays of arrays of strings.
+ * @param rules1 - The first set of rules to compare.
+ * @param rules2 - The second set of rules to compare.
+ * @returns `true` if the rules are equal; otherwise, `false`.
+ */
 const areRulesEqual = (
 	rules1: ((string[] | string[][]) & unknown[]) | string | undefined,
 	rules2: ((string[] | string[][]) & unknown[]) | string | undefined

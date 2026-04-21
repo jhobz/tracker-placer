@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest'
 import {
 	areMapLocationsEqual,
 	findAllLocationsContainingMapLocation,
-	findAllMapLocationsForMap
+	findAllMapLocationsForMap,
+	findLocationByName
 } from './locations'
 
 describe('findAllMapLocations', () => {
@@ -221,5 +222,46 @@ describe('areMapLocationsEqual', () => {
 		expect(areMapLocationsEqual(ml1, ml2)).toBe(true)
 		expect(areMapLocationsEqual(ml1, ml3)).toBe(false)
 		expect(areMapLocationsEqual(ml2, ml3)).toBe(false)
+	})
+})
+
+describe('findLocationByName', () => {
+	const makeLoc = (partial: Partial<Location>): Location => ({
+		name: '',
+		map_locations: [],
+		children: [],
+		sections: [],
+		...partial
+	})
+
+	it('returns null if locations is empty', () => {
+		expect(findLocationByName([], 'foo')).toBeNull()
+	})
+
+	it('returns null if locations is null', () => {
+		expect(findLocationByName(null as unknown as Location[], 'foo')).toBeNull()
+	})
+
+	it('finds a location by name at root', () => {
+		const loc = makeLoc({ name: 'foo' })
+		expect(findLocationByName([loc], 'foo')).toBe(loc)
+	})
+
+	it('finds a location by name in children', () => {
+		const child = makeLoc({ name: 'bar' })
+		const parent = makeLoc({ name: 'parent', children: [child] })
+		expect(findLocationByName([parent], 'bar')).toBe(child)
+	})
+
+	it('returns null if name not found', () => {
+		const loc = makeLoc({ name: 'foo' })
+		expect(findLocationByName([loc], 'bar')).toBeNull()
+	})
+
+	it('finds the first match in depth-first order', () => {
+		const child1 = makeLoc({ name: 'foo' })
+		const child2 = makeLoc({ name: 'foo' })
+		const parent = makeLoc({ children: [child1, child2] })
+		expect(findLocationByName([parent], 'foo')).toBe(child1)
 	})
 })

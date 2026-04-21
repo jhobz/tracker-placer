@@ -111,7 +111,7 @@
 			<input
 				type="radio"
 				name="right-tab"
-				class="tab mr-1 ml-auto"
+				class="tab"
 				bind:group={rightTab}
 				value="locations"
 				aria-label="Locations"

@@ -1,11 +1,16 @@
 <script lang="ts">
-	import { appState } from '$lib/state.svelte'
+	import MaterialSymbol from '$lib/components/MaterialSymbol.svelte'
+	import { appState, createLocation } from '$lib/state.svelte'
 	import { findAllLocationsContainingMapLocation } from '$lib/utils/locations'
-	import LocationEditor from './LocationEditor.svelte'
-	import MaterialSymbol from './MaterialSymbol.svelte'
+	import LocationList from './LocationsTab/LocationList.svelte'
 
 	const map = $derived(appState.selectedMap)
 	const box = $derived(appState.selectedBox)
+
+	function addLocation() {
+		const loc = createLocation()
+		appState.selectedPack?.locations.push(loc)
+	}
 </script>
 
 {#if box && map}
@@ -57,8 +62,16 @@
 		<div class="divider"></div>
 
 		<!-- Locations within this box -->
-		<LocationEditor
+		<div class="flex items-center justify-between text-sm">
+			<span class="font-medium">Locations</span>
+			<button class="btn btn-ghost btn-xs" onclick={addLocation} aria-label="Add location">
+				<MaterialSymbol size="sm">add</MaterialSymbol>
+				Add
+			</button>
+		</div>
+		<LocationList
 			locations={findAllLocationsContainingMapLocation(appState.selectedPack?.locations ?? [], box)}
+			readonly
 		/>
 	</div>
 {:else}

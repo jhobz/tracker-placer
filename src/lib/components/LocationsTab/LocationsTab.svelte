@@ -1,35 +1,48 @@
 <script lang="ts">
+	import MaterialSymbol from '../MaterialSymbol.svelte'
+	import LocationEditor from './LocationEditor.svelte'
 	import LocationList from './LocationList.svelte'
 	import { LocationsTabContext, setLocationsTabContext } from './LocationsTabContext.svelte'
 
 	const context = new LocationsTabContext()
 	setLocationsTabContext(context)
 
-	const locations = $derived(context.locations)
+	const pathSegments = $derived(context.path.split('/').filter(Boolean))
 </script>
 
 <div>
-	<p class="mb-4 text-sm text-base-content/70">
-		Manage all locations in the pack. You can also manage locations within individual location boxes
-		on the map.
-	</p>
+	{#if !context.path}
+		<p class="mb-4 alert text-xs alert-info">
+			<MaterialSymbol size="sm">info</MaterialSymbol>
+			Manage all locations in the pack. You can also manage locations within individual location boxes
+			on the map.
+		</p>
+	{/if}
 
 	<div class="breadcrumbs text-sm">
 		<ul>
-			<li>Locations</li>
-			{#each context.path.split('/').filter(Boolean) as part}
+			<li>
+				<a role="button" href={undefined} onclick={() => context.walkUpPath(-1)}>Locations</a>
+			</li>
+			{#each pathSegments as part, i}
 				<li>
-					{part}
+					<a
+						role="button"
+						href={undefined}
+						onclick={() => context.walkUpPath(pathSegments.length - i - 1)}
+					>
+						{part}
+					</a>
 				</li>
 			{/each}
 		</ul>
 	</div>
 
 	{#if context.currentLocation}
-		<div>currentLocation: {context.currentLocation.name}</div>
+		<LocationEditor bind:location={context.currentLocation} />
+	{:else}
+		<LocationList locations={context.currentChildren} />
 	{/if}
-
-	<LocationList locations={context.locations} />
 </div>
 
 <style>
