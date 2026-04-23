@@ -1,10 +1,13 @@
 <script lang="ts">
-	// This has to be in its own group or for some reason some linter adds an extra ending bracket erroneously
-	import pkg from '../../package.json' with { type: 'json' }
-
+	import { dev, version } from '$app/environment'
 	import ExportModal from '$lib/components/ExportModal.svelte'
 	import Header from '$lib/components/Header.svelte'
 	import LocationBoxEditor from '$lib/components/LocationBoxEditor.svelte'
+	import LocationsTab from '$lib/components/LocationsTab/LocationsTab.svelte'
+	import {
+		LocationsTabContext,
+		setLocationsTabContext
+	} from '$lib/components/LocationsTab/LocationsTabContext.svelte'
 	import MapCanvas from '$lib/components/MapCanvas.svelte'
 	import MapProperties from '$lib/components/MapProperties.svelte'
 	import MapTabs from '$lib/components/MapTabs.svelte'
@@ -16,15 +19,8 @@
 	let showUploadModal = $state(false)
 	let showExportModal = $state(false)
 
-	// Right sidebar tab
-	let rightTab = $state<'map' | 'box'>('map')
-
-	// Auto-switch to box tab when a box is selected
-	$effect(() => {
-		if (appState.selectedBoxId) {
-			rightTab = 'box'
-		}
-	})
+	const locationsTabContext = new LocationsTabContext()
+	setLocationsTabContext(locationsTabContext)
 </script>
 
 <div
@@ -38,7 +34,7 @@
 	<aside class="flex flex-col justify-between border-r border-base-300 bg-base-200">
 		<PackList />
 		<p class="mb-2 text-center font-mono text-xs text-base-content/20">
-			v{pkg.version}
+			v{version}{dev ? '-dev' : ''}
 		</p>
 	</aside>
 
@@ -66,11 +62,12 @@
 	<aside class="h-full border-l border-base-300 bg-base-200">
 		<!-- Tab switcher -->
 		<div class="tabs-lift tabs h-full pt-2 tabs-sm">
+			<!-- Map -->
 			<input
 				type="radio"
 				name="right-tab"
 				class="tab ml-2"
-				bind:group={rightTab}
+				bind:group={appState.currentTab}
 				value="map"
 				aria-label="Map"
 			/>
@@ -92,23 +89,37 @@
 				{/if}
 			</div>
 
+			<!-- Locations -->
 			<input
 				type="radio"
 				name="right-tab"
 				class="tab"
-				bind:group={rightTab}
-				value="box"
+				bind:group={appState.currentTab}
+				value="locations"
 				aria-label="Locations"
 			/>
 			<div
 				class="tab-content overflow-y-auto rounded-none border-l-0 border-base-300 bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]"
 			>
-				<LocationBoxEditor />
+				<LocationsTab />
 			</div>
-		</div>
 
-		<div class="">
-			{#if rightTab === 'map'}{:else}{/if}
+			<!-- Box -->
+			{#if appState.selectedMap && appState.selectedBox}
+				<input
+					type="radio"
+					name="right-tab"
+					class="tab mr-2 ml-auto"
+					bind:group={appState.currentTab}
+					value="box"
+					aria-label="Box"
+				/>
+				<div
+					class="tab-content overflow-y-auto rounded-none border-l-0 border-base-300 bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]"
+				>
+					<LocationBoxEditor map={appState.selectedMap} box={appState.selectedBox} />
+				</div>
+			{/if}
 		</div>
 	</aside>
 

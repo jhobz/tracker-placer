@@ -1,4 +1,4 @@
-import { appState, createLocationBox, createMap } from '$lib/state.svelte'
+import { appState, createMap } from '$lib/state.svelte'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
 import MapProperties from './MapProperties.svelte'
@@ -9,7 +9,7 @@ describe('MapProperties', () => {
 		appState.packs.length = 0
 		appState.selectedPackId = null
 		appState.selectedMapId = null
-		appState.selectedBoxId = null
+		appState.selectedBox = null
 		appState.addPack()
 	})
 
@@ -70,27 +70,6 @@ describe('MapProperties', () => {
 
 		await expect.element(getByText('Location Border Thickness')).toBeVisible()
 		await expect.element(getByText('4px')).toBeVisible()
-	})
-
-	it('shows location box count', async () => {
-		const map = createMap()
-		appState.maps.push(map)
-		appState.selectedMapId = map.id
-
-		const { getByText } = render(MapProperties)
-
-		await expect.element(getByText('0 location boxes placed')).toBeVisible()
-	})
-
-	it('shows singular "box" when exactly 1 box exists', async () => {
-		const map = createMap()
-		map.locationBoxes.push(createLocationBox(0, 0))
-		appState.maps.push(map)
-		appState.selectedMapId = map.id
-
-		const { getByText } = render(MapProperties)
-
-		await expect.element(getByText('1 location box placed')).toBeVisible()
 	})
 
 	it('shows map image when imageFile is set', async () => {

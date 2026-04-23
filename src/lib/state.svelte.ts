@@ -1,24 +1,21 @@
 import localforage from 'localforage'
 import { nanoid } from 'nanoid'
-import type {
-	LocationBox,
-	MapConfig,
-	PackConfig,
-	PoptrackerLocation,
-	PoptrackerSection
-} from './types'
+import type { Location, MapConfig, MapLocation, PackConfig, PoptrackerSection } from './types'
+import { areMapLocationsEqual, findLocationByMapLocation } from './utils/locations'
 
 const store = localforage.createInstance({
 	name: 'tracker-placer',
 	storeName: 'app_state',
-	driver: localforage.INDEXEDDB
+	driver: localforage.INDEXEDDB,
+	version: 3
 })
 
 export function createPack(): PackConfig {
 	return {
 		id: nanoid(),
 		name: 'New Pack',
-		maps: []
+		maps: [],
+		locations: []
 	}
 }
 
@@ -30,24 +27,12 @@ export function createMap(): MapConfig {
 		imageUrl: '',
 		location_size: 42,
 		location_border_thickness: 4,
-		location_shape: 'rect',
-		locationBoxes: []
+		location_shape: 'rect'
 	}
 }
 
-export function createLocationBox(x: number, y: number): LocationBox {
+export function createLocation(): Location {
 	return {
-		id: nanoid(),
-		x,
-		y,
-		size: 0,
-		locations: [createLocation()]
-	}
-}
-
-export function createLocation(): PoptrackerLocation {
-	return {
-		id: nanoid(),
 		name: 'New Location',
 		chest_unopened_img: '',
 		chest_opened_img: '',
@@ -77,7 +62,8 @@ class AppState {
 	packs = $state<PackConfig[]>([])
 	selectedPackId = $state<string | null>(null)
 	selectedMapId = $state<string | null>(null)
-	selectedBoxId = $state<string | null>(null)
+	#selectedBox = $state<MapLocation | null>(null)
+	#currentTab = $state<'map' | 'locations' | 'box'>('map')
 	theme = $state<'light' | 'poptracker'>('poptracker')
 	placingMode = $state(false)
 	ready = $state(false)
@@ -88,27 +74,32 @@ class AppState {
 	}
 
 	async #load() {
-		const [packs, selectedPackId, selectedMapId, selectedBoxId, theme] = await Promise.all([
-			store.getItem<PackConfig[]>('packs'),
-			store.getItem<string>('selectedPackId'),
-			store.getItem<string>('selectedMapId'),
-			store.getItem<string>('selectedBoxId'),
-			store.getItem<'light' | 'poptracker'>('theme')
-		])
+		const [packs, selectedPackId, selectedMapId, selectedBox, currentTab, theme] =
+			await Promise.all([
+				store.getItem<PackConfig[]>('packs'),
+				store.getItem<string>('selectedPackId'),
+				store.getItem<string>('selectedMapId'),
+				store.getItem<MapLocation>('selectedBox'),
+				store.getItem<'map' | 'locations' | 'box'>('currentTab'),
+				store.getItem<'light' | 'poptracker'>('theme')
+			])
 
-		if (packs != null) {
+		if (packs) {
 			this.packs = packs
 		}
-		if (selectedPackId != null) {
+		if (selectedPackId) {
 			this.selectedPackId = selectedPackId
 		}
-		if (selectedMapId != null) {
+		if (selectedMapId) {
 			this.selectedMapId = selectedMapId
 		}
-		if (selectedBoxId != null) {
-			this.selectedBoxId = selectedBoxId
+		if (selectedBox) {
+			this.#selectedBox = selectedBox
 		}
-		if (theme != null) {
+		if (currentTab) {
+			this.#currentTab = currentTab
+		}
+		if (theme) {
 			this.theme = theme
 		}
 
@@ -139,13 +130,26 @@ class AppState {
 				if (!this.ready) {
 					return
 				}
-				store.setItem('selectedBoxId', this.selectedBoxId)
+				store.setItem('selectedBox', $state.snapshot(this.selectedBox))
+			})
+			$effect(() => {
+				if (!this.ready) {
+					return
+				}
+				store.setItem('currentTab', this.#currentTab)
 			})
 			$effect(() => {
 				if (!this.ready) {
 					return
 				}
 				store.setItem('theme', this.theme)
+			})
+			$effect(() => {
+				if (this.#selectedBox) {
+					this.#currentTab = 'box'
+				} else if (this.#currentTab === 'box') {
+					this.#currentTab = 'map'
+				}
 			})
 		})
 	}
@@ -163,7 +167,22 @@ class AppState {
 	}
 
 	get selectedBox() {
-		return this.selectedMap?.locationBoxes.find((b) => b.id === this.selectedBoxId) ?? null
+		return this.#selectedBox
+	}
+	set selectedBox(box: MapLocation | null) {
+		if (!this.selectedMap) {
+			this.#selectedBox = null
+			return
+		}
+
+		this.#selectedBox = box
+	}
+
+	get currentTab() {
+		return this.#currentTab
+	}
+	set currentTab(tab: 'map' | 'locations' | 'box') {
+		this.#currentTab = tab
 	}
 
 	addMap() {
@@ -173,7 +192,7 @@ class AppState {
 		const map = createMap()
 		this.maps.push(map)
 		this.selectedMapId = map.id
-		this.selectedBoxId = null
+		this.selectedBox = null
 	}
 
 	removeMap(id: string) {
@@ -182,49 +201,64 @@ class AppState {
 			this.maps.splice(idx, 1)
 			if (this.selectedMapId === id) {
 				this.selectedMapId = this.maps.length > 0 ? this.maps[0].id : null
-				this.selectedBoxId = null
+				this.selectedBox = null
 			}
 		}
 	}
 
 	selectMap(id: string) {
 		this.selectedMapId = id
-		this.selectedBoxId = null
+		this.selectedBox = null
 		this.placingMode = false
 	}
 
 	addLocationBox(x: number, y: number) {
+		const pack = this.selectedPack
 		const map = this.selectedMap
-		if (!map) {
+
+		if (!pack || !map) {
 			return
 		}
-		const box = createLocationBox(x, y)
-		map.locationBoxes.push(box)
-		this.selectedBoxId = box.id
+
+		const box = {
+			map: map.name,
+			x,
+			y,
+			size: 0
+		}
+
+		this.selectedBox = box
 		this.placingMode = false
 	}
 
-	removeLocationBox(mapId: string, boxId: string) {
-		const map = this.maps.find((m) => m.id === mapId)
-
-		if (!map) {
+	removeLocationBox(box: MapLocation) {
+		const pack = this.selectedPack
+		if (!pack) {
 			return
 		}
 
-		const idx = map.locationBoxes.findIndex((b) => b.id === boxId)
-
-		if (idx < 0) {
+		const loc = findLocationByMapLocation(pack.locations, box)
+		if (!loc) {
 			return
 		}
 
-		map.locationBoxes.splice(idx, 1)
-		if (this.selectedBoxId === boxId) {
-			this.selectedBoxId = null
+		if (!loc.map_locations) {
+			console.warn('Reached a path that should be logically impossible')
+			return
+		}
+
+		const idx = loc.map_locations.findIndex((ml) => areMapLocationsEqual(ml, box))
+		if (idx >= 0) {
+			loc.map_locations.splice(idx, 1)
+		}
+
+		if (this.selectedBox && areMapLocationsEqual(this.selectedBox, box)) {
+			this.selectedBox = null
 		}
 	}
 
-	selectBox(id: string) {
-		this.selectedBoxId = id
+	selectBox(box: NonNullable<Location['map_locations']>[number] | null) {
+		this.selectedBox = box
 	}
 
 	addPack() {
@@ -232,7 +266,7 @@ class AppState {
 		this.packs.push(pack)
 		this.selectedPackId = pack.id
 		this.selectedMapId = pack.maps[0]?.id ?? null
-		this.selectedBoxId = null
+		this.selectedBox = null
 	}
 
 	removePack(id: string) {
@@ -246,7 +280,7 @@ class AppState {
 		if (this.selectedPackId === id) {
 			this.selectedPackId = this.packs.length > 0 ? this.packs[0].id : null
 			this.selectedMapId = this.packs.length > 0 ? (this.packs[0].maps[0]?.id ?? null) : null
-			this.selectedBoxId = null
+			this.selectedBox = null
 		}
 	}
 
@@ -256,7 +290,7 @@ class AppState {
 		}
 		this.selectedPackId = id
 		this.selectedMapId = this.packs.find((p) => p.id === id)?.maps[0]?.id ?? null
-		this.selectedBoxId = null
+		this.selectedBox = null
 	}
 
 	toggleTheme() {

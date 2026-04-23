@@ -117,10 +117,5 @@
 				bind:value={map.location_border_thickness}
 			/>
 		</label>
-
-		<!-- Box count -->
-		<div class="text-xs text-base-content/50">
-			{map.locationBoxes.length} location {map.locationBoxes.length === 1 ? 'box' : 'boxes'} placed
-		</div>
 	</div>
 {/if}

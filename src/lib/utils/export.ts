@@ -1,7 +1,8 @@
 import type {
-	LocationBox,
+	Location,
 	MapConfig,
-	PoptrackerLocation,
+	MapLocation,
+	PackConfig,
 	PoptrackerLocationJson,
 	PoptrackerMapJson,
 	PoptrackerMapLocationJson,
@@ -57,23 +58,21 @@ function exportSection(section: PoptrackerSection | PoptrackerSectionJson): Popt
 	return obj
 }
 
-function exportMapLocationRef(box: LocationBox, mapName?: string): PoptrackerMapLocationJson {
+function exportMapLocationRef(box: MapLocation): PoptrackerMapLocationJson {
 	const obj: PoptrackerMapLocationJson = {
-		map: mapName,
-		x: Math.round(box.x),
-		y: Math.round(box.y)
+		...box,
+		x: box.x ? Math.round(box.x) : undefined,
+		y: box.y ? Math.round(box.y) : undefined
 	}
-	if (box.size > 0) {
-		obj.size = box.size
+
+	if (!box.size || box.size <= 0) {
+		delete obj.size
 	}
+
 	return obj
 }
 
-function exportLocation(
-	location: PoptrackerLocation | PoptrackerLocationJson,
-	box: LocationBox,
-	mapName?: string
-): PoptrackerLocationJson {
+function exportLocation(location: Location | PoptrackerLocationJson): PoptrackerLocationJson {
 	const obj: PoptrackerLocationJson = {
 		name: location.name
 	}
@@ -96,10 +95,12 @@ function exportLocation(
 	}
 
 	if (location.children?.length) {
-		obj.children = location.children.map((c) => exportLocation(c, box, mapName))
+		obj.children = location.children.map((c) => exportLocation(c))
 	}
 
-	obj.map_locations = [exportMapLocationRef(box, mapName)]
+	if (location.map_locations?.length) {
+		obj.map_locations = location.map_locations.map((ml) => exportMapLocationRef(ml))
+	}
 
 	return obj
 }
@@ -132,17 +133,17 @@ export function exportMapsJson(
 }
 
 export function exportLocationsJson(
-	maps: MapConfig[],
+	pack: PackConfig | null,
 	overrideErrors: boolean = false
 ): PoptrackerLocationJson[] {
 	const locations: PoptrackerLocationJson[] = []
 
-	for (const map of maps) {
-		for (const box of map.locationBoxes) {
-			for (const location of box.locations) {
-				locations.push(exportLocation(location, box, map.name as PoptrackerMapJson['name']))
-			}
-		}
+	if (!pack) {
+		return locations
+	}
+
+	for (const location of pack.locations) {
+		locations.push(exportLocation(location))
 	}
 
 	if (!overrideErrors && !validateLocationsJson(locations)) {
