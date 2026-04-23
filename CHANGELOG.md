@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.1.0...tracker-placer-v1.2.0) (2026-04-23)
+
+
+### Features
+
+* add searchable library of locations ([#37](https://github.com/jhobz/tracker-placer/issues/37)) ([f7d80cd](https://github.com/jhobz/tracker-placer/commit/f7d80cd3f145ae21a1cf7a81b0bd566c818dbb2b)), closes [#13](https://github.com/jhobz/tracker-placer/issues/13)
+
+
+### Bug Fixes
+
+* add version number to UI ([#35](https://github.com/jhobz/tracker-placer/issues/35)) ([0b95b3e](https://github.com/jhobz/tracker-placer/commit/0b95b3ea4eb35955e125680e5dc189378b9b84f3))
+
 ## [1.1.0](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.0.0...tracker-placer-v1.1.0) (2026-04-17)
 
 
