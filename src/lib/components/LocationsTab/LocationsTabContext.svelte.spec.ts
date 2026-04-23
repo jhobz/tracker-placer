@@ -1,7 +1,17 @@
-import { describe, expect, it } from 'vitest'
+import { appState } from '$lib/state.svelte'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { cleanup } from 'vitest-browser-svelte'
 import { LocationsTabContext } from './LocationsTabContext.svelte'
 
 describe('LocationsTabContext', () => {
+	beforeEach(() => {
+		cleanup()
+		appState.packs.length = 0
+		appState.selectedPackId = null
+		appState.selectedMapId = null
+		appState.selectedBox = null
+	})
+
 	it('can be instantiated', () => {
 		const ctx = new LocationsTabContext()
 		expect(ctx).toBeInstanceOf(LocationsTabContext)

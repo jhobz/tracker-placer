@@ -4,6 +4,10 @@
 	import Header from '$lib/components/Header.svelte'
 	import LocationBoxEditor from '$lib/components/LocationBoxEditor.svelte'
 	import LocationsTab from '$lib/components/LocationsTab/LocationsTab.svelte'
+	import {
+		LocationsTabContext,
+		setLocationsTabContext
+	} from '$lib/components/LocationsTab/LocationsTabContext.svelte'
 	import MapCanvas from '$lib/components/MapCanvas.svelte'
 	import MapProperties from '$lib/components/MapProperties.svelte'
 	import MapTabs from '$lib/components/MapTabs.svelte'
@@ -15,15 +19,8 @@
 	let showUploadModal = $state(false)
 	let showExportModal = $state(false)
 
-	// Right sidebar tab
-	let rightTab = $state<'map' | 'box' | 'locations'>('map')
-
-	// Auto-switch to box tab when a box is selected
-	$effect(() => {
-		if (appState.selectedBox) {
-			rightTab = 'box'
-		}
-	})
+	const locationsTabContext = new LocationsTabContext()
+	setLocationsTabContext(locationsTabContext)
 </script>
 
 <div
@@ -70,7 +67,7 @@
 				type="radio"
 				name="right-tab"
 				class="tab ml-2"
-				bind:group={rightTab}
+				bind:group={appState.currentTab}
 				value="map"
 				aria-label="Map"
 			/>
@@ -92,27 +89,12 @@
 				{/if}
 			</div>
 
-			<!-- Box -->
-			<input
-				type="radio"
-				name="right-tab"
-				class="tab"
-				bind:group={rightTab}
-				value="box"
-				aria-label="Box"
-			/>
-			<div
-				class="tab-content overflow-y-auto rounded-none border-l-0 border-base-300 bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]"
-			>
-				<LocationBoxEditor />
-			</div>
-
 			<!-- Locations -->
 			<input
 				type="radio"
 				name="right-tab"
 				class="tab"
-				bind:group={rightTab}
+				bind:group={appState.currentTab}
 				value="locations"
 				aria-label="Locations"
 			/>
@@ -121,6 +103,23 @@
 			>
 				<LocationsTab />
 			</div>
+
+			<!-- Box -->
+			{#if appState.selectedMap && appState.selectedBox}
+				<input
+					type="radio"
+					name="right-tab"
+					class="tab mr-2 ml-auto"
+					bind:group={appState.currentTab}
+					value="box"
+					aria-label="Box"
+				/>
+				<div
+					class="tab-content overflow-y-auto rounded-none border-l-0 border-base-300 bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]"
+				>
+					<LocationBoxEditor map={appState.selectedMap} box={appState.selectedBox} />
+				</div>
+			{/if}
 		</div>
 	</aside>
 

@@ -51,6 +51,9 @@ export class LocationsTabContext {
 	get currentLocation() {
 		return this.#currentLocation
 	}
+	set currentLocation(loc) {
+		this.#currentLocation = loc
+	}
 
 	get currentChildren() {
 		return this.#currentChildren

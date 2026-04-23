@@ -1,7 +1,7 @@
 import localforage from 'localforage'
 import { nanoid } from 'nanoid'
 import type { Location, MapConfig, MapLocation, PackConfig, PoptrackerSection } from './types'
-import { areMapLocationsEqual, findAllLocationsContainingMapLocation } from './utils/locations'
+import { areMapLocationsEqual, findLocationByMapLocation } from './utils/locations'
 
 const store = localforage.createInstance({
 	name: 'tracker-placer',
@@ -63,6 +63,7 @@ class AppState {
 	selectedPackId = $state<string | null>(null)
 	selectedMapId = $state<string | null>(null)
 	#selectedBox = $state<MapLocation | null>(null)
+	#currentTab = $state<'map' | 'locations' | 'box'>('map')
 	theme = $state<'light' | 'poptracker'>('poptracker')
 	placingMode = $state(false)
 	ready = $state(false)
@@ -73,27 +74,32 @@ class AppState {
 	}
 
 	async #load() {
-		const [packs, selectedPackId, selectedMapId, selectedBox, theme] = await Promise.all([
-			store.getItem<PackConfig[]>('packs'),
-			store.getItem<string>('selectedPackId'),
-			store.getItem<string>('selectedMapId'),
-			store.getItem<MapLocation>('selectedBox'),
-			store.getItem<'light' | 'poptracker'>('theme')
-		])
+		const [packs, selectedPackId, selectedMapId, selectedBox, currentTab, theme] =
+			await Promise.all([
+				store.getItem<PackConfig[]>('packs'),
+				store.getItem<string>('selectedPackId'),
+				store.getItem<string>('selectedMapId'),
+				store.getItem<MapLocation>('selectedBox'),
+				store.getItem<'map' | 'locations' | 'box'>('currentTab'),
+				store.getItem<'light' | 'poptracker'>('theme')
+			])
 
-		if (packs != null) {
+		if (packs) {
 			this.packs = packs
 		}
-		if (selectedPackId != null) {
+		if (selectedPackId) {
 			this.selectedPackId = selectedPackId
 		}
-		if (selectedMapId != null) {
+		if (selectedMapId) {
 			this.selectedMapId = selectedMapId
 		}
-		if (selectedBox != null) {
+		if (selectedBox) {
 			this.#selectedBox = selectedBox
 		}
-		if (theme != null) {
+		if (currentTab) {
+			this.#currentTab = currentTab
+		}
+		if (theme) {
 			this.theme = theme
 		}
 
@@ -130,7 +136,20 @@ class AppState {
 				if (!this.ready) {
 					return
 				}
+				store.setItem('currentTab', this.#currentTab)
+			})
+			$effect(() => {
+				if (!this.ready) {
+					return
+				}
 				store.setItem('theme', this.theme)
+			})
+			$effect(() => {
+				if (this.#selectedBox) {
+					this.#currentTab = 'box'
+				} else if (this.#currentTab === 'box') {
+					this.#currentTab = 'map'
+				}
 			})
 		})
 	}
@@ -157,6 +176,13 @@ class AppState {
 		}
 
 		this.#selectedBox = box
+	}
+
+	get currentTab() {
+		return this.#currentTab
+	}
+	set currentTab(tab: 'map' | 'locations' | 'box') {
+		this.#currentTab = tab
 	}
 
 	addMap() {
@@ -194,7 +220,6 @@ class AppState {
 			return
 		}
 
-		const loc = createLocation()
 		const box = {
 			map: map.name,
 			x,
@@ -202,8 +227,6 @@ class AppState {
 			size: 0
 		}
 
-		loc.map_locations = [box]
-		pack.locations.push(loc)
 		this.selectedBox = box
 		this.placingMode = false
 	}
@@ -214,17 +237,20 @@ class AppState {
 			return
 		}
 
-		findAllLocationsContainingMapLocation(pack.locations, box).forEach((loc) => {
-			if (!loc.map_locations) {
-				console.warn('Reached a path that should be logically impossible')
-				return
-			}
+		const loc = findLocationByMapLocation(pack.locations, box)
+		if (!loc) {
+			return
+		}
 
-			const idx = loc.map_locations.findIndex((ml) => areMapLocationsEqual(ml, box))
-			if (idx >= 0) {
-				loc.map_locations.splice(idx, 1)
-			}
-		})
+		if (!loc.map_locations) {
+			console.warn('Reached a path that should be logically impossible')
+			return
+		}
+
+		const idx = loc.map_locations.findIndex((ml) => areMapLocationsEqual(ml, box))
+		if (idx >= 0) {
+			loc.map_locations.splice(idx, 1)
+		}
 
 		if (this.selectedBox && areMapLocationsEqual(this.selectedBox, box)) {
 			this.selectedBox = null

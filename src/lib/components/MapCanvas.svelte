@@ -3,8 +3,8 @@
 	import type { MapLocation } from '$lib/types'
 	import {
 		areMapLocationsEqual,
-		findAllLocationsContainingMapLocation,
-		findAllMapLocationsForMap
+		findAllMapLocationsForMap,
+		findLocationByMapLocation
 	} from '$lib/utils/locations'
 	import MaterialSymbol from './MaterialSymbol.svelte'
 
@@ -23,6 +23,12 @@
 	const map = $derived(appState.selectedMap)
 	const locations = $derived(appState.selectedPack?.locations ?? [])
 	const locationBoxes = $derived(findAllMapLocationsForMap(locations, map?.name ?? ''))
+	const selectedBox = $derived(appState.selectedBox)
+	const allBoxesIncludingEphemeral = $derived(
+		!selectedBox || locationBoxes.includes(selectedBox)
+			? locationBoxes
+			: [...locationBoxes, selectedBox]
+	)
 	let imageUrl = $state('')
 
 	$effect(() => {
@@ -184,16 +190,13 @@
 				style:width="{renderedRect.width}px"
 				style:height="{renderedRect.height}px"
 			>
-				{#each locationBoxes as box}
+				{#each allBoxesIncludingEphemeral as box}
 					{@const { w, h } = getBoxDisplaySize(box)}
 					{@const [x, y] = [box.x ?? -1, box.y ?? -1]}
 					{@const isSelected = areMapLocationsEqual(appState.selectedBox, box)}
+					{@const locationName = findLocationByMapLocation(locations, box)?.name}
 					<g>
-						<title
-							>{findAllLocationsContainingMapLocation(locations, box)
-								.map((l) => l.name)
-								.join('\n')}</title
-						>
+						<title>{locationName}</title>
 						<rect
 							x={x - w / 2}
 							y={y - h / 2}
@@ -205,6 +208,7 @@
 							rx="2"
 							class="focus:outline-none"
 							role="button"
+							aria-label={locationName ? `Select ${locationName}` : 'Select map location'}
 							onfocus={(e) => {
 								e.stopPropagation()
 								if (!appState.placingMode) {

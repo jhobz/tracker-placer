@@ -1,4 +1,4 @@
-import { appState, createMap } from '$lib/state.svelte'
+import { appState, createLocation, createMap } from '$lib/state.svelte'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
 import { userEvent } from 'vitest/browser'
@@ -12,6 +12,7 @@ describe('MapCanvas', () => {
 		appState.selectedMapId = null
 		appState.selectedBox = null
 		appState.placingMode = false
+
 		appState.addPack()
 	})
 
@@ -63,13 +64,28 @@ describe('MapCanvas', () => {
 		map.imageFile = createTestBlob()
 		appState.selectedMapId = map.id
 		appState.addLocationBox(50, 50)
-		pack.locations[0].name = 'Test Spot'
 
-		const { getByText, container } = render(MapCanvas)
+		const { getByRole } = render(MapCanvas)
 
-		// The rect has an accompanying title element with the location name(s)
+		await expect.element(getByRole('button', { name: 'Select map location' })).toBeVisible()
+	})
+
+	it('renders location tooltips for boxes with locations', async () => {
+		const pack = appState.selectedPack!
+		const map = createMap()
+		pack.maps.push(map)
+		map.imageFile = createTestBlob()
+		appState.selectedMapId = map.id
+		appState.addLocationBox(50, 50)
+		const location = createLocation()
+		location.name = 'Test Spot'
+		location.map_locations = [appState.selectedBox!]
+		pack.locations.push(location)
+
+		const { getByText, getByRole } = render(MapCanvas)
+
+		await expect.element(getByRole('button', { name: 'Select Test Spot' })).toBeVisible()
 		await expect.element(getByText('Test Spot')).toBeInTheDocument()
-		await expect.element(container.querySelector('rect')).toBeVisible()
 	})
 
 	describe('Ctrl enters Place Mode', () => {
@@ -96,13 +112,12 @@ describe('MapCanvas', () => {
 		it('should place a box on Ctrl+Click even if not in place mode', async () => {
 			const { getByRole } = render(MapCanvas)
 			const canvas = getByRole('button', { name: 'Click to place location box' })
-			const prevCount = appState.selectedPack?.locations.length ?? -1
 			expect(appState.placingMode).toBe(false)
+			expect(appState.selectedBox).toBe(null)
 
-			// Simulate Ctrl+Click
 			await canvas.click({ modifiers: ['Control'], position: { x: 10, y: 10 } })
 
-			expect(appState.selectedPack?.locations.length).toBe(prevCount + 1)
+			expect(appState.selectedBox).not.toBe(null)
 		})
 
 		it('should exit place mode if already in place mode Ctrl is pressed & released', async () => {
@@ -120,6 +135,7 @@ describe('MapCanvas', () => {
 	})
 })
 
+/** Creates a 1px by 1px transparent PNG blob for testing */
 function createTestBlob(): Blob | null {
 	return new Blob([
 		Uint8Array.from(

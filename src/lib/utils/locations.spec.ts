@@ -2,9 +2,11 @@ import type { Location, MapLocation } from '$lib/types'
 import { describe, expect, it } from 'vitest'
 import {
 	areMapLocationsEqual,
-	findAllLocationsContainingMapLocation,
 	findAllMapLocationsForMap,
-	findLocationByName
+	findLocation,
+	findLocationByMapLocation,
+	findLocationByName,
+	getAllLocations
 } from './locations'
 
 describe('findAllMapLocations', () => {
@@ -78,7 +80,87 @@ describe('findAllMapLocations', () => {
 	})
 })
 
-describe('findAllLocationsContainingMapLocation', () => {
+describe('findLocationByMapLocation', () => {
+	const makeLoc = (partial: Partial<Location>): Location => ({
+		name: '',
+		map_locations: [],
+		children: [],
+		sections: [],
+		...partial
+	})
+
+	it('returns null if no locations', () => {
+		const ml = { map: 'map1', x: 1, y: 2 }
+		expect(findLocationByMapLocation([], ml)).toBeNull()
+	})
+
+	it('returns null if no matches', () => {
+		const ml = { map: 'map1', x: 1, y: 2 }
+		const locs = [makeLoc({ map_locations: [{ map: 'other', x: 1, y: 2 }] })]
+		expect(findLocationByMapLocation(locs, ml)).toBeNull()
+	})
+
+	it('finds direct matches by reference', () => {
+		const ml = { map: 'map1', x: 1, y: 2 }
+		const loc = makeLoc({ map_locations: [ml] })
+		expect(findLocationByMapLocation([loc], ml)).toBe(loc)
+	})
+
+	it('finds matches by deep equality', () => {
+		const ml = { map: 'map1', x: 1, y: 2 }
+		const ml2 = { map: 'map1', x: 1, y: 2 }
+		const loc = makeLoc({ map_locations: [ml2] })
+		expect(findLocationByMapLocation([loc], ml)).toBe(loc)
+	})
+
+	it('finds matches in children', () => {
+		const ml = { map: 'map1', x: 1, y: 2 }
+		const child = makeLoc({ map_locations: [ml] })
+		const parent = makeLoc({ children: [child] })
+		expect(findLocationByMapLocation([parent], ml)).toBe(child)
+	})
+
+	it('returns null if map_locations is undefined everywhere', () => {
+		const ml = { map: 'map1', x: 1, y: 2 }
+		const locs = [makeLoc({ map_locations: undefined })]
+		expect(findLocationByMapLocation(locs, ml)).toBeNull()
+	})
+
+	it('handles deeply nested children', () => {
+		const ml = { map: 'map1', x: 1, y: 2 }
+		const deep = makeLoc({ children: [makeLoc({ children: [makeLoc({ map_locations: [ml] })] })] })
+		expect(findLocationByMapLocation([deep], ml)).toBe(deep.children?.[0]?.children?.[0])
+	})
+})
+
+describe('findLocation', () => {
+	const makeLoc = (partial: Partial<Location>): Location => ({
+		name: '',
+		map_locations: [],
+		children: [],
+		sections: [],
+		...partial
+	})
+
+	it('returns [null, ""] if not found', () => {
+		const loc = makeLoc({ name: 'foo' })
+		expect(findLocation([loc], null)).toEqual([null, ''])
+		expect(findLocation([], loc)).toEqual([null, ''])
+	})
+
+	it('returns [location, path] for root', () => {
+		const loc = makeLoc({ name: 'foo' })
+		expect(findLocation([loc], loc)).toEqual([loc, '/foo'])
+	})
+
+	it('returns [location, path] for nested', () => {
+		const child = makeLoc({ name: 'bar' })
+		const parent = makeLoc({ name: 'parent', children: [child] })
+		expect(findLocation([parent], child)).toEqual([child, '/parent/bar'])
+	})
+})
+
+describe('getAllLocations', () => {
 	const makeLoc = (partial: Partial<Location>): Location => ({
 		name: '',
 		map_locations: [],
@@ -88,58 +170,13 @@ describe('findAllLocationsContainingMapLocation', () => {
 	})
 
 	it('returns empty array if no locations', () => {
-		const ml = { map: 'map1', x: 1, y: 2 }
-		expect(findAllLocationsContainingMapLocation([], ml)).toEqual([])
+		expect(getAllLocations([])).toEqual([])
 	})
 
-	it('returns empty array if no matches', () => {
-		const ml = { map: 'map1', x: 1, y: 2 }
-		const locs = [makeLoc({ map_locations: [{ map: 'other', x: 1, y: 2 }] })]
-		expect(findAllLocationsContainingMapLocation(locs, ml)).toEqual([])
-	})
-
-	it('finds direct matches by reference', () => {
-		const ml = { map: 'map1', x: 1, y: 2 }
-		const loc = makeLoc({ map_locations: [ml] })
-		expect(findAllLocationsContainingMapLocation([loc], ml)).toEqual([loc])
-	})
-
-	it('finds matches by deep equality', () => {
-		const ml = { map: 'map1', x: 1, y: 2 }
-		const ml2 = { map: 'map1', x: 1, y: 2 }
-		const loc = makeLoc({ map_locations: [ml2] })
-		expect(findAllLocationsContainingMapLocation([loc], ml)).toEqual([loc])
-	})
-
-	it('finds matches in children', () => {
-		const ml = { map: 'map1', x: 1, y: 2 }
-		const child = makeLoc({ map_locations: [ml] })
-		const parent = makeLoc({ children: [child] })
-		expect(findAllLocationsContainingMapLocation([parent], ml)).toEqual([child])
-	})
-
-	it('finds multiple matches at all depths', () => {
-		const ml = { map: 'map1', x: 1, y: 2 }
-		const loc1 = makeLoc({ map_locations: [ml] })
-		const loc2 = makeLoc({ children: [makeLoc({ map_locations: [ml] })] })
-		expect(findAllLocationsContainingMapLocation([loc1, loc2], ml)).toEqual([
-			loc1,
-			loc2.children?.[0]
-		])
-	})
-
-	it('returns empty array if map_locations is undefined everywhere', () => {
-		const ml = { map: 'map1', x: 1, y: 2 }
-		const locs = [makeLoc({ map_locations: undefined })]
-		expect(findAllLocationsContainingMapLocation(locs, ml)).toEqual([])
-	})
-
-	it('handles deeply nested children', () => {
-		const ml = { map: 'map1', x: 1, y: 2 }
-		const deep = makeLoc({ children: [makeLoc({ children: [makeLoc({ map_locations: [ml] })] })] })
-		expect(findAllLocationsContainingMapLocation([deep], ml)).toEqual([
-			deep.children?.[0]?.children?.[0]
-		])
+	it('returns all locations including nested', () => {
+		const child = makeLoc({ name: 'bar' })
+		const parent = makeLoc({ name: 'parent', children: [child] })
+		expect(getAllLocations([parent])).toEqual([parent, child])
 	})
 })
 

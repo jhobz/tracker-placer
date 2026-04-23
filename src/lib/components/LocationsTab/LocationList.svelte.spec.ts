@@ -5,19 +5,19 @@ import LocationListWrapper from './LocationListWrapper.svelte'
 import { LocationsTabContext } from './LocationsTabContext.svelte'
 
 describe('LocationList', () => {
-	it('renders a list of locations', () => {
+	it('renders a list of locations', async () => {
 		const locations = [makeLocation({ name: 'Location A' }), makeLocation({ name: 'Location B' })]
 
 		const { getByText } = render(LocationListWrapper, { locations })
 
-		expect(getByText('Location A')).toBeVisible()
-		expect(getByText('Location B')).toBeVisible()
+		await expect.element(getByText('Location A')).toBeVisible()
+		await expect.element(getByText('Location B')).toBeVisible()
 	})
 
-	it('shows no locations found if empty', () => {
+	it('shows no locations found if empty', async () => {
 		const { getByText } = render(LocationListWrapper, { locations: [] })
 
-		expect(getByText('No locations found')).toBeVisible()
+		await expect.element(getByText('No locations found')).toBeVisible()
 	})
 
 	it('calls context.walkDownPath when button clicked', async () => {
@@ -48,17 +48,6 @@ describe('LocationList', () => {
 		await getByRole('button', { name: 'Add location' }).click()
 
 		expect(context.called).toBe(true)
-	})
-
-	it('does not show context buttons if readonly', async () => {
-		const locations = [makeLocation()]
-
-		const { getByRole } = render(LocationListWrapper, { locations, readonly: true })
-
-		await expect
-			.element(getByRole('button', { name: 'View location details' }))
-			.not.toBeInTheDocument()
-		await expect.element(getByRole('button', { name: 'Add location' })).not.toBeInTheDocument()
 	})
 })
 

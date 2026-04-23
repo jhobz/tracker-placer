@@ -5,11 +5,10 @@
 
 	type Props = {
 		locations: Location[] | null
-		readonly?: boolean
 	}
-	let { locations, readonly = false }: Props = $props()
+	let { locations }: Props = $props()
 
-	const context = $derived(readonly ? null : getLocationsTabContext())
+	const context = getLocationsTabContext()
 </script>
 
 <div>
@@ -19,7 +18,7 @@
 				<li class="list-row items-center py-0">
 					<a role="menuitem" href={undefined}>{location.name}</a>
 					<div></div>
-					{#if !readonly && context}
+					{#if context}
 						<button
 							class="btn btn-square btn-ghost"
 							onclick={() => {
@@ -40,7 +39,7 @@
 		<p class="text-sm text-base-content/50 italic">No locations found</p>
 	{/if}
 
-	{#if !readonly && context}
+	{#if context}
 		<button
 			class="btn btn-ghost btn-sm"
 			onclick={() => context?.addChildLocation()}

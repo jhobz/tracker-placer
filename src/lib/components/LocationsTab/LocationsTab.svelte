@@ -2,10 +2,9 @@
 	import MaterialSymbol from '../MaterialSymbol.svelte'
 	import LocationEditor from './LocationEditor.svelte'
 	import LocationList from './LocationList.svelte'
-	import { LocationsTabContext, setLocationsTabContext } from './LocationsTabContext.svelte'
+	import { getLocationsTabContext } from './LocationsTabContext.svelte'
 
-	const context = new LocationsTabContext()
-	setLocationsTabContext(context)
+	const context = getLocationsTabContext()
 
 	const pathSegments = $derived(context.path.split('/').filter(Boolean))
 </script>

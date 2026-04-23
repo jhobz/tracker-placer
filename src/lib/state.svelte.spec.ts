@@ -172,17 +172,11 @@ describe('appState', () => {
 	})
 
 	describe('addLocationBox', () => {
-		it('adds a box to the selected map and selects it', () => {
+		it('creates an ephemeral box and selects it', () => {
 			appState.addMap()
 			appState.addLocationBox(50, 75)
 
-			const boxes = appState.packs[0].locations[0].map_locations
-			expect(boxes).not.toBeUndefined()
-			expect(boxes).toHaveLength(1)
-			const box = boxes![0]
-			expect(box.x).toBe(50)
-			expect(box.y).toBe(75)
-			expect(appState.selectedBox).toStrictEqual(box)
+			expect(appState.selectedBox).toStrictEqual({ map: 'New Map', size: 0, x: 50, y: 75 })
 		})
 
 		it('disables placing mode after adding', () => {
@@ -201,10 +195,22 @@ describe('appState', () => {
 	})
 
 	describe('removeLocationBox', () => {
-		it('removes a box from the given map', () => {
+		beforeEach(() => {
+			appState.packs.length = 0
+			appState.selectedPackId = null
+			appState.selectedMapId = null
+			appState.selectedBox = null
 			appState.addMap()
+			const location = createLocation()
+			appState.selectedPack?.locations.push(location)
 			appState.addLocationBox(10, 20)
-			const box = appState.packs[0].locations[0].map_locations![0]
+			const box = appState.selectedBox!
+			location.map_locations = [box]
+		})
+
+		it('removes a box from the given map', () => {
+			const box = appState.selectedBox!
+			expect(appState.packs[0].locations[0].map_locations).toHaveLength(1)
 
 			appState.removeLocationBox(box)
 
@@ -212,9 +218,7 @@ describe('appState', () => {
 		})
 
 		it('clears selectedBox if the removed box was selected', () => {
-			appState.addMap()
-			appState.addLocationBox(10, 20)
-			const box = appState.packs[0].locations[0].map_locations![0]
+			const box = appState.selectedBox!
 
 			appState.removeLocationBox(box)
 
@@ -222,9 +226,10 @@ describe('appState', () => {
 		})
 
 		it('does not clear selectedBox if a different box was removed', () => {
-			appState.addMap()
-			appState.addLocationBox(10, 20)
 			appState.addLocationBox(30, 40)
+			const location = createLocation()
+			appState.selectedPack?.locations.push(location)
+			location.map_locations = [appState.selectedBox!]
 			const firstBox = appState.packs[0].locations[0].map_locations![0]
 			const secondBox = appState.packs[0].locations[1].map_locations![0]
 
@@ -238,9 +243,6 @@ describe('appState', () => {
 		})
 
 		it('does nothing for non-existent box', () => {
-			appState.addMap()
-			appState.addLocationBox(10, 20)
-
 			appState.removeLocationBox({ map: 'some-map', x: 0, y: 0 })
 
 			expect(appState.packs[0].locations[0].map_locations).toHaveLength(1)
@@ -262,7 +264,7 @@ describe('appState', () => {
 			appState.addMap()
 			appState.addLocationBox(10, 20)
 
-			expect(appState.selectedBox).toStrictEqual(appState.packs[0].locations[0].map_locations![0])
+			expect(appState.selectedBox).toStrictEqual({ map: 'New Map', size: 0, x: 10, y: 20 })
 		})
 	})
 

@@ -1,4 +1,4 @@
-import { appState } from '$lib/state.svelte'
+import { appState, createLocation } from '$lib/state.svelte'
 import type { Location, MapConfig, PoptrackerSection } from '$lib/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
@@ -9,6 +9,9 @@ describe('ExportModal', () => {
 		cleanup()
 		appState.packs.length = 0
 		appState.selectedPackId = null
+		appState.selectedMapId = null
+		appState.selectedBox = null
+
 		appState.addPack()
 	})
 
@@ -38,9 +41,12 @@ describe('ExportModal', () => {
 	it('switches to locations.json tab on click', async () => {
 		appState.addMap()
 		appState.addLocationBox(0, 0)
-		const pack = appState.selectedPack
+		const location = createLocation()
+		const pack = appState.selectedPack!
 		expect(pack).not.toBeNull()
-		pack!.locations[0].name = 'Kakariko'
+		pack.locations.push(location)
+		location.name = 'Kakariko'
+		location.map_locations = [appState.selectedBox!]
 
 		const { getByText } = render(ExportModal, { open: true, onclose: () => {} })
 		await getByText('locations.json').click()

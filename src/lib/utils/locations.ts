@@ -27,31 +27,33 @@ export const findAllMapLocationsForMap = (
 }
 
 /**
- * Recursively (depth-first) searches through the given locations and their children to find all locations that contain the given map location.
+ * Recursively (depth-first) searches through the given locations and their children to find a matching location that contains the given map location.
  * @param locations The array of locations to search through.
  * @param mapLocation The map location reference to match.
- * @returns An array of locations that contain the given map location reference.
+ * @returns The location that contains the given map location reference, or `null` if not found.
  */
-export const findAllLocationsContainingMapLocation = (
+export const findLocationByMapLocation = (
 	locations: Location[],
 	mapLocation: NonNullable<Location['map_locations']>[number]
-): Location[] => {
-	let matches: Location[] = []
-
-	locations.forEach((loc) => {
+): Location | null => {
+	for (const loc of locations) {
 		const containsMapLocation = loc.map_locations?.some((ml) =>
 			areMapLocationsEqual(ml, mapLocation)
 		)
+
 		if (containsMapLocation) {
-			matches.push(loc)
+			return loc
 		}
 
 		if (loc.children) {
-			matches = [...matches, ...findAllLocationsContainingMapLocation(loc.children, mapLocation)]
+			const found = findLocationByMapLocation(loc.children, mapLocation)
+			if (found) {
+				return found
+			}
 		}
-	})
+	}
 
-	return matches
+	return null
 }
 
 /**
@@ -110,6 +112,24 @@ export const findLocation = (
 	}
 
 	return [null, '']
+}
+
+/**
+ * Recursively (depth-first) retrieves all locations and their children.
+ * @param locations The array of locations to retrieve.
+ * @returns An array of all locations, including nested children.
+ */
+export const getAllLocations = (locations: Location[]): Location[] => {
+	let allLocations: Location[] = []
+
+	locations.forEach((loc) => {
+		allLocations.push(loc)
+		if (loc.children) {
+			allLocations = [...allLocations, ...getAllLocations(loc.children)]
+		}
+	})
+
+	return allLocations
 }
 
 /**
