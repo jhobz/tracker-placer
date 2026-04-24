@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.2](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.3.1...tracker-placer-v1.3.2) (2026-04-24)
+
+
+### Bug Fixes
+
+* adjust box style ([#55](https://github.com/jhobz/tracker-placer/issues/55)) ([0996a38](https://github.com/jhobz/tracker-placer/commit/0996a38832f298e343f5efbb94738c5ad6821c4b))
+* prevent MapTabs from wrapping, enable scroll ([#57](https://github.com/jhobz/tracker-placer/issues/57)) ([3194e5d](https://github.com/jhobz/tracker-placer/commit/3194e5d89322bd6c3da18a13046e1beb2d9c8f20)), closes [#23](https://github.com/jhobz/tracker-placer/issues/23)
+
 ## [1.3.1](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.3.0...tracker-placer-v1.3.1) (2026-04-24)
 
 
