@@ -24,7 +24,7 @@ describe('ExportModal', () => {
 	it('renders modal when open is true', async () => {
 		const { getByText, getByRole } = render(ExportModal, { open: true, onclose: () => {} })
 
-		await expect.element(getByText('Export JSON Files')).toBeInTheDocument()
+		await expect.element(getByText('Export JSON Files')).toBeVisible()
 		await expect.element(getByRole('button', { name: 'maps.json', exact: true })).toBeVisible()
 		await expect.element(getByRole('button', { name: 'locations.json', exact: true })).toBeVisible()
 	})
