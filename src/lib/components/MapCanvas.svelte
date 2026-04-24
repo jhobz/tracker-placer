@@ -207,10 +207,9 @@
 							y={y - h / 2}
 							width={w}
 							height={h}
-							fill="oklch(from var(--color-primary) l c h / {isSelected ? 0.75 : 0.3})"
-							stroke={isSelected ? 'white' : 'var(--color-primary)'}
+							fill="oklch(from var(--color-error) l c h / {isSelected ? 1.0 : 0.7})"
+							stroke={isSelected ? 'white' : 'black'}
 							stroke-width={map.location_border_thickness}
-							rx="2"
 							class="focus:outline-none"
 							role="button"
 							aria-label={locationName ? `Select ${locationName}` : 'Select map location'}
