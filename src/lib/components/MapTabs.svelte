@@ -1,12 +1,29 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte'
+	import type { WheelEventHandler } from 'svelte/elements'
 	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	type Props = { onUploadNew: () => void }
 	let { onUploadNew }: Props = $props()
+
+	// Source - https://stackoverflow.com/a/59680347
+	// Posted by Guido Bouman, modified by community. See post 'Timeline' for change history
+	// Retrieved 2026-04-24, License - CC BY-SA 4.0
+	const transformScroll: WheelEventHandler<HTMLDivElement> = (e) => {
+		if (!e.deltaY) {
+			return
+		}
+
+		e.preventDefault()
+		e.currentTarget.scrollLeft += e.deltaY + e.deltaX
+	}
 </script>
 
-<div role="tablist" class="tabs-border tabs border-b border-base-300 tabs-sm">
+<div
+	role="tablist"
+	class="tabs-border tabs flex-nowrap overflow-x-auto border-b border-base-300 tabs-sm [scrollbar-width:thin]"
+	onwheel={transformScroll}
+>
 	{#if appState.maps.length === 0}
 		<p class="px-3 py-2 text-xs text-base-content/40">No maps yet</p>
 	{:else}
