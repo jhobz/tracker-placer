@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.2.0...tracker-placer-v1.3.0) (2026-04-24)
+
+
+### Features
+
+* add pack importing ([#42](https://github.com/jhobz/tracker-placer/issues/42)) ([7d3bdcc](https://github.com/jhobz/tracker-placer/commit/7d3bdcc77d7623d71865962d60d9353b692ea7a5))
+
 ## [1.2.0](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.1.0...tracker-placer-v1.2.0) (2026-04-23)
 
 
