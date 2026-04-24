@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SectionEditor from '$lib/components/SectionEditor.svelte'
-	import type { Location, PoptrackerSection } from '$lib/types'
+	import type { Location } from '$lib/types'
 	import LocationList from './LocationList.svelte'
 	import { getLocationsTabContext } from './LocationsTabContext.svelte'
 
@@ -132,7 +132,7 @@
 
 	<!-- Sections -->
 	<div class="divider my-0 text-xs opacity-50"></div>
-	<SectionEditor sections={(location.sections as PoptrackerSection[]) ?? []} />
+	<SectionEditor sections={location.sections ?? []} />
 	<div class="divider my-0 text-xs opacity-50"></div>
 
 	<button

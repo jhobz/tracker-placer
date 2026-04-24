@@ -1,9 +1,17 @@
 import { appState, createMap, createPack } from '$lib/state.svelte'
-import { describe, expect, it } from 'vitest'
-import { render } from 'vitest-browser-svelte'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { cleanup, render } from 'vitest-browser-svelte'
 import Header from './Header.svelte'
 
 describe('Header', () => {
+	beforeEach(() => {
+		cleanup()
+		appState.packs.length = 0
+		appState.selectedPackId = null
+		appState.selectedMapId = null
+		appState.selectedBox = null
+	})
+
 	it('renders title and subtitle', async () => {
 		const { getByText } = render(Header, { showExportModal: false })
 

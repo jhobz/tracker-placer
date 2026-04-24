@@ -71,12 +71,15 @@ describe('LocationBoxEditor', () => {
 		const pack = appState.selectedPack!
 		const map = appState.selectedMap!
 		const box = appState.selectedBox!
+		expect(pack.locations[0].map_locations).toHaveLength(1)
+		expect(pack.locations[0].map_locations).toContain(box)
 
 		const { getByRole } = render(LocationBoxEditorWrapper, { map, box })
 
 		await getByRole('button', { name: 'Delete location box' }).click()
 
 		expect(pack.locations[0].map_locations).toHaveLength(0)
+		expect(pack.locations[0].map_locations).not.toContain(box)
 		expect(appState.selectedBox).toBeNull()
 	})
 

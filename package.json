@@ -20,6 +20,8 @@
 	},
 	"packageManager": "pnpm@10.33.0",
 	"dependencies": {
+		"jsonc-parser": "^3.3.1",
+		"jszip": "^3.10.1",
 		"localforage": "^1.10.0",
 		"nanoid": "^5.1.7"
 	},

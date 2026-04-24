@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { createSection } from '$lib/state.svelte'
-	import type { PoptrackerSection } from '$lib/types'
+	import type { PoptrackerSection, Section } from '$lib/types'
 	import MaterialSymbol from './MaterialSymbol.svelte'
 
 	type Props = {
-		sections: PoptrackerSection[]
+		sections: Section[]
 	}
 	let { sections }: Props = $props()
 
@@ -41,7 +41,7 @@
 		</button>
 	</div>
 
-	{#each sections as section, idx (section.id)}
+	{#each sections as section, idx (section.name)}
 		<details
 			class="collapse-arrow collapse border border-base-100 bg-base-300 open:*:[summary]:bg-accent/20"
 			name="sections-accordion"
