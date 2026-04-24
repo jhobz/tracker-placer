@@ -2,6 +2,7 @@
 	import { dev, version } from '$app/environment'
 	import ExportModal from '$lib/components/ExportModal.svelte'
 	import Header from '$lib/components/Header.svelte'
+	import ImportModal from '$lib/components/ImportModal.svelte'
 	import LocationBoxEditor from '$lib/components/LocationBoxEditor.svelte'
 	import LocationsTab from '$lib/components/LocationsTab/LocationsTab.svelte'
 	import {
@@ -16,8 +17,9 @@
 	import PackList from '$lib/components/PackList.svelte'
 	import { appState } from '$lib/state.svelte'
 
-	let showUploadModal = $state(false)
+	let showMapUploadModal = $state(false)
 	let showExportModal = $state(false)
+	let showImportModal = $state(false)
 
 	const locationsTabContext = new LocationsTabContext()
 	setLocationsTabContext(locationsTabContext)
@@ -31,16 +33,23 @@
 	<Header bind:showExportModal />
 
 	<!-- Left sidebar: pack list -->
-	<aside class="flex flex-col justify-between border-r border-base-300 bg-base-200">
+	<aside class="flex flex-col border-r border-base-300 bg-base-200">
 		<PackList />
-		<p class="mb-2 text-center font-mono text-xs text-base-content/20">
+		<button
+			class="btn self-center btn-ghost btn-secondary"
+			onclick={() => (showImportModal = true)}
+		>
+			<MaterialSymbol>drive_folder_upload</MaterialSymbol>
+			Import pack
+		</button>
+		<p class="mt-auto mb-2 text-center font-mono text-xs text-base-content/20">
 			v{version}{dev ? '-dev' : ''}
 		</p>
 	</aside>
 
 	<!-- Main layout -->
 	<main class="relative grid grid-rows-[auto_minmax(0,1fr)]">
-		<MapTabs onUploadNew={() => (showUploadModal = true)} />
+		<MapTabs onUploadNew={() => (showMapUploadModal = true)} />
 
 		{#if appState.placingMode}
 			<div class="absolute top-0 left-[50%] z-10 my-4 alert -translate-x-[50%] alert-info">
@@ -82,7 +91,7 @@
 						<p class="text-center text-sm">
 							No map selected.<br />Add a map to get started.
 						</p>
-						<button class="btn btn-sm btn-primary" onclick={() => (showUploadModal = true)}>
+						<button class="btn btn-sm btn-primary" onclick={() => (showMapUploadModal = true)}>
 							Add map
 						</button>
 					</div>
@@ -124,32 +133,38 @@
 	</aside>
 
 	<!-- Upload modal -->
-	{#if showUploadModal}
+	{#if showMapUploadModal}
 		<div class="modal-open modal" role="dialog" aria-modal="true">
 			<div class="modal-box">
 				<div class="mb-4 flex items-center justify-between">
 					<h3 class="text-lg font-bold">Add Map Images</h3>
-					<button class="btn btn-circle btn-ghost btn-sm" onclick={() => (showUploadModal = false)}>
+					<button
+						class="btn btn-circle btn-ghost btn-sm"
+						onclick={() => (showMapUploadModal = false)}
+					>
 						<MaterialSymbol>close</MaterialSymbol>
 					</button>
 				</div>
-				<MapUpload onupload={() => (showUploadModal = false)} />
+				<MapUpload onupload={() => (showMapUploadModal = false)} />
 				<div class="modal-action">
-					<button class="btn" onclick={() => (showUploadModal = false)}>Done</button>
+					<button class="btn" onclick={() => (showMapUploadModal = false)}>Done</button>
 				</div>
 			</div>
 			<div
 				class="modal-backdrop"
 				role="button"
 				tabindex="0"
-				onclick={() => (showUploadModal = false)}
-				onkeydown={(e) => e.key === 'Escape' && (showUploadModal = false)}
+				onclick={() => (showMapUploadModal = false)}
+				onkeydown={(e) => e.key === 'Escape' && (showMapUploadModal = false)}
 			></div>
 		</div>
 	{/if}
 
 	<!-- Export modal -->
 	<ExportModal open={showExportModal} onclose={() => (showExportModal = false)} />
+
+	<!-- Import modal -->
+	<ImportModal open={showImportModal} onclose={() => (showImportModal = false)} />
 </div>
 
 <svelte:window
