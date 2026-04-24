@@ -102,7 +102,12 @@
 
 	function getBoxDisplaySize(box: MapLocation) {
 		const size = box.size && box.size > 0 ? box.size : (map?.location_size ?? 16)
-		return { w: size, h: size }
+		const border = map?.location_border_thickness ?? 0
+
+		return {
+			w: size + 2 * border,
+			h: size + 2 * border
+		}
 	}
 
 	function handleCanvasClick(e: MouseEvent) {
