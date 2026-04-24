@@ -16,6 +16,8 @@
 	let extractedPackName = $state('')
 	let extractedMaps = $state<MapConfig[]>([])
 	let extractedLocations = $state<Location[]>([])
+	let hasFileUploaded = $state(false)
+	let didErrorOccur = $state(false)
 
 	async function handleFileSelect(files: FileList | null) {
 		if (!files || files.length === 0) {
@@ -27,14 +29,21 @@
 			return
 		}
 
-		for (const file of files) {
-			if (file.type !== 'application/zip' && file.type !== 'application/x-zip-compressed') {
-				continue
-			}
+		hasFileUploaded = true
 
-			extractedPackName = await extractPackNameFromPackFile(file)
-			extractedMaps = await extractMapsFromPackFile(file)
-			extractedLocations = await extractLocationsFromPackFile(file)
+		for (const file of files) {
+			try {
+				if (file.type !== 'application/zip' && file.type !== 'application/x-zip-compressed') {
+					continue
+				}
+
+				extractedPackName = await extractPackNameFromPackFile(file)
+				extractedMaps = await extractMapsFromPackFile(file)
+				extractedLocations = await extractLocationsFromPackFile(file)
+			} catch (error) {
+				didErrorOccur = true
+				console.error('Error extracting pack data:', error)
+			}
 		}
 
 		onupload?.()
@@ -70,6 +79,8 @@
 		extractedMaps = []
 		extractedLocations = []
 		extractedPackName = ''
+		hasFileUploaded = false
+		didErrorOccur = false
 	}
 </script>
 
@@ -87,6 +98,17 @@
 	{/if}
 {/snippet}
 
+{#snippet statusMessage(type: 'info' | 'success' | 'error', message: string)}
+	{@const typeToColor = {
+		info: ['status-info', 'text-info'],
+		success: ['status-success', 'text-success'],
+		error: ['status-error', 'text-error']
+	}}
+	<div class="mr-auto flex items-center gap-1 text-sm {typeToColor[type][1]}">
+		<span class="status {typeToColor[type][0]}"></span><span>{message}</span>
+	</div>
+{/snippet}
+
 {#if open}
 	<dialog class="modal" aria-modal="true" aria-label="Import Poptracker Pack" {open}>
 		<div class="modal-box max-w-4xl">
@@ -97,52 +119,84 @@
 				</button>
 			</div>
 
-			{#if extractedMaps.length > 0 || extractedLocations.length > 0}
-				<p class="mb-4 text-sm text-success">
-					Upload successful! Please review the extracted data below and click Import to continue.
-				</p>
+			<div class="flex flex-col gap-4">
+				{#if extractedMaps.length > 0 || extractedLocations.length > 0}
+					<p>Please review the extracted data below and click Import to continue.</p>
+					<table
+						class="table w-fit self-start **:[td]:first:text-end **:[td]:first:text-base-content/70"
+					>
+						<tbody>
+							<tr>
+								<td>Pack name</td>
+								<td class="text-secondary">{extractedPackName}</td>
+							</tr>
+							<tr>
+								<td>Maps found</td>
+								<td>{extractedMaps.length}</td>
+							</tr>
+							<tr>
+								<td class="flex items-center gap-1">
+									<span>Locations found</span>
+									<div class="tooltip grid" data-tip="Not counting nested locations">
+										<MaterialSymbol size="sm" class="cursor-help">info</MaterialSymbol>
+									</div>
+								</td>
+								<td>{extractedLocations.length}</td>
+							</tr>
+						</tbody>
+					</table>
 
-				<div class="tabs">
-					{@render jsonArrayCodeBlock(extractedMaps, 'Maps', true)}
-					{@render jsonArrayCodeBlock(extractedLocations, 'Locations')}
-				</div>
-			{:else}
-				<p class="mb-4 text-sm text-base-content/60">
-					Import maps and locations from an existing Poptracker pack.
-				</p>
+					<div class="tabs">
+						{@render jsonArrayCodeBlock(extractedMaps, 'Maps', true)}
+						{@render jsonArrayCodeBlock(extractedLocations, 'Locations')}
+					</div>
+				{:else}
+					<p class="mb-4 text-sm text-base-content/60">
+						Import maps and locations from an existing Poptracker pack.
+					</p>
 
-				<div
-					class={{
-						'flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-base-300 bg-base-200 p-8 text-base-content/70 transition-colors': true,
-						'border-primary bg-primary/10': dragOver
-					}}
-					role="button"
-					tabindex="0"
-					ondrop={onDrop}
-					ondragover={onDragOver}
-					ondragleave={onDragLeave}
-					onclick={() => fileInput?.click()}
-					onkeydown={(e) => e.key === 'Enter' && fileInput?.click()}
-				>
-					<MaterialSymbol size="4xl">drive_folder_upload</MaterialSymbol>
-					<p class="mb-1 text-sm font-medium">Drop Poptracker pack here or click to upload</p>
-					<p class="text-xs text-base-content/40">Only ZIP supported · Single file only</p>
-					<input
-						bind:this={fileInput}
-						type="file"
-						accept="application/zip,application/x-zip-compressed"
-						class="hidden"
-						aria-label="Upload Poptracker pack ZIP file"
-						onchange={(e) => handleFileSelect((e.target as HTMLInputElement).files)}
-					/>
-				</div>
-			{/if}
+					<div
+						class={{
+							'flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-base-300 bg-base-200 p-8 text-base-content/70 transition-colors': true,
+							'border-primary bg-primary/10': dragOver
+						}}
+						role="button"
+						tabindex="0"
+						ondrop={onDrop}
+						ondragover={onDragOver}
+						ondragleave={onDragLeave}
+						onclick={() => fileInput?.click()}
+						onkeydown={(e) => e.key === 'Enter' && fileInput?.click()}
+					>
+						<MaterialSymbol size="4xl">drive_folder_upload</MaterialSymbol>
+						<p class="mb-1 text-sm font-medium">Drop Poptracker pack here or click to upload</p>
+						<p class="text-xs text-base-content/40">Only ZIP supported · Single file only</p>
+						<input
+							bind:this={fileInput}
+							type="file"
+							accept="application/zip,application/x-zip-compressed"
+							class="hidden"
+							aria-label="Upload Poptracker pack ZIP file"
+							onchange={(e) => handleFileSelect((e.target as HTMLInputElement).files)}
+						/>
+					</div>
+				{/if}
+			</div>
 
-			<div class="modal-action flex-wrap">
+			<div class="modal-action flex-wrap items-center">
+				{#if hasFileUploaded && !didErrorOccur && !(extractedMaps.length > 0 || extractedLocations.length > 0)}
+					{@render statusMessage('info', 'Parsing...')}
+				{:else if !didErrorOccur && (extractedMaps.length > 0 || extractedLocations.length > 0)}
+					{@render statusMessage('success', 'Pack parsed successfully')}
+				{:else if didErrorOccur}
+					{@render statusMessage('error', 'Error parsing pack')}
+				{/if}
+
 				<button class="btn btn-ghost" onclick={onExit}>Close</button>
 				<button
 					class="btn btn-primary"
-					disabled={extractedMaps.length === 0 && extractedLocations.length === 0}
+					disabled={didErrorOccur ||
+						(extractedMaps.length === 0 && extractedLocations.length === 0)}
 					onclick={confirmImport}>Import pack</button
 				>
 			</div>

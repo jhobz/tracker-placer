@@ -61,6 +61,18 @@ describe('extractPackNameFromPackFile', () => {
 
 		expect(result).toBe('Test Pack')
 	})
+
+	it('should find the correct manifest.json if multiple are present', async () => {
+		const zip = new JSZip()
+		zip.file('.release-please-manifest.json', JSON.stringify({ '.': '1.2.0' }))
+		zip.file('manifest.json', JSON.stringify({ name: 'Main Manifest' }))
+		const uint8 = await zip.generateAsync({ type: 'uint8array' })
+		const file = new File([uint8.slice().buffer], 'pack.zip', { type: 'application/zip' })
+
+		const result = await extractPackNameFromPackFile(file)
+
+		expect(result).toBe('Main Manifest')
+	})
 })
 
 describe('extractMapsFromPackFile', () => {

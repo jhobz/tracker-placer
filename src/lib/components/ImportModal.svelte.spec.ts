@@ -75,7 +75,8 @@ describe('ImportModal', () => {
 		const { getByLabelText, getByText } = render(ImportModal, { open: true, onclose: vi.fn() })
 		await getByLabelText('Upload Poptracker pack ZIP file').upload(file)
 
-		await expect.element(getByText('Test Map')).toBeInTheDocument()
+		await expect.element(getByText('Test Pack')).toBeVisible()
+		await expect.element(getByText('Test Map')).toBeVisible() // Maps tab is selected by default
 		await expect.element(getByText('Test Location')).toBeInTheDocument()
 	})
 
