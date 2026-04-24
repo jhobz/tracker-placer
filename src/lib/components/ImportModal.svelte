@@ -73,10 +73,23 @@
 	}
 </script>
 
+{#snippet jsonArrayCodeBlock(array: Array<any>, name: string, checked: boolean = false)}
+	{#if array.length > 0}
+		{@const json = JSON.stringify(array, null, 2)}
+		<input type="radio" name="import_tabs" class="tab" aria-label={name} {checked} />
+		<div class="mockup-code tab-content">
+			<div class="max-h-64 overflow-auto">
+				{#each json.split('\n') as line, i}
+					<pre data-prefix={i + 1}><code>{line}</code></pre>
+				{/each}
+			</div>
+		</div>
+	{/if}
+{/snippet}
+
 {#if open}
-	<!-- Modal backdrop -->
 	<dialog class="modal" aria-modal="true" aria-label="Import Poptracker Pack" {open}>
-		<div class="modal-box max-w-3xl">
+		<div class="modal-box max-w-4xl">
 			<div class="mb-4 flex items-center justify-between">
 				<h3 class="text-lg font-bold">Import Poptracker Pack</h3>
 				<button class="btn btn-circle btn-ghost btn-sm" aria-label="Close" onclick={onExit}>
@@ -84,27 +97,20 @@
 				</button>
 			</div>
 
-			<p class="mb-4 text-sm text-base-content/60">
-				Import maps and locations from an existing Poptracker pack.
-			</p>
-
 			{#if extractedMaps.length > 0 || extractedLocations.length > 0}
-				<div class="mb-4 max-h-48 overflow-y-auto rounded border border-base-300 bg-base-100 p-4">
-					{#if extractedMaps.length > 0}
-						<p class="mb-2 font-medium">Maps:</p>
-						<pre>{JSON.stringify(extractedMaps, null, 2)}</pre>
-					{/if}
+				<p class="mb-4 text-sm text-success">
+					Upload successful! Please review the extracted data below and click Import to continue.
+				</p>
 
-					{#if extractedLocations.length > 0}
-						<p class="mb-2 font-medium">Locations:</p>
-						<ul class="list-disc pl-6">
-							{#each extractedLocations as location}
-								<li>{location.name}</li>
-							{/each}
-						</ul>
-					{/if}
+				<div class="tabs">
+					{@render jsonArrayCodeBlock(extractedMaps, 'Maps', true)}
+					{@render jsonArrayCodeBlock(extractedLocations, 'Locations')}
 				</div>
 			{:else}
+				<p class="mb-4 text-sm text-base-content/60">
+					Import maps and locations from an existing Poptracker pack.
+				</p>
+
 				<div
 					class={{
 						'flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-base-300 bg-base-200 p-8 text-base-content/70 transition-colors': true,
@@ -141,6 +147,8 @@
 				>
 			</div>
 		</div>
+
+		<!-- Modal backdrop -->
 		<form method="dialog" class="modal-backdrop">
 			<button onclick={onExit} onkeydown={(e) => e.key === 'Escape' && onExit()}>close</button>
 		</form>
