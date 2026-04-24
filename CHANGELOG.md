@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.3.0...tracker-placer-v1.3.1) (2026-04-24)
+
+
+### Bug Fixes
+
+* manifest import, add pack details and status to ImportModal ([#46](https://github.com/jhobz/tracker-placer/issues/46)) ([0e1d0c0](https://github.com/jhobz/tracker-placer/commit/0e1d0c0741af3e8c33470fabbf8c762ff7b8c602))
+
 ## [1.3.0](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.2.0...tracker-placer-v1.3.0) (2026-04-24)
 
 
