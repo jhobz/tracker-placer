@@ -13,12 +13,18 @@ import { nanoid } from 'nanoid'
 export async function extractPackNameFromPackFile(file: File): Promise<string> {
 	const zip = await getZipFromFile(file)
 
-	const manifestFile = zip.filter((path) => path.includes('manifest.json'))[0]
-	if (!manifestFile) {
+	const manifestFiles = zip.filter((path) => {
+		const isRoot = !path.includes('/')
+		const filename = isRoot ? path : path.substring(path.lastIndexOf('/') + 1)
+
+		return filename === 'manifest.json'
+	})
+
+	if (!manifestFiles || manifestFiles.length === 0) {
 		throw new Error('manifest.json not found in zip file')
 	}
 
-	const manifestContent = await convertZipFileToJsonString(manifestFile)
+	const manifestContent = await convertZipFileToJsonString(manifestFiles[0])
 
 	try {
 		const errors: ParseError[] = []
