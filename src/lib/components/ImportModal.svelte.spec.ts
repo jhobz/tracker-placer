@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-svelte'
 import ImportModal from './ImportModal.svelte'
 
-vi.mock('$lib/utils/import', () => ({
+vi.mock(import('$lib/utils/import'), () => ({
 	extractPackNameFromPackFile: vi.fn().mockResolvedValue('Test Pack'),
 	extractMapsFromPackFile: vi.fn().mockResolvedValue([{ name: 'Test Map' }]),
 	extractLocationsFromPackFile: vi.fn().mockResolvedValue([{ name: 'Test Location' }])
