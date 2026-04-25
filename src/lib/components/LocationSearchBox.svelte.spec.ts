@@ -27,14 +27,14 @@ describe('LocationSearchBox', () => {
 	})
 
 	it('renders search input', async () => {
-		const { getByPlaceholder } = render(LocationSearchBox, { onSelect: vi.fn() })
+		const { getByRole } = render(LocationSearchBox, { onSelect: vi.fn() })
 
-		await expect.element(getByPlaceholder('Search existing locations...')).toBeVisible()
+		await expect.element(getByRole('combobox')).toBeVisible()
 	})
 
 	it('shows results matching query', async () => {
-		const { getByPlaceholder, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
-		await getByPlaceholder('Search existing locations...').fill('palace')
+		const { getByRole, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
+		await getByRole('combobox').fill('palace')
 
 		await expect.element(getByText('Eastern Palace')).toBeVisible()
 		await expect.element(getByText('Desert Palace')).toBeVisible()
@@ -43,34 +43,30 @@ describe('LocationSearchBox', () => {
 	it('calls onSelect when a result is clicked', async () => {
 		const onSelect = vi.fn()
 
-		const { getByPlaceholder, getByText } = render(LocationSearchBox, { onSelect })
-		await getByPlaceholder('Search existing locations...').fill('tower')
+		const { getByRole, getByText } = render(LocationSearchBox, { onSelect })
+		await getByRole('combobox').fill('tower')
 		await getByText('Tower of Hera').click()
 
 		expect(onSelect).toHaveBeenCalledExactlyOnceWith(appState.selectedPack!.locations[2])
 	})
 
 	it('shows nothing if no results', async () => {
-		const { getByPlaceholder, getByRole } = render(LocationSearchBox, { onSelect: vi.fn() })
-		await getByPlaceholder('Search existing locations...').fill('zzz')
+		const { getByRole } = render(LocationSearchBox, { onSelect: vi.fn() })
+		await getByRole('combobox').fill('zzz')
 
 		expect(getByRole('menu')).not.toBeInTheDocument()
 	})
 
 	it('should highlight the first result by default', async () => {
-		const { getByPlaceholder, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
-		const input = getByPlaceholder('Search existing locations...')
-
-		await input.fill('palace')
+		const { getByRole, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
+		await getByRole('combobox').fill('p')
 
 		await expect.element(getByText('Eastern Palace')).toHaveClass(/menu-active/)
 	})
 
 	it('should highlight the first result when query changes', async () => {
-		const { getByPlaceholder, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
-		const input = getByPlaceholder('Search existing locations...')
-
-		await input.fill('p')
+		const { getByRole, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
+		await getByRole('combobox').fill('p')
 		await userEvent.keyboard('{ArrowDown}')
 
 		await expect.element(getByText('Desert Palace')).toHaveClass(/menu-active/)
@@ -82,9 +78,8 @@ describe('LocationSearchBox', () => {
 	})
 
 	it('highlights results with ArrowDown/ArrowUp', async () => {
-		const { getByPlaceholder, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
-		const input = getByPlaceholder('Search existing locations...')
-		await input.fill('palace')
+		const { getByRole, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
+		await getByRole('combobox').fill('palace')
 
 		// ArrowDown highlights second result
 		await userEvent.keyboard('{ArrowDown}')
@@ -112,9 +107,8 @@ describe('LocationSearchBox', () => {
 	it('selects highlighted result with Enter', async () => {
 		const onSelect = vi.fn()
 
-		const { getByPlaceholder } = render(LocationSearchBox, { onSelect })
-		const input = getByPlaceholder('Search existing locations...')
-		await input.fill('palace')
+		const { getByRole } = render(LocationSearchBox, { onSelect })
+		await getByRole('combobox').fill('p')
 
 		// Enter to select first result (highlighted by default)
 		await userEvent.keyboard('{Enter}')
@@ -123,8 +117,8 @@ describe('LocationSearchBox', () => {
 	})
 
 	it('sets correct ARIA attributes', async () => {
-		const { getByPlaceholder } = render(LocationSearchBox, { onSelect: vi.fn() })
-		const input = getByPlaceholder('Search existing locations...')
+		const { getByRole } = render(LocationSearchBox, { onSelect: vi.fn() })
+		const input = getByRole('combobox')
 		await input.fill('palace')
 
 		expect(input.element().getAttribute('role')).toBe('combobox')
