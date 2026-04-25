@@ -1,6 +1,9 @@
 import { appState, createMap } from '$lib/state.svelte'
+import type { MapConfig } from '$lib/types'
+import { nanoid } from 'nanoid'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from 'vitest-browser-svelte'
+import { userEvent } from 'vitest/browser'
 import MapTabs from './MapTabs.svelte'
 
 describe('MapTabs', () => {
@@ -15,7 +18,7 @@ describe('MapTabs', () => {
 	})
 
 	it('shows empty state when no maps exist', async () => {
-		const { getByText } = render(MapTabs, { onUploadNew: () => {} })
+		const { getByText } = render(MapTabs, { onUploadNew: vi.fn() })
 
 		await expect.element(getByText('No maps yet')).toBeVisible()
 	})
@@ -27,7 +30,7 @@ describe('MapTabs', () => {
 		map2.name = 'Dungeon'
 		appState.maps.push(map1, map2)
 
-		const { getByRole } = render(MapTabs, { onUploadNew: () => {} })
+		const { getByRole } = render(MapTabs, { onUploadNew: vi.fn() })
 
 		await expect.element(getByRole('tab', { name: 'Overworld' })).toBeVisible()
 		await expect.element(getByRole('tab', { name: 'Dungeon' })).toBeVisible()
@@ -39,7 +42,7 @@ describe('MapTabs', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		const { getByRole } = render(MapTabs, { onUploadNew: () => {} })
+		const { getByRole } = render(MapTabs, { onUploadNew: vi.fn() })
 
 		const tab = getByRole('tab', { name: 'Overworld' })
 		await expect.element(tab).toHaveClass(/tab-active/)
@@ -50,7 +53,7 @@ describe('MapTabs', () => {
 		map.name = 'Overworld'
 		appState.maps.push(map)
 
-		const { getByRole } = render(MapTabs, { onUploadNew: () => {} })
+		const { getByRole } = render(MapTabs, { onUploadNew: vi.fn() })
 		await getByRole('tab', { name: 'Overworld' }).click()
 
 		expect(appState.selectedMapId).toBe(map.id)
@@ -71,15 +74,48 @@ describe('MapTabs', () => {
 		appState.maps.push(map)
 		appState.selectedMapId = map.id
 
-		const { getByRole } = render(MapTabs, { onUploadNew: () => {} })
+		const { getByRole } = render(MapTabs, { onUploadNew: vi.fn() })
 		await getByRole('button', { name: 'Remove map' }).click()
 
 		expect(appState.maps).toHaveLength(0)
 	})
 
 	it('uses DaisyUI tabs component classes', async () => {
-		const { getByRole } = render(MapTabs, { onUploadNew: () => {} })
+		const { getByRole } = render(MapTabs, { onUploadNew: vi.fn() })
 
 		await expect.element(getByRole('tablist')).toBeVisible()
 	})
+
+	it('should scroll horizontally instead of vertically when using the wheel', async () => {
+		const otherMaps = Array(20)
+			.fill(0)
+			.map(() => makeMap())
+		appState.maps.push(...otherMaps)
+		// Vitest discards our styles, so we have to set them manually to test the scrolling behavior
+		const style = 'width: 200px; overflow-x: auto; display: flex; flex-wrap: nowrap;'
+
+		const { getByRole } = render(MapTabs, { onUploadNew: vi.fn() })
+		const element = getByRole('tablist').element()
+		element.style = style
+
+		expect(element.scrollLeft).toBe(0)
+		expect(element.scrollTop).toBe(0)
+		expect(element.scrollWidth).toBeGreaterThan(element.clientWidth)
+
+		await userEvent.wheel(element, { delta: { y: 10 } })
+
+		expect(element.scrollLeft).toBe(10)
+		expect(element.scrollTop).toBe(0)
+	})
 })
+
+function makeMap(overrides: Partial<MapConfig> = {}): MapConfig {
+	return {
+		id: nanoid(),
+		name: 'Test Map',
+		location_shape: 'rect',
+		imageFile: null,
+		imageUrl: '',
+		...overrides
+	}
+}
