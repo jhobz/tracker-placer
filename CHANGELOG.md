@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.3.3...tracker-placer-v1.4.0) (2026-04-25)
+
+
+### Features
+
+* ignore diacritics in location search box ([#77](https://github.com/jhobz/tracker-placer/issues/77)) ([8fb9087](https://github.com/jhobz/tracker-placer/commit/8fb9087eeef620ffcb0ed88224d8d4e87cae07cb)), closes [#73](https://github.com/jhobz/tracker-placer/issues/73)
+* improvements to location search box usability ([#75](https://github.com/jhobz/tracker-placer/issues/75)) ([6f939f6](https://github.com/jhobz/tracker-placer/commit/6f939f6c330c1db84d91bc9e01811ca2365b73fe))
+
 ## [1.3.3](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.3.2...tracker-placer-v1.3.3) (2026-04-25)
 
 
