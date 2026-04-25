@@ -12,6 +12,7 @@
 
 	let searchQuery = $state('')
 	let highlightedIndex = $state(-1)
+	let el = $state<HTMLInputElement>()
 
 	const locations = $derived(getAllLocations(appState.selectedPack?.locations ?? []))
 	const searchResults = $derived(
@@ -19,11 +20,21 @@
 	)
 
 	$effect(() => {
+		if (!el) {
+			return
+		}
+
+		// Request animation frame to ensure initiating click event has ended
+		requestAnimationFrame(() => el?.focus())
+	})
+
+	$effect(() => {
 		if (searchResults.length === 0) {
 			highlightedIndex = -1
-		} else if (highlightedIndex >= searchResults.length) {
-			highlightedIndex = searchResults.length - 1
+			return
 		}
+
+		highlightedIndex = 0
 	})
 </script>
 
@@ -41,6 +52,7 @@
 	aria-label="Search existing locations..."
 	placeholder="Search existing locations..."
 	bind:value={searchQuery}
+	bind:this={el}
 	onkeyup={(e) => {
 		if (searchResults.length === 0) {
 			return
