@@ -57,25 +57,44 @@ describe('LocationSearchBox', () => {
 		expect(getByRole('menu')).not.toBeInTheDocument()
 	})
 
+	it('should highlight the first result by default', async () => {
+		const { getByPlaceholder, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
+		const input = getByPlaceholder('Search existing locations...')
+
+		await input.fill('palace')
+
+		await expect.element(getByText('Eastern Palace')).toHaveClass(/menu-active/)
+	})
+
+	it('should highlight the first result when query changes', async () => {
+		const { getByPlaceholder, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
+		const input = getByPlaceholder('Search existing locations...')
+
+		await input.fill('p')
+		await userEvent.keyboard('{ArrowDown}')
+
+		await expect.element(getByText('Desert Palace')).toHaveClass(/menu-active/)
+
+		// Append to input rather than empty and fill
+		await userEvent.keyboard('a')
+
+		await expect.element(getByText('Eastern Palace')).toHaveClass(/menu-active/)
+	})
+
 	it('highlights results with ArrowDown/ArrowUp', async () => {
 		const { getByPlaceholder, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
 		const input = getByPlaceholder('Search existing locations...')
 		await input.fill('palace')
 
-		// ArrowDown highlights first result
-		await userEvent.keyboard('{ArrowDown}')
-		const first = getByText('Eastern Palace')
-
-		expect(first.element().classList.contains('menu-active')).toBe(true)
-
 		// ArrowDown highlights second result
 		await userEvent.keyboard('{ArrowDown}')
+		const first = getByText('Eastern Palace')
 		const second = getByText('Desert Palace')
 
 		expect(second.element().classList.contains('menu-active')).toBe(true)
 
-		// ArrowDown wraps around
-		await userEvent.keyboard('{ArrowDown}')
+		// ArrowUp highlights first result
+		await userEvent.keyboard('{ArrowUp}')
 
 		expect(first.element().classList.contains('menu-active')).toBe(true)
 
@@ -83,6 +102,11 @@ describe('LocationSearchBox', () => {
 		await userEvent.keyboard('{ArrowUp}')
 
 		expect(second.element().classList.contains('menu-active')).toBe(true)
+
+		// ArrowDown wraps around
+		await userEvent.keyboard('{ArrowDown}')
+
+		expect(first.element().classList.contains('menu-active')).toBe(true)
 	})
 
 	it('selects highlighted result with Enter', async () => {
@@ -91,9 +115,8 @@ describe('LocationSearchBox', () => {
 		const { getByPlaceholder } = render(LocationSearchBox, { onSelect })
 		const input = getByPlaceholder('Search existing locations...')
 		await input.fill('palace')
-		// ArrowDown to highlight first result
-		await userEvent.keyboard('{ArrowDown}')
-		// Enter to select
+
+		// Enter to select first result (highlighted by default)
 		await userEvent.keyboard('{Enter}')
 
 		expect(onSelect).toHaveBeenCalledWith(appState.selectedPack!.locations[0])
@@ -108,10 +131,11 @@ describe('LocationSearchBox', () => {
 		expect(input.element().getAttribute('aria-expanded')).toBe('true')
 		expect(input.element().getAttribute('aria-autocomplete')).toBe('list')
 		expect(input.element().getAttribute('aria-controls')).toBe('location-search-results')
+		expect(input.element().getAttribute('aria-activedescendant')).toBe('location-search-result-0')
 
-		// ArrowDown to highlight first result
+		// ArrowDown to highlight second result
 		await userEvent.keyboard('{ArrowDown}')
 
-		expect(input.element().getAttribute('aria-activedescendant')).toBe('location-search-result-0')
+		expect(input.element().getAttribute('aria-activedescendant')).toBe('location-search-result-1')
 	})
 })

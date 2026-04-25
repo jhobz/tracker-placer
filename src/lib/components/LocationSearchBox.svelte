@@ -21,9 +21,10 @@
 	$effect(() => {
 		if (searchResults.length === 0) {
 			highlightedIndex = -1
-		} else if (highlightedIndex >= searchResults.length) {
-			highlightedIndex = searchResults.length - 1
+			return
 		}
+
+		highlightedIndex = 0
 	})
 </script>
 
