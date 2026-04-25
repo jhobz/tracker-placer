@@ -26,38 +26,34 @@ describe('LocationBoxEditor', () => {
 	})
 
 	it('shows Location Box heading when a box is selected', async () => {
-		const map = appState.selectedMap!
 		const box = appState.selectedBox!
 
-		const { getByText } = render(LocationBoxEditorWrapper, { map, box })
+		const { getByText } = render(LocationBoxEditorWrapper, { box })
 
 		await expect.element(getByText('Location Box')).toBeVisible()
 	})
 
 	it('displays rounded X and Y coordinates', async () => {
-		const map = appState.selectedMap!
 		const box = appState.selectedBox!
 
-		const { getByText } = render(LocationBoxEditorWrapper, { map, box })
+		const { getByText } = render(LocationBoxEditorWrapper, { box })
 
 		await expect.element(getByText('151')).toBeVisible()
 		await expect.element(getByText('250')).toBeVisible()
 	})
 
 	it('shows shape override inputs', async () => {
-		const map = appState.selectedMap!
 		const box = appState.selectedBox!
 
-		const { getByRole } = render(LocationBoxEditorWrapper, { map, box })
+		const { getByRole } = render(LocationBoxEditorWrapper, { box })
 
 		await expect.element(getByRole('spinbutton', { name: 'Size' })).toBeVisible()
 	})
 
 	it('renders the Location section with location details', async () => {
-		const map = appState.selectedMap!
 		const box = appState.selectedBox!
 
-		const { getByText } = render(LocationBoxEditorWrapper, { map, box })
+		const { getByText } = render(LocationBoxEditorWrapper, { box })
 
 		await expect.element(getByText('Location', { exact: true })).toBeVisible()
 		await expect.element(getByText('Name', { exact: true })).toBeVisible()
@@ -69,12 +65,11 @@ describe('LocationBoxEditor', () => {
 
 	it('removes the location box when delete button is clicked', async () => {
 		const pack = appState.selectedPack!
-		const map = appState.selectedMap!
 		const box = appState.selectedBox!
 		expect(pack.locations[0].map_locations).toHaveLength(1)
 		expect(pack.locations[0].map_locations).toContain(box)
 
-		const { getByRole } = render(LocationBoxEditorWrapper, { map, box })
+		const { getByRole } = render(LocationBoxEditorWrapper, { box })
 
 		await getByRole('button', { name: 'Delete location box' }).click()
 
@@ -84,12 +79,11 @@ describe('LocationBoxEditor', () => {
 	})
 
 	it('navigates away when location edit button is clicked', async () => {
-		const map = appState.selectedMap!
 		const box = appState.selectedBox!
 		const context = new MockContext()
 		expect(appState.currentTab).toBe('box')
 
-		const { getByRole } = render(LocationBoxEditorWrapper, { props: { map, box, context } })
+		const { getByRole } = render(LocationBoxEditorWrapper, { props: { box, context } })
 		await getByRole('button', { name: 'Edit location' }).click()
 
 		expect(appState.currentTab).toBe('locations')
@@ -98,16 +92,39 @@ describe('LocationBoxEditor', () => {
 	})
 
 	it('turns box ephemeral (clears map location) when clear location button is clicked', async () => {
-		const map = appState.selectedMap!
 		const box = appState.selectedBox!
 		const pack = appState.selectedPack!
 		expect(pack.locations[0].map_locations).toContain(box)
 
-		const { getByRole } = render(LocationBoxEditorWrapper, { map, box })
+		const { getByRole } = render(LocationBoxEditorWrapper, { box })
 		await getByRole('button', { name: 'Clear location' }).click()
 
 		expect(pack.locations[0].map_locations).not.toContain(box)
 		expect(appState.selectedBox).toBe(box)
+	})
+
+	it('shows search box and add location button when box is not assigned to a location', async () => {
+		// beforeEach creates a location with the box as its map_location, so clear that first
+		appState.selectedPack!.locations[0].map_locations = []
+		const box = appState.selectedBox!
+
+		const { getByRole } = render(LocationBoxEditorWrapper, { box })
+
+		await expect.element(getByRole('combobox', { name: 'Search existing locations' })).toBeVisible()
+		await expect.element(getByRole('button', { name: 'Add a new location' })).toBeVisible()
+	})
+
+	it('creates and assigns a new location when add location button is clicked', async () => {
+		// beforeEach creates a location with the box as its map_location, so clear that first
+		appState.selectedPack!.locations[0].map_locations = []
+		const box = appState.selectedBox!
+
+		const { getByRole } = render(LocationBoxEditorWrapper, { box })
+		await getByRole('button', { name: 'Add a new location' }).click()
+
+		expect(appState.selectedPack!.locations).toHaveLength(2)
+		expect(appState.selectedPack!.locations[1].map_locations).toHaveLength(1)
+		expect(appState.selectedPack!.locations[1].map_locations).toContain(box)
 	})
 })
 

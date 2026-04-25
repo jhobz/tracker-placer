@@ -126,7 +126,7 @@
 				<div
 					class="tab-content overflow-y-auto rounded-none border-l-0 border-base-300 bg-base-100 p-4 pr-1 [scrollbar-gutter:stable]"
 				>
-					<LocationBoxEditor map={appState.selectedMap} box={appState.selectedBox} />
+					<LocationBoxEditor box={appState.selectedBox} />
 				</div>
 			{/if}
 		</div>
