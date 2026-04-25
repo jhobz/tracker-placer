@@ -1,17 +1,16 @@
 <script lang="ts">
 	import MaterialSymbol from '$lib/components/MaterialSymbol.svelte'
 	import { appState, createLocation } from '$lib/state.svelte'
-	import type { Location, MapConfig, MapLocation } from '$lib/types'
+	import type { Location, MapLocation } from '$lib/types'
 	import { findLocation, findLocationByMapLocation } from '$lib/utils/locations'
 	import LocationSearchBox from './LocationSearchBox.svelte'
 	import { getLocationsTabContext } from './LocationsTab/LocationsTabContext.svelte'
 
 	interface Props {
-		map: MapConfig
 		box: MapLocation
 	}
 
-	let { map, box }: Props = $props()
+	let { box }: Props = $props()
 
 	const locationsTabContext = getLocationsTabContext()
 
@@ -23,6 +22,7 @@
 
 	function addLocation() {
 		const loc = createLocation()
+		loc.map_locations = [box]
 		appState.selectedPack?.locations.push(loc)
 	}
 
