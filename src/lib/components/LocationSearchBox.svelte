@@ -11,34 +11,84 @@
 	let { onSelect }: Props = $props()
 
 	let searchQuery = $state('')
+	let highlightedIndex = $state(-1)
+
 	const locations = $derived(getAllLocations(appState.selectedPack?.locations ?? []))
 	const searchResults = $derived(
 		locations.filter((loc) => loc.name?.toLowerCase().includes(searchQuery.toLowerCase()))
 	)
+
+	$effect(() => {
+		if (searchResults.length === 0) {
+			highlightedIndex = -1
+		} else if (highlightedIndex >= searchResults.length) {
+			highlightedIndex = searchResults.length - 1
+		}
+	})
 </script>
 
 <input
-	type="search"
-	placeholder="Search existing locations..."
-	aria-label="Search existing locations..."
 	class="input w-full input-secondary"
-	list="location-search-results"
+	type="search"
+	role="combobox"
+	aria-expanded={searchResults.length > 0}
+	aria-haspopup="grid"
+	aria-autocomplete="list"
+	aria-controls="location-search-results"
+	aria-activedescendant={highlightedIndex >= 0
+		? `location-search-result-${highlightedIndex}`
+		: undefined}
+	aria-label="Search existing locations..."
+	placeholder="Search existing locations..."
 	bind:value={searchQuery}
+	onkeyup={(e) => {
+		if (searchResults.length === 0) {
+			return
+		}
+
+		switch (e.key) {
+			case 'ArrowDown':
+				e.preventDefault()
+				highlightedIndex = highlightedIndex === searchResults.length - 1 ? 0 : highlightedIndex + 1
+				document.getElementById(`location-search-result-${highlightedIndex}`)?.scrollIntoView({
+					behavior: highlightedIndex === 0 ? 'instant' : 'smooth',
+					block: 'nearest'
+				})
+				break
+			case 'ArrowUp':
+				e.preventDefault()
+				highlightedIndex = highlightedIndex === 0 ? searchResults.length - 1 : highlightedIndex - 1
+				document.getElementById(`location-search-result-${highlightedIndex}`)?.scrollIntoView({
+					behavior: highlightedIndex === searchResults.length - 1 ? 'instant' : 'smooth',
+					block: 'nearest'
+				})
+				break
+			case 'Enter':
+				e.preventDefault()
+				onSelect(searchResults[highlightedIndex])
+				break
+		}
+	}}
 />
+
 {#if searchQuery && searchResults.length > 0}
-	<ul
-		class="menu -mt-2 max-h-50 w-full flex-nowrap gap-2 overflow-y-auto menu-xs rounded-b-box border border-t-0 border-secondary bg-base-100"
-		role="menu"
-	>
-		{#each searchResults as loc (loc.name)}
-			<li role="menuitem" transition:slide>
-				<a
-					href={undefined}
-					role="button"
-					onclick={() => onSelect(loc)}
-					class="flex justify-start gap-0">{loc.name}</a
-				>
-			</li>
-		{/each}
-	</ul>
+	<div role="grid" aria-label="Location search results">
+		<ul
+			class="menu -mt-1 max-h-50 w-full flex-nowrap overflow-y-auto menu-xs rounded-b-field border border-t-0 border-secondary bg-base-100"
+			id="location-search-results"
+		>
+			{#each searchResults as loc, i}
+				<li transition:slide>
+					<a
+						role="gridcell"
+						id={`location-search-result-${i}`}
+						href={undefined}
+						onclick={() => onSelect(loc)}
+						class={{ 'flex justify-start gap-0': true, 'menu-active': highlightedIndex === i }}
+						>{loc.name}</a
+					>
+				</li>
+			{/each}
+		</ul>
+	</div>
 {/if}
