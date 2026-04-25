@@ -12,11 +12,21 @@
 
 	let searchQuery = $state('')
 	let highlightedIndex = $state(-1)
+	let el = $state<HTMLInputElement>()
 
 	const locations = $derived(getAllLocations(appState.selectedPack?.locations ?? []))
 	const searchResults = $derived(
 		locations.filter((loc) => loc.name?.toLowerCase().includes(searchQuery.toLowerCase()))
 	)
+
+	$effect(() => {
+		if (!el) {
+			return
+		}
+
+		// Request animation frame to ensure initiating click event has ended
+		requestAnimationFrame(() => el?.focus())
+	})
 
 	$effect(() => {
 		if (searchResults.length === 0) {
@@ -42,6 +52,7 @@
 	aria-label="Search existing locations..."
 	placeholder="Search existing locations..."
 	bind:value={searchQuery}
+	bind:this={el}
 	onkeyup={(e) => {
 		if (searchResults.length === 0) {
 			return

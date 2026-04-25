@@ -138,4 +138,10 @@ describe('LocationSearchBox', () => {
 
 		expect(input.element().getAttribute('aria-activedescendant')).toBe('location-search-result-1')
 	})
+
+	it('focuses input on load', async () => {
+		const { getByRole } = render(LocationSearchBox, { onSelect: vi.fn() })
+
+		await expect.element(getByRole('combobox')).toHaveFocus()
+	})
 })
