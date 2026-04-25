@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.3](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.3.2...tracker-placer-v1.3.3) (2026-04-25)
+
+
+### Bug Fixes
+
+* add new location button in LocationBoxEditor should work ([#59](https://github.com/jhobz/tracker-placer/issues/59)) ([b08762f](https://github.com/jhobz/tracker-placer/commit/b08762f4dcac8fd599ae7a845e1b495ab0b9a13d))
+* LocationSearchBox should be accessible ([#60](https://github.com/jhobz/tracker-placer/issues/60)) ([f9b3fe1](https://github.com/jhobz/tracker-placer/commit/f9b3fe19680411da717a991b4c8e0eec2d4c79fb))
+
 ## [1.3.2](https://github.com/jhobz/tracker-placer/compare/tracker-placer-v1.3.1...tracker-placer-v1.3.2) (2026-04-24)
 
 
