@@ -14,10 +14,27 @@
 	let highlightedIndex = $state(-1)
 	let el = $state<HTMLInputElement>()
 
+	function removeDiacritics(str: string) {
+		return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+	}
+
 	const locations = $derived(getAllLocations(appState.selectedPack?.locations ?? []))
-	const searchResults = $derived(
-		locations.filter((loc) => loc.name?.toLowerCase().includes(searchQuery.toLowerCase()))
-	)
+
+	const locationSearchFilter = $derived((loc: Location) => {
+		const regex = new RegExp(removeDiacritics(searchQuery), 'gi')
+
+		// TODO: Path search is too slow atm, need to optimize paths first (add them at import/creation step, most likely)
+		// const path = findLocation(appState.selectedPack?.locations ?? [], loc)[1]
+		// const matchesPath = regex.test(removeDiacritics(path))
+		const matchesName = regex.test(removeDiacritics(loc.name ?? ''))
+		const matchesSection = loc.sections?.some((section) =>
+			regex.test(removeDiacritics(section.name ?? ''))
+		)
+
+		return matchesName || matchesSection
+	})
+
+	const searchResults = $derived(locations.filter(locationSearchFilter))
 
 	$effect(() => {
 		if (!el) {

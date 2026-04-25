@@ -138,4 +138,26 @@ describe('LocationSearchBox', () => {
 
 		await expect.element(getByRole('combobox')).toHaveFocus()
 	})
+
+	it('should match results case-insensitively and ignoring diacritics', async () => {
+		const pack = appState.selectedPack!
+		pack.locations.push(makeLocation({ name: 'Café' }))
+
+		const { getByRole, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
+		await getByRole('combobox').fill('E')
+
+		await expect.element(getByText('Café')).toBeVisible()
+	})
+
+	it('should match section names', async () => {
+		const pack = appState.selectedPack!
+		pack.locations.push(
+			makeLocation({ name: 'Location with section', sections: [{ name: 'Secret Area' }] })
+		)
+
+		const { getByRole, getByText } = render(LocationSearchBox, { onSelect: vi.fn() })
+		await getByRole('combobox').fill('Secret')
+
+		await expect.element(getByText('Location with section')).toBeVisible()
+	})
 })
